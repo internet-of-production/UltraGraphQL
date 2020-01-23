@@ -39,12 +39,16 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     *
+     * @return
+     */
     public DataFetcher<List<RDFNode>> instancesOfTypeFetcher() {
         return environment -> {
             Field field = (Field) environment.getFields().toArray()[0];
-            String predicate = (field.getAlias() == null) ? field.getName() : field.getAlias();
+            String predicate = (field.getAlias() == null) ? field.getName() : field.getAlias();   // predicate := field.name || field.alias
             ModelContainer client = environment.getContext();
-            return client.getValuesOfObjectProperty(
+            return client.getValuesOfObjectProperty(   // Both subject and predicate are generated in the Service object
                     HGQLVocabulary.HGQL_QUERY_URI,
                     HGQLVocabulary.HGQL_QUERY_NAMESPACE + predicate
             );
@@ -62,6 +66,10 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     *
+     * @return
+     */
     public DataFetcher<List<RDFNode>> objectsFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);

@@ -61,19 +61,28 @@ public class HGQLSchemaWiring {
         put("offset", new GraphQLArgument("offset", GraphQLInt));
         put("lang", new GraphQLArgument("lang", GraphQLString));
         put("uris", new GraphQLArgument("uris", new GraphQLNonNull(new GraphQLList(GraphQLID))));
+        put("_id", new GraphQLArgument("_id", new GraphQLList(GraphQLID)));  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
     }};
 
     private List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
+        add(defaultArguments.get("_id")); //ToDo: Maybe a list
     }};
 
-    private List<GraphQLArgument> getByIdQueryArgs = new ArrayList<GraphQLArgument>() {{
-        add(defaultArguments.get("uris"));
-    }};
+//    private List<GraphQLArgument> getByIdQueryArgs = new ArrayList<GraphQLArgument>() {{
+//        add(defaultArguments.get("uris"));
+//    }};
 
-
-    public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs) {
+    /**
+     * Generates an HGQLSchema for the given schema and based on this schema a GraphQLSchema is generated with query
+     * support for the schema. The GraphQLSchema is wired with the HGQLSchema and enriched with DataFetchers.
+     * @param registry Registry containing the schema information (types, fields, queries)
+     * @param schemaName Name of the Schema
+     * @param serviceConfigs All services that this HGQL Schema supports.
+     * @throws HGQLConfigurationException
+     */
+    public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs) throws HGQLConfigurationException {
 
         try {
             this.hgqlSchema = new HGQLSchema(registry, schemaName, generateServices(serviceConfigs));
@@ -84,7 +93,13 @@ public class HGQLSchemaWiring {
         }
     }
 
-    private Map<String, Service> generateServices(List<ServiceConfig> serviceConfigs) {
+    /**
+     *  Converts the list of ServiceConfig into Service objects that are mapped with an unique id (defined in ServiceConfig)
+     * @param serviceConfigs List of ServiceConfigs to be converted in actual Service objects.
+     * @return Mapping of unique id to the corresponding Service
+     * @throws HGQLConfigurationException
+     */
+    private Map<String, Service> generateServices(List<ServiceConfig> serviceConfigs) throws HGQLConfigurationException {
 
         Map<String, Service> services = new HashMap<>();
 
@@ -112,22 +127,30 @@ public class HGQLSchemaWiring {
         return services;
     }
 
+    /**
+     * Uses hgqlSchema to generate a GraphQLObjectType for the Query Type of the Schema and a set of GraphQLTypes for the
+     * non Query types of the Schema. All of the type objects provide then a DataFetcher for retrieving the data.
+     * @return GraphQLSchema based on the hgqlSchema.
+     */
     private GraphQLSchema generateSchema() {
 
         Set<String> typeNames = this.hgqlSchema.getTypes().keySet();
         GraphQLObjectType builtQueryType = registerGraphQLQueryType(this.hgqlSchema.getTypes().get("Query"));
         Set<GraphQLType> builtTypes = typeNames.stream()
                 .filter(typeName -> !typeName.equals("Query"))
-                .map(typeName -> registerGraphQLType(this.hgqlSchema.getTypes().get(typeName)))
+                .map(typeName -> registerGraphQLType(this.hgqlSchema.getTypes().get(typeName)))   // implicit conversion to GraphQlType for GraphQlSchema
                 .collect(Collectors.toSet());
 
         return GraphQLSchema.newSchema()
                 .query(builtQueryType)
-                .build(builtTypes);
+                .build(builtTypes);   // ToDo: build(Set<GraphQLType> additionalTypes) is deprecated change to additionalType method
 
     }
 
-
+    /**
+     * GraphQLFieldDefinition object definition of an default field.
+     * @return
+     */
     private GraphQLFieldDefinition getidField() {
         FetcherFactory fetcherFactory = new FetcherFactory(hgqlSchema);
 
@@ -138,6 +161,10 @@ public class HGQLSchemaWiring {
                 .dataFetcher(fetcherFactory.idFetcher()).build();
     }
 
+    /**
+     * GraphQLFieldDefinition object definition of an default field.
+     * @return
+     */
     private GraphQLFieldDefinition gettypeField() {
         FetcherFactory fetcherFactory = new FetcherFactory(hgqlSchema);
 
@@ -148,13 +175,18 @@ public class HGQLSchemaWiring {
                 .dataFetcher(fetcherFactory.typeFetcher(this.hgqlSchema.getTypes())).build();
     }
 
-
+    /**
+     * Creates a GraphQLObjectType for the "Query" type. Also creates GraphQLFieldDefinitions for each field of the type.
+     * @param type TypeConfig from the Query type
+     * @return GraphQLObjectType object corresponding to the Query type
+     */
     private GraphQLObjectType registerGraphQLQueryType(TypeConfig type) {
 
         String typeName = type.getName();
-        String description = "Top queryable predicates. " +
-                "_GET queries return all objects of a given type, possibly restricted by limit and offset values. " +
-                "_GET_BY_ID queries require a set of URIs to be specified.";
+        String description = "Top queryable predicates. If the _id argument is defined only results matching this id will be returned.";
+//                "Top queryable predicates. " +
+//                "_GET queries return all objects of a given type, possibly restricted by limit and offset values. " +
+//                "_GET_BY_ID queries require a set of URIs to be specified.";
 
         List<GraphQLFieldDefinition> builtFields;
 
@@ -173,6 +205,12 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
+    /**
+     * Generates a GraphQLObjectType object for the given type and also GraphQLFieldDefinition objects for all its fields.
+     * The type object does not provide a dataFetcher only fields do.
+     * @param type TypeCobfig object that is not the Query field   //ToDo: Add Mutation if mutations are supported
+     * @return GraphQLObjectType object corresponding to the given type
+     */
     private GraphQLObjectType registerGraphQLType(TypeConfig type) {
 
         String typeName = type.getName();
@@ -199,6 +237,13 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
+    /**
+     * Generates a GraphQLFieldDefinition object of the given field. Creates a FetcherFactory to
+     * get the dataFetcher inorder to call the getBuiltQueryField method. Based on the output type of the field a different
+     * dataFetcher is used.
+     * @param field Query field to convert to corresponding GraphQLFieldDefinition.
+     * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, type and a datafetcher.
+     */
     private GraphQLFieldDefinition registerGraphQLField(FieldOfTypeConfig field) {
         FetcherFactory fetcherFactory = new FetcherFactory(hgqlSchema);
 
@@ -220,20 +265,33 @@ public class HGQLSchemaWiring {
         }
     }
 
+    /**
+     * Generates a GraphQLFieldDefinition object of an query field (Field of the type Query). Creates a FetcherFactory to
+     * get the dataFetcher inorder to call the getBuiltQueryField method.
+     * @param field Query field to convert to corresponding GraphQLFieldDefinition.
+     * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, type and a datafetcher.
+     */
     private GraphQLFieldDefinition registerGraphQLQueryField(FieldOfTypeConfig field) {
         FetcherFactory fetcherFactory = new FetcherFactory(hgqlSchema);
 
         return getBuiltQueryField(field, fetcherFactory.instancesOfTypeFetcher());
     }
 
-    private GraphQLFieldDefinition getBuiltField(FieldOfTypeConfig field, DataFetcher fetcher) {
+    /**
+     * Generates a GraphQLFieldDefinition object of an field. Adds the arguments to the field (used in the SelectionSet).
+     * @param field field to convert to corresponding GraphQLFieldDefinition.
+     * @param fetcher DataFetcher of the field.
+     * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, type and a datafetcher.
+     * @throws HGQLConfigurationException
+     */
+    private GraphQLFieldDefinition getBuiltField(FieldOfTypeConfig field, DataFetcher fetcher) throws HGQLConfigurationException {
 
         List<GraphQLArgument> args = new ArrayList<>();
 
         if (field.getTargetName().equals("String")) {
             args.add(defaultArguments.get("lang"));
         }
-
+        //args.add(defaultArguments.get("limit")); // Default Argument for any field.
         if(field.getService() == null) {
             throw new HGQLConfigurationException("Value of 'service' for field '" + field.getName() + "' cannot be null");
         }
@@ -249,17 +307,26 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
-    private GraphQLFieldDefinition getBuiltQueryField(FieldOfTypeConfig field, DataFetcher fetcher) {
+    /**
+     * Generates a GraphQLFieldDefinition object of an query field (Field of the type Query). Adds the arguments to the query field.
+     * @param field Query field to convert to corresponding GraphQLFieldDefinition.
+     * @param fetcher DataFetcher of the field.
+     * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, type and a datafetcher.
+     * @throws HGQLConfigurationException
+     */
+    private GraphQLFieldDefinition getBuiltQueryField(FieldOfTypeConfig field, DataFetcher fetcher) throws HGQLConfigurationException {
 
-        List<GraphQLArgument> args = new ArrayList<>();
+        List<GraphQLArgument> args = new ArrayList<>();  // Arguments of the QueryField
 
         if (this.hgqlSchema.getQueryFields().get(field.getName()).type().equals(HGQL_QUERY_GET_FIELD)) {
             args.addAll(getQueryArgs);
-        } else {
-            args.addAll(getByIdQueryArgs);
+            //ToDo: ADD individual Query Arguments: This is the place where the query arguments of an Field are defined
         }
+//        else {
+//            args.addAll(getByIdQueryArgs);
+//        }
 
-        final QueryFieldConfig queryFieldConfig = this.hgqlSchema.getQueryFields().get(field.getName());
+        final QueryFieldConfig queryFieldConfig = this.hgqlSchema.getQueryFields().get(field.getName()); // retrieve QueryFieldConfig of given FieldOfTypeConfig
 
         Service service = queryFieldConfig.service();
         if(service == null) {

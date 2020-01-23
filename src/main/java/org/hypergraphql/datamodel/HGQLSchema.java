@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_Boolean;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_FIELD;
@@ -90,6 +91,14 @@ public class HGQLSchema {
 
     private ModelContainer rdfSchema = new ModelContainer(ModelFactory.createDefaultModel());
 
+    /**
+     * Builds up an RDF graph that represents the HGQL Schema and based on that graph for any type, field and queryfield
+     * a corresponding HGQL object (TypeConfig, FieldConfig and QueryFieldConfig) is generated.
+     * @param registry Registry containing the schema information (types, fields, queries)
+     * @param schemaName Name of the Schema
+     * @param services All services that this HGQL Schema supports
+     * @throws HGQLConfigurationException
+     */
     public HGQLSchema(TypeDefinitionRegistry registry, String schemaName, Map<String, Service> services)
             throws HGQLConfigurationException {
 
@@ -108,9 +117,9 @@ public class HGQLSchema {
         rdfSchema.insertObjectTriple(HGQL_ID, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_ID, HGQL_HAS_NAME, "ID");
 
-        Map<String, TypeDefinition> types = registry.types();
+        Map<String, TypeDefinition> types = registry.types();   // Contains all types that are specified in the Schema
 
-        TypeDefinition context = types.get("__Context");
+        TypeDefinition context = types.get("__Context");   // HGQL Context
 
         if (context == null) {
             HGQLConfigurationException e =
@@ -119,7 +128,7 @@ public class HGQLSchema {
             throw(e);
         }
 
-        List<Node> children = context.getChildren();
+        List<Node> children = context.getChildren();   //URIs with the used abbreviations - Format: <abbr.>: _@href(iri: <URI>)
 
         Map<String, String> contextMap = new HashMap<>();
 
@@ -132,7 +141,7 @@ public class HGQLSchema {
         Set<String> typeNames = types.keySet();
         typeNames.remove("__Context");
 
-        Set<String> serviceIds = services.keySet();
+        Set<String> serviceIds = services.keySet();   // Contains all defined services of one HGQLConfig
 
         serviceIds.forEach(serviceId -> {
             String serviceURI = HGQL_SERVICE_NAMESPACE + serviceId;
@@ -154,17 +163,17 @@ public class HGQLSchema {
 
             directives.forEach(dir -> {
                 if (dir.getName().equals("service")) {
-                    String getQueryUri = typeUri + "_GET";
-                    String getByIdQueryUri = typeUri + "_GET_BY_ID";
+                    String getQueryUri = typeUri;// + "_GET";
+//                    String getByIdQueryUri = typeUri + "_GET_BY_ID";
 
-                    rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);
+                    rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);   //ToDo: HGQL_QUERY_FIELD and HGQL_QUERY_GET_FIELD are the same if _GET_BY_ID is removed
                     rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_GET_FIELD);
                     rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getQueryUri);
-                    rdfSchema.insertStringLiteralTriple(getQueryUri, HGQL_HAS_NAME, typeName + "_GET");
-                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);
-                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_GET_BY_ID_FIELD);
-                    rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getByIdQueryUri);
-                    rdfSchema.insertStringLiteralTriple(getByIdQueryUri, HGQL_HAS_NAME, typeName + "_GET_BY_ID");
+//                    rdfSchema.insertStringLiteralTriple(getQueryUri, HGQL_HAS_NAME, typeName + "_GET");
+//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);
+//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_GET_BY_ID_FIELD);
+//                    rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getByIdQueryUri);
+//                    rdfSchema.insertStringLiteralTriple(getByIdQueryUri, HGQL_HAS_NAME, typeName + "_GET_BY_ID");
 
                     String outputListTypeURI = schemaNamespace + UUID.randomUUID();
 
@@ -172,18 +181,20 @@ public class HGQLSchema {
                     rdfSchema.insertObjectTriple(outputListTypeURI, HGQL_OF_TYPE, typeUri);
 
                     rdfSchema.insertObjectTriple(getQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
-                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
-                    String serviceId = ((StringValue) dir.getArgument("id").getValue()).getValue();
+//                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
+                    String serviceId = ((StringValue) dir.getArgument("id").getValue()).getValue();   // The serviceId that is extracted here is from @service(id:<serviceName>) of the type in the schema
 
                     String serviceURI = HGQL_SERVICE_NAMESPACE + serviceId;
                     rdfSchema.insertObjectTriple(getQueryUri, HGQL_HAS_SERVICE, serviceURI);
-                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_HAS_SERVICE, serviceURI);
+//                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_HAS_SERVICE, serviceURI);
                 }
+                //ToDo: Implement the functionality for the newly defined directives
             });
 
             List<Node> typeChildren = type.getChildren();
 
             typeChildren.forEach(node -> {
+                //ToDo: Implement the functionality for the newly defined directives
                 if (node.getClass().getSimpleName().equals("FieldDefinition")) {
                     FieldDefinition field = (FieldDefinition) node;
                     String fieldURI = schemaNamespace + typeName + "/" + field.getName();
@@ -210,7 +221,13 @@ public class HGQLSchema {
 
     }
 
+    /**
+     * Generates an object based representation of the rdfSchema with the following classes FieldConfig, FieldOfTypeConfig,
+     * QueryFieldConfig and TypeConfig.
+     * @param services Must contain the services that where used to construct rdfSchema.
+     */
     private void generateConfigs(Map<String, Service> services) {
+
         this.types = new HashMap<>();
         this.fields = new HashMap<>();
         this.queryFields = new HashMap<>();
@@ -222,7 +239,7 @@ public class HGQLSchema {
             String name = rdfSchema.getValueOfDataProperty(rdfNode, HGQL_HAS_NAME);
             RDFNode href = rdfSchema.getValueOfObjectProperty(rdfNode, HGQL_HREF);
             RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(rdfNode, HGQL_HAS_SERVICE);
-            String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);
+            String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);   // Not used, because it is not supported in FieldConfig
 
             FieldConfig fieldConfig = new FieldConfig(href.asResource().getURI());
             fields.put(name, fieldConfig);
@@ -236,8 +253,9 @@ public class HGQLSchema {
             String name = rdfSchema.getValueOfDataProperty(node, HGQL_HAS_NAME);
             RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(node, HGQL_HAS_SERVICE);
             String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);
+            //ToDo: Implement the functionality for the newly defined directives
 
-            String type = (queryGetFieldNodes.contains(node)) ? HGQL_QUERY_GET_FIELD : HGQL_QUERY_GET_BY_ID_FIELD;
+            String type = (queryGetFieldNodes.contains(node)) ? HGQL_QUERY_GET_FIELD : HGQL_QUERY_GET_BY_ID_FIELD;  //ToDo: unnecessary check if _GET_BY_ID is removed
             QueryFieldConfig fieldConfig = new QueryFieldConfig(services.get(serviceId), type);
             queryFields.put(name, fieldConfig);
         });
@@ -264,6 +282,7 @@ public class HGQLSchema {
                 GraphQLOutputType graphqlOutputType = getGraphQLOutputType(outputTypeNode);
                 Boolean isList = getIsList(outputTypeNode);
                 String targetTypeName = getTargetTypeName(outputTypeNode);
+                //ToDo: Implement the functionality for the newly defined directives
 
                 FieldOfTypeConfig fieldOfTypeConfig = new FieldOfTypeConfig(fieldOfTypeName, hrefURI, services.get(serviceId), graphqlOutputType, isList, targetTypeName);
                 fields.put(fieldOfTypeName, fieldOfTypeConfig);
@@ -277,6 +296,12 @@ public class HGQLSchema {
         });
     }
 
+    /**
+     * Returns the name of the given outputTypeNode. If the name is not defined the name of the type is returned.
+     * All informations are extracted from rdfSchema.
+     * @param outputTypeNode
+     * @return
+     */
     private String getTargetTypeName(RDFNode outputTypeNode) {
         String typeName = rdfSchema.getValueOfDataProperty(outputTypeNode, HGQL_HAS_NAME);
         if (typeName!=null) {
@@ -287,6 +312,11 @@ public class HGQLSchema {
         }
     }
 
+    /**
+     * Proves if the given outputTypeNode is a List.
+     * @param outputTypeNode
+     * @return
+     */
     private Boolean getIsList(RDFNode outputTypeNode) {
         RDFNode outputNode = rdfSchema.getValueOfObjectProperty(outputTypeNode, RDF_TYPE);
         String typeURI = outputNode.asResource().getURI();
@@ -300,8 +330,19 @@ public class HGQLSchema {
         }
     }
 
+    /**
+     * Generates a GraphQlOutputType based on the given outputTypeNode and further information are extracted from rdfSchema.
+     * @param outputTypeNode TypeNode from the rdfSchema
+     * @return Returns the corresponding GraphQLOutputType object.
+     */
     private GraphQLOutputType getGraphQLOutputType(RDFNode outputTypeNode) {
-        RDFNode outputNode = rdfSchema.getValueOfObjectProperty(outputTypeNode, RDF_TYPE);
+        List<RDFNode> outputNodes = rdfSchema.getValuesOfObjectProperty(outputTypeNode, RDF_TYPE);
+        // schema types have multiple RDF_TYPEs (HGQL_QUERY_GET_FIELD, HGQL_QUERY_FIELD & HGQL_OBJECT_TYPE), here only HGQL_OBJECT_TYPE is needed
+        outputNodes = outputNodes.stream()
+                .filter(outputNode -> !outputNode.toString().equals(HGQL_QUERY_GET_FIELD) && !outputNode.toString().equals(HGQL_QUERY_FIELD))
+                .collect(Collectors.toList());
+        RDFNode outputNode = outputNodes.get(0);
+//        RDFNode outputNode = rdfSchema.getValueOfObjectProperty(outputTypeNode, RDF_TYPE);
         String typeURI = outputNode.asResource().getURI();
         if (typeURI.equals(HGQL_SCALAR_TYPE)) {
             return SCALAR_TYPES_TO_GRAPHQL_OUTPUT.get(outputTypeNode.asResource().getURI());
@@ -321,7 +362,16 @@ public class HGQLSchema {
         return null;
     }
 
-
+    /**
+     * Returns the name of the given type.
+     * If the given type is a TypeName Class then the name is returned and for non scalar types the name is
+     * enriched with the schema namespace.
+     * Otherwise  a random UUID with the schema namespace is returned and the rdfSchema is adapted if the type is a ListType
+     * or an NonNullType.
+     * Encapsulation of Type Classes: [Person]! == NonNullType[ListType[TypeName]]
+     * @param type
+     * @return Name of the Output type as String
+     */
     private String getOutputType(Type type) {
 
         if (type.getClass() == TypeName.class) {

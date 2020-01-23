@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class ModelContainer {
 
-    protected Model model;
+    protected Model model;   // An RDF Model
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelContainer.class);
 
@@ -37,12 +37,21 @@ public class ModelContainer {
         this.model = model;
     }
 
-
+    /**
+     * Return a Property instance in this model.
+     * @param propertyURI the URI of the property
+     * @return a property object
+     */
     private Property getPropertyFromUri(String propertyURI) {
 
         return this.model.getProperty(propertyURI);
     }
 
+    /**
+     * Return a Resource instance with the given URI in this model.
+     * @param resourceURI the URI of the resource
+     * @return a resource instance
+     */
     private Resource getResourceFromUri(String resourceURI) {
 
         return this.model.getResource(resourceURI);
@@ -99,26 +108,46 @@ public class ModelContainer {
         return valList;
     }
 
+    /**
+     * Queries the model for all objects that have the given subject AND predicateURI.
+     * @param subjectURI
+     * @param predicateURI
+     * @return
+     */
     List<RDFNode> getValuesOfObjectProperty(String subjectURI, String predicateURI) {
 
         return getValuesOfObjectProperty(getResourceFromUri(subjectURI), predicateURI);
     }
 
+    /**
+     * Queries the model for all objects that have the given subject AND predicateURI.
+     * @param subject
+     * @param predicateURI
+     * @return
+     */
     List<RDFNode> getValuesOfObjectProperty(RDFNode subject, String predicateURI) {
 
         return getValuesOfObjectProperty(subject, predicateURI, null);
     }
 
+    /**
+     * Queries the model for all objects that have the given subject AND predicateURI. If targetURI is null all objects are returned
+     * otherwise only objects of the given typeURI are returned. Query: subject predicateURI ?object. ?object a targetURI.
+     * @param subject
+     * @param predicateURI
+     * @param targetURI Type the result should have
+     * @return
+     */
     List<RDFNode> getValuesOfObjectProperty(RDFNode subject, String predicateURI, String targetURI) {
 
-        NodeIterator iterator = this.model.listObjectsOfProperty(subject.asResource(), getPropertyFromUri(predicateURI));
+        NodeIterator iterator = this.model.listObjectsOfProperty(subject.asResource(), getPropertyFromUri(predicateURI)); // subject predicateURI ?object
         List<RDFNode> rdfNodes = new ArrayList<>();
         iterator.forEachRemaining(node -> {
             if (!node.isLiteral()) {
                 if(targetURI == null) {
                     rdfNodes.add(node);
                 } else if(this.model.contains(node.asResource(), getPropertyFromUri(HGQLVocabulary.RDF_TYPE), getResourceFromUri(targetURI))) {
-                    rdfNodes.add(node);
+                    rdfNodes.add(node); // Add node if (node rdf:type targetURI.)
                 }
             }
         });
@@ -148,12 +177,24 @@ public class ModelContainer {
         return null;
     }
 
+    /**
+     *  Adds a RDF triple to the local RDF Model of the Object. All parameters MUST be URIs.
+     * @param subjectURI subject of the triple
+     * @param predicateURI predicate subject of the triple
+     * @param objectURI object subject of the triple
+     */
     void insertObjectTriple(String subjectURI, String predicateURI, String objectURI) {
 
         model.add(getResourceFromUri(subjectURI), getPropertyFromUri(predicateURI), getResourceFromUri(objectURI));
 
     }
 
+    /**
+     *  Adds a RDF Literal triple to the RDF Model of the Object. The Object is here a Literal (String) value
+     * @param subjectURI subject of the triple
+     * @param predicateURI predicate of the triple
+     * @param value literal of the triple
+     */
     void insertStringLiteralTriple(String subjectURI, String predicateURI, String value) {
 
         model.add(getResourceFromUri(subjectURI), getPropertyFromUri(predicateURI), value);
