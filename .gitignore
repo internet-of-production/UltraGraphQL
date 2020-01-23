@@ -16,3 +16,4 @@ docs/_site/
 src/test/resources/TestServices/output/*.ttl
 out/
 *.class
+.vscode/
