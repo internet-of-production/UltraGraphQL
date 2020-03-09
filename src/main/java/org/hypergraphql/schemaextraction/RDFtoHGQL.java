@@ -1,17 +1,13 @@
 package org.hypergraphql.schemaextraction;
 
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.util.FileManager;
-import org.graalvm.compiler.nodeinfo.InputType;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.schemaextraction.schemamodel.*;
-import spark.utils.IOUtils;
 
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,6 +42,7 @@ public class RDFtoHGQL {
                 buildType(next);
             }
         }
+        System.out.print("1");
 
         // implements Interface (subClassOf)
 
@@ -66,6 +63,7 @@ public class RDFtoHGQL {
                 }
             });
         }
+        System.out.print("2");
 
         // Field
 
@@ -74,118 +72,88 @@ public class RDFtoHGQL {
             ResIterator iterator = this.schema.listSubjectsWithProperty(a, fieldMapping);  //fields in the schema under the current mapping object 'field'
             while (iterator.hasNext()){   //iterate over all fields in the schema under the current mapping
                 RDFNode field = iterator.next();
-                Set<Property> fieldAffiliationMappings = getFieldAffiliationMapping();
-                for(Property fieldAffiliationMapping : fieldAffiliationMappings){   //iterate over all field affiliation mappings
-                    NodeIterator fieldAffiliations = this.schema.listObjectsOfProperty(field.asResource(), fieldAffiliationMapping);
-                    while (fieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
-                        RDFNode fieldAffiliation = fieldAffiliations.next();
-                        //ToDo: What happens if multiple outputTypes are defined -> currently only handel the first found outputType
-                        Set<Property> outputTypeMappings = getOutputTypenMapping();
-                        for(Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
-                            NodeIterator outputTypes = this.schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result and multiple results
-                            if(outputTypes.hasNext()){
-                                Type typeObj = this.types.get(this.prefixService.getId(fieldAffiliation.asResource()));
-                                Field fieldObj = new Field(field.asResource(), this.prefixService);
-                                fieldObj.setRange(this.prefixService.getId(outputTypes.next().asResource()));
-                                this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);
-                                this.fields.put(fieldObj.getId(), fieldObj);
-                            }
-                        }
-                    }
-                }
+                buildField(field);
             }
         }
-
+        System.out.print("3");
         // implied fields
 
-        Set<Property> impliedFieldMappings = getImpliedFieldMapping();   // Get all objects that represent a field in HGQL
+        Set<Property> impliedFieldMappings = getImpliedFieldMapping();   // Get all objects that represent a implied field in HGQL
         for (Property impliedFieldMapping : impliedFieldMappings) {   //iterate over all field mappings
             StmtIterator stmtIterator = this.schema.listStatements(null, impliedFieldMapping, (RDFNode) null);//fields in the schema under the current mapping object 'field'
 
             while (stmtIterator.hasNext()){   //iterate over all fields in the schema under the current mapping
                 Statement stmt = stmtIterator.next();
                 RDFNode field = stmt.getSubject();
+                Field fieldObj = new Field(field.asResource(), this.prefixService);
                 RDFNode impliedField = stmt.getObject();
                 Set<Property> impliedFieldAffiliationMappings = getFieldAffiliationMapping();
                 for(Property impliedFieldAffiliationMapping : impliedFieldAffiliationMappings){   //iterate over all field affiliation mappings
                     NodeIterator impliedFieldAffiliations = this.schema.listObjectsOfProperty(field.asResource(), impliedFieldAffiliationMapping);
                     while (impliedFieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
                         RDFNode impliedFieldAffiliation = impliedFieldAffiliations.next();
-                        //ToDo: What happens if multiple outputTypes are defined -> currently only handel the first found outputType
+                        Type typeObj = this.types.get(this.prefixService.getId(impliedFieldAffiliation.asResource()));
                         Set<Property> outputTypeMappings = getOutputTypenMapping();
                         for(Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                             NodeIterator outputTypes = this.schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);
-                            if(outputTypes.hasNext()){
-                                Type typeObj = this.types.get(this.prefixService.getId(impliedFieldAffiliation.asResource()));
-                                Field fieldObj = new Field(field.asResource(), this.prefixService);
-                                fieldObj.setRange(this.prefixService.getId(outputTypes.next().asResource()));
+                            while(outputTypes.hasNext()){
+                                fieldObj.addOutputType(this.types.get(this.prefixService.getId(outputTypes.next().asResource())));
                                 this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);   // add field to the base interface of the type
                                 this.fields.put(fieldObj.getId(), fieldObj);
-                                String id = this.prefixService.getId(impliedField.asResource());
-                                Field impliedFieldObj;
-                                if(this.fields.containsKey(id)){
-                                    // Field already exist
-                                    impliedFieldObj = new Field(this.fields.get(id));
-                                }else{
-                                    //Field does currently not exist create new field
-                                    // Create new Field add it to fields but add a copy to the type to keep the directive only at the type
-                                    impliedFieldObj = new Field(impliedField.asResource(), this.prefixService);
-                                    this.fields.put(impliedFieldObj.getId(), impliedFieldObj);
-                                }
-                                Field impliedFieldForType = new Field(impliedFieldObj);
-                                impliedFieldForType.addDirective(HGQLVocabulary.HGQL_DIRECTIVE_AUTOGENERATED,HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY,fieldObj.getId());
-                                this.interfaces.get(typeObj.getBase_interface_id()).addField(impliedFieldForType);
                             }
                         }
+                        String id = this.prefixService.getId(impliedField.asResource());
+                        Field impliedFieldObj;
+                        if(this.fields.containsKey(id)){
+                            // Field already exist
+                            impliedFieldObj = new Field(this.fields.get(id));
+                        }else{
+                            //Field does currently not exist create new field
+                            // Create new Field add it to fields but add a copy to the type to keep the directive only at the type
+                            impliedFieldObj = new Field(impliedField.asResource(), this.prefixService);
+                            this.fields.put(impliedFieldObj.getId(), impliedFieldObj);
+                        }
+                        Field impliedFieldForType = new Field(impliedFieldObj);
+                        impliedFieldForType.addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA,HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY,fieldObj.getId());
+                        this.interfaces.get(typeObj.getBase_interface_id()).addField(impliedFieldForType);
                     }
                 }
             }
         }
-
+        System.out.print("4");
         // equivalent type
+        buildEquivalentTypes();
+        System.out.print("5");
+        // equivalent property
+        buildEquivalentFields();
+        System.out.print("6");
 
-        Set<Property> equivalentTypeMappings = getEquivalentTypeMapping();   // Get all objects that represent a field in HGQL
-        for (Property equivalentTypeMapping : equivalentTypeMappings) {   //iterate over all field mappings
-            StmtIterator stmtIterator = this.schema.listStatements(null, equivalentTypeMapping, (RDFNode) null);//fields in the schema under the current mapping object 'field'
+        // sameAS
+        buildSameAs();
+        System.out.print("7");
 
-            while (stmtIterator.hasNext()) {   //iterate over all fields in the schema under the current mapping
-                Statement stmt = stmtIterator.next();
-                RDFNode type_a = stmt.getSubject();
-                RDFNode type_b = stmt.getObject();
-                // Add the interface of type_a to type_b and vice versa
-                //ToDo: Approach A: Fetch all equivalent types of an arbitrary length with an SPARQL query directly from the schema
-                /**
-                 * Query:
-                 * {
-                 *     ?a owl:equivalentClass ?b.
-                 *     ?b owl:equivalentClass+ ?c .
-                 *   }
-                 * {
-                 *     ?b owl:equivalentClass ?a.
-                 *     ?a owl:equivalentClass+ ?d .
-                 *   }
-                 *
-                 *   Then c are all types that  are equivalent to b and d stores all types that are equivalent to a.
-                 */
-                Type type_a_obj;
-                Type type_b_obj;
-                String id_a = this.prefixService.getId(type_a.asResource());
-                String id_b = this.prefixService.getId(type_b.asResource());
-                buildType(type_a); // only builds type_a if it NOT exists already
-                type_a_obj = this.types.get(id_a);
-                buildType(type_b); // only builds type_a if it NOT exists already
-                type_b_obj = this.types.get(id_b);
-                type_a_obj.addEquivalentType(type_b_obj);
-                type_b_obj.addEquivalentType(type_a_obj);
-            }
-        }
 
+        // Context
         buildContext();
+    }
+
+    private Set<Property> getEquivalentFieldMapping(){
+        Set<Property> res = new HashSet<>();
+        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentProperty"));
+        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentEigenschaft"));
+        return res;
     }
 
     private Set<Property> getEquivalentTypeMapping(){
         Set<Property> res = new HashSet<>();
         res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentClass"));
+        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentKlasse"));
+        return res;
+    }
+
+    private Set<Property> getSameAsMapping(){
+        Set<Property> res = new HashSet<>();
+        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#sameAs"));
         return res;
     }
 
@@ -212,6 +180,7 @@ public class RDFtoHGQL {
     private Set<RDFNode> getFieldsMapping() {
         Set<RDFNode> res = new HashSet<>();
         res.add(this.schema.getResource("http://www.w3.org/2000/01/rdf-schema#Property"));
+        res.add(this.schema.getResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
         res.add(this.schema.getResource("http://example.org/Eigenschaft"));
         return res;
     }
@@ -225,8 +194,15 @@ public class RDFtoHGQL {
     private Set<RDFNode> getTypesMapping() {
         Set<RDFNode> res = new HashSet<>();
         res.add(this.schema.getResource("http://www.w3.org/2000/01/rdf-schema#Class"));
+        res.add(this.schema.getResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#Class"));
         res.add(this.schema.getResource("http://example.org/Klasse"));
         return res;
+    }
+
+    private String convertToSPARQLPropertyOr(Set<String> nodes){
+        String res = nodes.stream()
+                .collect(Collectors.joining("|"));
+        return String.format("(%s)", res);
     }
 
     /**
@@ -243,7 +219,151 @@ public class RDFtoHGQL {
                 Interface inter = obj.generateBaseInterface();
                 this.interfaces.put(inter.getId(), inter);
             }
+        }else{
+            //ToDo: Handle this case
         }
+    }
+
+    private void buildField(RDFNode field){
+        if(field.isResource()){
+            String id = prefixService.getId(field.asResource());
+            if(!this.fields.containsKey(id)){
+                Set<Property> fieldAffiliationMappings = getFieldAffiliationMapping();
+                for(Property fieldAffiliationMapping : fieldAffiliationMappings){   //iterate over all field affiliation mappings
+                    NodeIterator fieldAffiliations = this.schema.listObjectsOfProperty(field.asResource(), fieldAffiliationMapping);
+                    while (fieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
+                        RDFNode fieldAffiliation = fieldAffiliations.next();
+                        Set<Property> outputTypeMappings = getOutputTypenMapping();
+                        Type typeObj = this.types.get(this.prefixService.getId(fieldAffiliation.asResource())); // vor die for schleife legen ???
+                        if(typeObj == null){
+                            System.out.print("NULL");
+                        }
+                        Field fieldObj = new Field(field.asResource(), this.prefixService);
+                        for(Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
+                            NodeIterator outputTypes = this.schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
+                            while(outputTypes.hasNext()){
+                                Type outputType = this.types.get(this.prefixService.getId(outputTypes.next().asResource()));
+                                fieldObj.addOutputType(outputType);
+                            }
+                        }
+                        if(typeObj.getBase_interface_id() == null){
+                            System.out.print("NULL");
+                        }
+                        this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);
+                        this.fields.put(fieldObj.getId(), fieldObj);
+                    }
+                }
+            }
+        }else{
+            // ToDo: Handle this case
+        }
+    }
+
+    private void buildEquivalentTypes(){
+        Set<Property> equivalentTypeMappings = getEquivalentTypeMapping();   // Get all objects that represent a equivalent type in HGQL
+        String mappings = convertToSPARQLPropertyOr(equivalentTypeMappings.stream()
+                .map(property -> String.format("<%s>", property.toString()))
+                .collect(Collectors.toSet()));
+        String queryString = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o }",mappings,mappings);
+        // The equivalentTypeMapping is transitiv therefore the query extracts all mappings
+        Query query = QueryFactory.create(queryString) ;
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, this.schema)) {
+            ResultSet results = qexec.execSelect() ;
+            for ( ; results.hasNext() ; )
+            {
+                QuerySolution soln = results.nextSolution() ;
+                RDFNode type_a = soln.get("s") ;
+                RDFNode type_b = soln.get("o") ;
+                Type type_a_obj;
+                Type type_b_obj;
+                String id_a = this.prefixService.getId(type_a.asResource());
+                String id_b = this.prefixService.getId(type_b.asResource());
+                buildType(type_a); // only builds type_a if it NOT exists already
+                type_a_obj = this.types.get(id_a);
+                buildType(type_b); // only builds type_a if it NOT exists already
+                type_b_obj = this.types.get(id_b);
+                type_a_obj.addEquivalentType(type_b_obj);
+            }
+        }
+    }
+
+    private void buildEquivalentFields(){
+        Set<Property> equivalentFieldMappings = getEquivalentFieldMapping();   // Get all objects that represent a equivalent field in HGQL
+        String mappings = convertToSPARQLPropertyOr(equivalentFieldMappings.stream()
+                .map(property -> String.format("<%s>", property.toString()))
+                .collect(Collectors.toSet()));
+        String queryString = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o }",mappings,mappings);
+        // The equivalentFieldMapping is transitiv therefore the query extracts all mappings
+        Query query = QueryFactory.create(queryString);
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, this.schema)) {
+            ResultSet results = qexec.execSelect();
+            for (; results.hasNext(); ) {
+                QuerySolution soln = results.nextSolution();
+                RDFNode field_s = soln.get("s");  //subject
+                RDFNode field_o = soln.get("o");  //object
+                String id_s = this.prefixService.getId(field_s.asResource());
+                String id_o = this.prefixService.getId(field_o.asResource());
+                buildField(field_s);
+                buildField(field_o);
+                Field field_s_obj = this.fields.get(id_s);
+                Field field_o_obj = this.fields.get(id_o);
+                field_o_obj.getOutputType().getTypes().forEach(type -> field_s_obj.addOutputType(type));   // Merge the output types of both fields
+            }
+        }
+    }
+
+    private void buildSameAs(){
+        Set<Property> sameAsMappingMappings = getSameAsMapping();
+        String mappings = convertToSPARQLPropertyOr(sameAsMappingMappings.stream()
+                .map(property -> String.format("<%s>", property.toString()))
+                .collect(Collectors.toSet()));
+        String typeMappings = getTypesMapping().stream()
+                .map(property -> String.format("<%s>", property.toString()))
+                .collect(Collectors.joining(","));
+        String queryStringType = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o. ?s a ?c1. ?o a ?c2. FILTER(?c1 IN ( %s )) FILTER(?c2 IN ( %s ))}",mappings,mappings,typeMappings,typeMappings);
+        System.out.print(queryStringType);
+        Query queryType = QueryFactory.create(queryStringType);
+        try (QueryExecution qexec = QueryExecutionFactory.create(queryType, this.schema)) {
+            ResultSet results = qexec.execSelect() ;
+            for ( ; results.hasNext() ; )
+            {
+                QuerySolution soln = results.nextSolution() ;
+                RDFNode type_a = soln.get("s") ;
+                RDFNode type_b = soln.get("o") ;
+                Type type_a_obj;
+                Type type_b_obj;
+                String id_a = this.prefixService.getId(type_a.asResource());
+                String id_b = this.prefixService.getId(type_b.asResource());
+                buildType(type_a); // only builds type_a if it NOT exists already
+                type_a_obj = this.types.get(id_a);
+                buildType(type_b); // only builds type_a if it NOT exists already
+                type_b_obj = this.types.get(id_b);
+                type_a_obj.addSameAsType(type_b_obj);
+            }
+        }
+
+        //Field sameAs
+        String fieldMappings = getFieldsMapping().stream()
+                .map(property -> String.format("<%s>", property.toString()))
+                .collect(Collectors.joining(","));
+        String queryStringField = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o.?s a ?c1. ?o a ?c2. FILTER(?c1 IN ( %s )) FILTER(?c2 IN ( %s ))}",mappings,mappings,fieldMappings,fieldMappings);
+        try (QueryExecution qexec = QueryExecutionFactory.create(queryStringField, this.schema)) {
+            ResultSet results = qexec.execSelect();
+            for (; results.hasNext(); ) {
+                QuerySolution soln = results.nextSolution();
+                RDFNode field_s = soln.get("s");  //subject
+                RDFNode field_o = soln.get("o");  //object
+                String id_s = this.prefixService.getId(field_s.asResource());
+                String id_o = this.prefixService.getId(field_o.asResource());
+                buildField(field_s);
+                buildField(field_o);
+                Field field_s_obj = this.fields.get(id_s);
+                Field field_o_obj = this.fields.get(id_o);
+                field_o_obj.getOutputType().getTypes().forEach(type -> field_s_obj.addOutputType(type));   // Merge the output types of both fields
+                field_s_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_o_obj.getId());
+            }
+        }
+        //ToDo: Same procedure for sameAs Properties/Fields
     }
 
     private void buildContext(){
@@ -260,7 +380,7 @@ public class RDFtoHGQL {
         String sdl = "";
         //build context
         String context_content = this.context.keySet().stream()
-                .map(key -> String.format("\t%s:\t_@href(iri:\"%s\"", key, this.context.get(key)))
+                .map(key -> String.format("\t%s:\t_@href(iri:\"%s\")", key, this.context.get(key)))
                 .collect(Collectors.joining("\n"));
         String context = String.format("type __context{\n%s\n}", context_content);
         //build interfaces (come with the fields)
@@ -271,8 +391,13 @@ public class RDFtoHGQL {
         String types = this.types.values().stream()
                 .map(Type::build)
                 .collect(Collectors.joining("\n"));
+        // build unions - it is important that the unions are build after the types because then all fields are fetched
+        String union = this.fields.values().stream()
+                .map(field -> field.getOutputType().build())
+                .filter(s -> !s.isEmpty())   // filterout unions that a have under two types
+                .collect(Collectors.joining("\n"));
         //build inputtypes
-        return String.format("%s\n%s\n%s",context,interfaces,types);
+        return String.format("%s\n%s\n%s\n%s",context,interfaces,union,types);
     }
 
 
@@ -286,12 +411,10 @@ public class RDFtoHGQL {
         String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
         model.read(new FileInputStream(inputFileName),null,"TTL");
         model.write(System.out);
-
         RDFtoHGQL converter = new RDFtoHGQL(model);
         converter.create();
         String sdl = converter.buildSDL();
         System.out.println(sdl);
-
 
     }
 }

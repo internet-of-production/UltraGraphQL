@@ -81,7 +81,7 @@ public class PrefixService {
             if(prefix.equals("")){  //No prefix could be fetched generate one
                 do{
                     prefix = randomString(DEFAULT_PREFIX_LENGTH);
-                }while(!this.namespaceMapping.containsValue(prefix));   //  potential bottleneck if schema contains more then 26^DEFAULT_PREFIX_LENGTH namespaces
+                }while(this.namespaceMapping.containsValue(prefix));   //  potential bottleneck if schema contains more then 26^DEFAULT_PREFIX_LENGTH namespaces
             }
             this.namespaceMapping.put(namespace, prefix);
             return prefix;

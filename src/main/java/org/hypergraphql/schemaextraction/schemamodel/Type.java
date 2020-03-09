@@ -1,5 +1,6 @@
 package org.hypergraphql.schemaextraction.schemamodel;
 
+import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.schemaextraction.PrefixService;
 import org.apache.jena.rdf.model.Resource;
 
@@ -20,7 +21,9 @@ public class Type {
     private Set<Directive> directives = new HashSet<>();
     private Set<Interface> interfaces = new HashSet<>();
     private Set<Type> equivalentTypes = new HashSet<>();
+    private Set<Type> sameAs = new HashSet<>();
     private String base_interface_id = "";
+    private Interface base_interface = null;
 
     public Type(Resource uri, PrefixService prefixService) {
         this.uri = uri;
@@ -46,6 +49,12 @@ public class Type {
 
     public void addEquivalentType(Type type){
         this.equivalentTypes.add(type);
+        //ToDo: Add a directive indicating the heritage of the equivalent Type
+    }
+
+    public void addSameAsType(Type type){
+        this.sameAs.add(type);
+        addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, type.id);
     }
 
     /**
@@ -70,16 +79,57 @@ public class Type {
                 .findFirst();
         if(optionalField.isPresent()){
             optionalField.get().mergeDirectives(field.getDirectives());
+            //ToDo merge Outputtypes
         }else{
             this.fields.add(field);
         }
     }
-    public void addDirective(Directive directive){
-        this.directives.add(directive);
+
+    public void addDirective(String name, String parameter, Set<String> values){
+        // Check if the directive is already added if so only add the parameter
+        Optional<Directive> directive = this.directives.stream()
+                .filter(dir -> dir.getName().equals(name))
+                .findFirst();
+        if(directive.isPresent()){
+            directive.get().addParameter(parameter, values);
+        }else{
+            Directive dir = new Directive(name);
+            dir.addParameter(parameter, values);
+            this.directives.add(dir);
+        }
+    }
+    public void addDirective(String name, String parameter, String value){
+        // Check if the directive is already added if so only add the parameter
+        Optional<Directive> directive = this.directives.stream()
+                .filter(dir -> dir.getName().equals(name))
+                .findFirst();
+        if(directive.isPresent()){
+            directive.get().addParameter(parameter, value);
+        }else{
+            Directive dir = new Directive(name);
+            dir.addParameter(parameter, value);
+            this.directives.add(dir);
+        }
+    }
+
+    public void addSchemaDirective(String parameter, String value){
+        Optional<Directive> direc = this.directives.stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA))
+                .findFirst();
+        if(direc.isPresent()){
+            //Add parameter
+            direc.get().addParameter(parameter, value);
+        }else{
+            addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA, parameter, value);
+        }
     }
 
     public String getBase_interface_id(){
         return this.base_interface_id;
+    }
+
+    public Interface getBase_interface(){
+        return this.base_interface;
     }
 
     /**
@@ -90,6 +140,7 @@ public class Type {
         Interface inter = new Interface(this.uri, this.prefixService);
         this.interfaces.add(inter);
         this.base_interface_id = inter.getId();
+        this.base_interface = inter;
         return inter;
     }
 
@@ -108,6 +159,7 @@ public class Type {
      * @return Returns this type as SDL
      */
     public String build(){
+        fetchInterfaces();
         fetchFields();
         return String.format("type %s %s %s {\n \t%s\n}", this.id, buildImplements(), buildDirectives(), buildFields());
     }
@@ -134,13 +186,30 @@ public class Type {
     }
 
     /**
-     * Fetches all field of this tpe from the defined interfaces.
+     * Fetches all fields of this type from the defined interfaces.
+     * If an field already exists in this type merge the output types.
      */
     private void fetchFields(){
         for (Interface inter : this.interfaces) {
             if (!inter.getFields().isEmpty()) {
                 Set<Field> fields = inter.getFields();
                 fields.forEach(this::addField);
+            }
+        }
+    }
+
+    /**
+     * Fetches all Interfaces of this type from the equivalent classes
+     */
+    private void fetchInterfaces(){
+        for(Type t : this.equivalentTypes){
+            if(t.getBase_interface() != null){
+                this.addInterface(t.getBase_interface());
+            }
+        }
+        for(Type t : this.sameAs){
+            if(t.getBase_interface() != null){
+                this.addInterface((t.getBase_interface()));
             }
         }
     }

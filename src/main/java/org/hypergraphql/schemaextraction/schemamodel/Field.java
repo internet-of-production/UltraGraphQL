@@ -1,10 +1,10 @@
 package org.hypergraphql.schemaextraction.schemamodel;
 
 import org.apache.jena.rdf.model.Resource;
+import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.schemaextraction.PrefixService;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ public class Field {
     private Resource uri;
     private String id;
     private PrefixService prefixService;
-    private String range= "";
+    private Union outputType;
     private Boolean isList = true;   // default
     private Boolean isNonNull = false;   // default
     private Boolean isClone = false;   // indicates if this object is a clone
@@ -24,20 +24,30 @@ public class Field {
         this.uri = uri;
         this.prefixService = prefixService;
         this.id = this.generateName();
+        this.outputType = new Union(String.format("%s_OutputType", this.id));
     }
 
+    /**
+     * This Constructor is used to clone a Field object. This is needed provide the same Field object to different types
+     * by allowing to add type specific changes to an field such as type depending directives.
+     * @param clone
+     */
     public Field(Field clone){
         this.isClone = true;
         this.baseObject = clone;
         this.uri = clone.uri;
         this.id = clone.id;
         this.prefixService = clone.prefixService;
-        this.range = clone.range;
+        this.outputType = clone.outputType;
         this.isList = clone.isList;
         this.isNonNull = clone.isNonNull;
         this.directives = clone.directives.stream()
             .map(Directive::new)
             .collect(Collectors.toSet());
+    }
+
+    public void addDirective(Directive directive){
+        this.directives.add(directive);
     }
 
     public void addDirective(String name, String parameter, Set<String> values){
@@ -67,6 +77,18 @@ public class Field {
         }
     }
 
+    public void addSchemaDirective(String parameter, String value){
+        Optional<Directive> direc = this.directives.stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA))
+                .findFirst();
+        if(direc.isPresent()){
+            //Add parameter
+            direc.get().addParameter(parameter, value);
+        }else{
+            addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA, parameter, value);
+        }
+    }
+
     public Set<Directive> getDirectives(){
         return this.directives;
     }
@@ -92,12 +114,16 @@ public class Field {
         return id;
     }
 
-    public String getRange() {
-        return range;
+    public void addOutputType(Type type){
+        this.outputType.addType(type);
     }
 
-    public void setRange(String range) {
-        this.range = range;
+    public Union getOutputType(){
+        return this.outputType;
+    }
+
+    public String getOutputtypeName(){
+        return this.outputType.getOutputTypeName();
     }
 
     public void setList(Boolean list) {
@@ -127,14 +153,12 @@ public class Field {
     }
 
     private String buildOutputType(){
-        if(getRange().equals("")){
+        if(getOutputtypeName().equals("")){
             return "";
         }else{
-            String res = "";
+            String res = getOutputtypeName();
             if(isList){
-                res = String.format("[%s]",getRange());
-            }else {
-                res = getRange();
+                res = String.format("[%s]",res);
             }
             if(isNonNull){
                 res += "!";
