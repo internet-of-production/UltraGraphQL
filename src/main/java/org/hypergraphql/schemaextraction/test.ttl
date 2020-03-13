@@ -13,11 +13,11 @@ foaf:Person a rdfs:Class.
 
 foaf:DoubleAgent rdfs:subClassOf foaf:Agent.
 
-foaf:accident a rdfs:Property;
+foaf:accident a rdf:Property;
     rdfs:domain foaf:Agent;
     rdfs:range foaf:Person.
 
-foaf:kills a rdfs:Property;
+foaf:kills a rdf:Property;
     rdfs:domain foaf:Agent;
     rdfs:range foaf:Person.
 
@@ -55,7 +55,7 @@ foaf:Huhn owl:equivalentClass foaf:Hahn.
 foaf:Huhn owl:sameAs foaf:Hahn.
 
 
-ex:relatedTo a rdfs:Property;
+ex:relatedTo a rdf:Property;
     rdfs:domain ex:Human;
     rdfs:range ex:Human;
     rdfs:range foaf:Person.

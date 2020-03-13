@@ -179,7 +179,6 @@ public class RDFtoHGQL {
 
     private Set<RDFNode> getFieldsMapping() {
         Set<RDFNode> res = new HashSet<>();
-        res.add(this.schema.getResource("http://www.w3.org/2000/01/rdf-schema#Property"));
         res.add(this.schema.getResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
         res.add(this.schema.getResource("http://example.org/Eigenschaft"));
         return res;

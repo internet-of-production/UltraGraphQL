@@ -1,8 +1,8 @@
 # RDFS To GraphQl Schema Mapping
 |HyperGraphQL Schema Config| Default Mapping Vocabulary|
 | --- | --- |
-| [hgqls:object](#objecttype) | rdfs:class |
-| [hgqls:field](#field) | rdfs:property |
+| [hgqls:object](#objecttype) | rdfs:Class |
+| [hgqls:field](#field) | rdf:Property |
 | [hgqls:implements](#implements) | rdfs:subClassOf |
 | [hgqls:impliesField](#implies-fields) | rdfs:subPropertyOf |
 | [hgqls:fieldObject](#field) | rdfs:domain, owl:domainIncludes |
@@ -39,16 +39,8 @@ The semantic meaning of the HGQLS config vocabulary is close to the meaning of t
 
 > **ToDo:** Check if it is possible to parameterize the schema vocabulary in the query!
 
-Supported Schema Vocabulary:
-- [rdfs:Class](#rdfsclass)
-  - [rdfs:subClassOf](#rdfssubclassof)
-- [rdfs:Property](#rdfsproperty)
-  - [rdfs:subPropertyOf](#rdfssubpropertyof)
-- [rdfs:label and rdfs:comment](#rdfslabel-and-rdfscomment)
-- [owl:equivalentClass](#owlequivalentclass)
-- [owl:sameAs](#owlsameas)
-- [Datatypes](#datatypes)
-- [Example: GraphQl Schema of RDF and RDFS](#example-graphql-schema-of-rdf-and-rdfs)
+Examples:
+- [GraphQl Schema of RDF and RDFS](#example-graphql-schema-of-rdf-and-rdfs)
 
 ## Naming Conventions
 RDF data uses IRIs for resource names therefore the names used in the mapped schema also need to be unique.
@@ -129,7 +121,7 @@ type ex_Child implements ex_Child & ex_Person @service(id:"ex-sparql"){
 
 
 ### ...field
-The [rdfs:Property](https://www.w3.org/TR/rdf-schema/#ch_property) is mapped to an [field](https://graphql.github.io/graphql-spec/draft/#sec-Objects) in the Object of the properties [domain](https://www.w3.org/TR/rdf-schema/#ch_domain). The [range](https://www.w3.org/TR/rdf-schema/#ch_range) of the property will result in the type of the field. At the moment it is not defined what happens if a property is not completely defined with domain and range.
+The [rdf:Property](https://www.w3.org/TR/rdf-schema/#ch_property) is mapped to an [field](https://graphql.github.io/graphql-spec/draft/#sec-Objects) in the Object of the properties [domain](https://www.w3.org/TR/rdf-schema/#ch_domain). The [range](https://www.w3.org/TR/rdf-schema/#ch_range) of the property will result in the type of the field. At the moment it is not defined what happens if a property is not completely defined with domain and range.
 
 Example:
 ```turtle
@@ -137,7 +129,7 @@ Example:
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex:   <http://example.org/>.
 
-ex:drives rdf:type  rdfs:Property;
+ex:drives rdf:type  rdf:Property;
           rdfs:range  ex:Car;
           rdfs:domain ex:Person.
 ```
@@ -164,7 +156,7 @@ Example:
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex:   <http://example.org/>.
 
-ex:drives rdf:type  rdfs:Property;
+ex:drives rdf:type  rdf:Property;
           rdfs:range  ex:Car;
           rdfs:domain ex:Person;
           rdfs:domain ex:AI.
@@ -199,7 +191,7 @@ Example:
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex:   <http://example.org/>.
 
-ex:drives rdf:type  rdfs:Property;
+ex:drives rdf:type  rdf:Property;
           rdfs:range  ex:Car;
           rdfs:range ex:Bicycle;
           rdfs:domain ex:Person.
@@ -232,7 +224,7 @@ Example:
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix ex:   <http://example.org/>.
 
-ex:controls rdf:type  rdfs:Property;
+ex:controls rdf:type  rdf:Property;
             rdf:range ex:Vehicle;
             rdf:domain  ex:Person.
 
@@ -273,7 +265,7 @@ ex:Person rdf:type  rdfs:Class;
           rdfs:comment  "A person is a human of any age."
 ex:Child  rdfs:subClassOf ex:Person;
           rdfs:comment  "A child is person with the age between 0 and 18."
-ex:rel rdf:type rdfs:Property;
+ex:rel rdf:type rdf:Property;
            rdfs:label "related";
            rdfs:comment "Describes which Persons are related to each other.";
            rdfs:domain  ex:Person;
@@ -362,10 +354,10 @@ Example:
 @prefix ex:   <http://example.org/>.
 
 ex:Person rdf:type rdfs:Class.
-ex:drives rdf:type  rdfs:Property;
+ex:drives rdf:type  rdf:Property;
           rdfs:range  ex:Car;
           rdfs:domain ex:Person.
-ex:rides rdf: rdfs:Property;
+ex:rides rdf: rdf:Property;
          rdfs:range ex:Bicycle;
          dfs.domain ex:Person.
 ex:drives owl:equivilantProperty ex:rides
