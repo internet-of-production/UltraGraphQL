@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class RDFtoHGQL {
     private Model schema;   //Queried schema
     private Model typeMapping;
+    private MappingConfig mapConfig;
     private Map<String, Type> types = new HashMap<String, Type>();
     private Map<String, Field> fields = new HashMap<String, Field>();
     private Map<String, Directive> directives = new HashMap<String, Directive>();
@@ -25,14 +26,15 @@ public class RDFtoHGQL {
     private Map<String, String> context = new HashMap<>();   // (hgql_id, uri)
     private PrefixService prefixService = new PrefixService();
 
-    public RDFtoHGQL(Model model){
+    public RDFtoHGQL(Model model, Model mapModel){
         this.schema = model;
+        this.mapConfig = new MappingConfig(mapModel);
     }
 
     public void create(){
         // Type
 
-        Set<RDFNode> types = getTypesMapping();   // Get all objects that represent a type in HGQL
+        Set<RDFNode> types = mapConfig.getTypeMapping();   // Get all objects that represent a type in HGQL
         Property a = this.schema.getProperty(HGQLVocabulary.RDF_TYPE);
         // For each type create a corresponding interface and type
         for (RDFNode type : types) {
@@ -46,7 +48,7 @@ public class RDFtoHGQL {
 
         // implements Interface (subClassOf)
 
-        Set<Property> impls = getImplementsMapping();
+        Set<Property> impls = mapConfig.getImplementsMapping();
         for(Property impl : impls){
             this.types.values().forEach(type -> {   // For each type defined in the schema check for implemented interfaces
                 NodeIterator nodeIterator = this.schema.listObjectsOfProperty(type.getResource(), impl);
@@ -67,7 +69,7 @@ public class RDFtoHGQL {
 
         // Field
 
-        Set<RDFNode> fieldMappingss = getFieldsMapping();   // Get all objects that represent a field in HGQL
+        Set<RDFNode> fieldMappingss = mapConfig.getFieldsMapping();   // Get all objects that represent a field in HGQL
         for (RDFNode fieldMapping : fieldMappingss) {   //iterate over all field mappings
             ResIterator iterator = this.schema.listSubjectsWithProperty(a, fieldMapping);  //fields in the schema under the current mapping object 'field'
             while (iterator.hasNext()){   //iterate over all fields in the schema under the current mapping
@@ -78,7 +80,7 @@ public class RDFtoHGQL {
         System.out.print("3");
         // implied fields
 
-        Set<Property> impliedFieldMappings = getImpliedFieldMapping();   // Get all objects that represent a implied field in HGQL
+        Set<Property> impliedFieldMappings = mapConfig.getImpliedFieldMapping();   // Get all objects that represent a implied field in HGQL
         for (Property impliedFieldMapping : impliedFieldMappings) {   //iterate over all field mappings
             StmtIterator stmtIterator = this.schema.listStatements(null, impliedFieldMapping, (RDFNode) null);//fields in the schema under the current mapping object 'field'
 
@@ -87,13 +89,13 @@ public class RDFtoHGQL {
                 RDFNode field = stmt.getSubject();
                 Field fieldObj = new Field(field.asResource(), this.prefixService);
                 RDFNode impliedField = stmt.getObject();
-                Set<Property> impliedFieldAffiliationMappings = getFieldAffiliationMapping();
+                Set<Property> impliedFieldAffiliationMappings = mapConfig.getFieldAffiliationMapping();
                 for(Property impliedFieldAffiliationMapping : impliedFieldAffiliationMappings){   //iterate over all field affiliation mappings
                     NodeIterator impliedFieldAffiliations = this.schema.listObjectsOfProperty(field.asResource(), impliedFieldAffiliationMapping);
                     while (impliedFieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
                         RDFNode impliedFieldAffiliation = impliedFieldAffiliations.next();
                         Type typeObj = this.types.get(this.prefixService.getId(impliedFieldAffiliation.asResource()));
-                        Set<Property> outputTypeMappings = getOutputTypenMapping();
+                        Set<Property> outputTypeMappings = mapConfig.getOutputTypeMapping();
                         for(Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                             NodeIterator outputTypes = this.schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);
                             while(outputTypes.hasNext()){
@@ -137,66 +139,7 @@ public class RDFtoHGQL {
         buildContext();
     }
 
-    private Set<Property> getEquivalentFieldMapping(){
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentProperty"));
-        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentEigenschaft"));
-        return res;
-    }
 
-    private Set<Property> getEquivalentTypeMapping(){
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentClass"));
-        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#equivalentKlasse"));
-        return res;
-    }
-
-    private Set<Property> getSameAsMapping(){
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2002/07/owl#sameAs"));
-        return res;
-    }
-
-    private Set<Property> getImpliedFieldMapping() {
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2000/01/rdf-schema#subPropertyOf"));
-        return res;
-    }
-
-    private Set<Property> getOutputTypenMapping() {
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2000/01/rdf-schema#range"));
-        res.add(this.schema.getProperty("http://schema.org/rangeIncludes"));
-        return res;
-    }
-
-    private Set<Property> getFieldAffiliationMapping() {
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2000/01/rdf-schema#domain"));
-        res.add(this.schema.getProperty("http://schema.org/domainIncludes"));
-        return res;
-    }
-
-    private Set<RDFNode> getFieldsMapping() {
-        Set<RDFNode> res = new HashSet<>();
-        res.add(this.schema.getResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"));
-        res.add(this.schema.getResource("http://example.org/Eigenschaft"));
-        return res;
-    }
-
-    private Set<Property> getImplementsMapping() {
-        Set<Property> res = new HashSet<>();
-        res.add(this.schema.getProperty("http://www.w3.org/2000/01/rdf-schema#subClassOf"));
-        return res;
-    }
-
-    private Set<RDFNode> getTypesMapping() {
-        Set<RDFNode> res = new HashSet<>();
-        res.add(this.schema.getResource("http://www.w3.org/2000/01/rdf-schema#Class"));
-        res.add(this.schema.getResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#Class"));
-        res.add(this.schema.getResource("http://example.org/Klasse"));
-        return res;
-    }
 
     private String convertToSPARQLPropertyOr(Set<String> nodes){
         String res = nodes.stream()
@@ -227,12 +170,12 @@ public class RDFtoHGQL {
         if(field.isResource()){
             String id = prefixService.getId(field.asResource());
             if(!this.fields.containsKey(id)){
-                Set<Property> fieldAffiliationMappings = getFieldAffiliationMapping();
+                Set<Property> fieldAffiliationMappings = mapConfig.getFieldAffiliationMapping();
                 for(Property fieldAffiliationMapping : fieldAffiliationMappings){   //iterate over all field affiliation mappings
                     NodeIterator fieldAffiliations = this.schema.listObjectsOfProperty(field.asResource(), fieldAffiliationMapping);
                     while (fieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
                         RDFNode fieldAffiliation = fieldAffiliations.next();
-                        Set<Property> outputTypeMappings = getOutputTypenMapping();
+                        Set<Property> outputTypeMappings = mapConfig.getOutputTypeMapping();
                         Type typeObj = this.types.get(this.prefixService.getId(fieldAffiliation.asResource())); // vor die for schleife legen ???
                         if(typeObj == null){
                             System.out.print("NULL");
@@ -259,7 +202,7 @@ public class RDFtoHGQL {
     }
 
     private void buildEquivalentTypes(){
-        Set<Property> equivalentTypeMappings = getEquivalentTypeMapping();   // Get all objects that represent a equivalent type in HGQL
+        Set<Property> equivalentTypeMappings = mapConfig.getEquivalentTypeMapping();   // Get all objects that represent a equivalent type in HGQL
         String mappings = convertToSPARQLPropertyOr(equivalentTypeMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
@@ -287,7 +230,7 @@ public class RDFtoHGQL {
     }
 
     private void buildEquivalentFields(){
-        Set<Property> equivalentFieldMappings = getEquivalentFieldMapping();   // Get all objects that represent a equivalent field in HGQL
+        Set<Property> equivalentFieldMappings = mapConfig.getEquivalentFieldMapping();   // Get all objects that represent a equivalent field in HGQL
         String mappings = convertToSPARQLPropertyOr(equivalentFieldMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
@@ -312,11 +255,11 @@ public class RDFtoHGQL {
     }
 
     private void buildSameAs(){
-        Set<Property> sameAsMappingMappings = getSameAsMapping();
+        Set<Property> sameAsMappingMappings = mapConfig.getSameAsMapping();
         String mappings = convertToSPARQLPropertyOr(sameAsMappingMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
-        String typeMappings = getTypesMapping().stream()
+        String typeMappings = mapConfig.getTypeMapping().stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.joining(","));
         String queryStringType = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o. ?s a ?c1. ?o a ?c2. FILTER(?c1 IN ( %s )) FILTER(?c2 IN ( %s ))}",mappings,mappings,typeMappings,typeMappings);
@@ -342,7 +285,7 @@ public class RDFtoHGQL {
         }
 
         //Field sameAs
-        String fieldMappings = getFieldsMapping().stream()
+        String fieldMappings = mapConfig.getFieldsMapping().stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.joining(","));
         String queryStringField = String.format("SELECT ?s ?o WHERE { ?s %s+|^%s+ ?o.?s a ?c1. ?o a ?c2. FILTER(?c1 IN ( %s )) FILTER(?c2 IN ( %s ))}",mappings,mappings,fieldMappings,fieldMappings);
@@ -404,13 +347,21 @@ public class RDFtoHGQL {
     //ToDo: parse the queried schema into the corresponding objects
 
     public static void main(String[] args) throws FileNotFoundException {
+        // Load mapping configuration
+        Model mapModel = ModelFactory.createDefaultModel();
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
+        String mapInputFileName = "./src/main/resources/mapping.ttl";
+        mapModel.read(new FileInputStream(mapInputFileName),null,"TTL");
+        // Load Test RDF schema
         Model model = ModelFactory.createDefaultModel();
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
         String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
         model.read(new FileInputStream(inputFileName),null,"TTL");
+        // Init Class
         model.write(System.out);
-        RDFtoHGQL converter = new RDFtoHGQL(model);
+        RDFtoHGQL converter = new RDFtoHGQL(model, mapModel);
         converter.create();
         String sdl = converter.buildSDL();
         System.out.println(sdl);

@@ -57,6 +57,12 @@ public class ModelContainer {
         return this.model.getResource(resourceURI);
     }
 
+    /**
+     * Returns all subjects from the mapping configuration that have the given predicate and object.
+     * @param predicateURI predicate the triple must contain
+     * @param objectURI object the triple must contain
+     * @return List of subjects that occur a triple with the given predicate and object
+     */
     List<RDFNode> getSubjectsOfObjectProperty(String predicateURI, String objectURI) {
 
         ResIterator iterator = this.model.listSubjectsWithProperty(getPropertyFromUri(predicateURI), getResourceFromUri(objectURI));

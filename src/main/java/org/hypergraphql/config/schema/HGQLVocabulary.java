@@ -45,9 +45,6 @@ public class HGQLVocabulary {
     public static final String HGQL_KIND = HGQL_NAMESPACE + "kind";
 
 
-    public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-
-
     public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("String", HGQL_STRING);
         put("Int", HGQL_Int);
@@ -67,6 +64,21 @@ public class HGQLVocabulary {
         put("_id", "@id");
         put("_type", "@type");
     }});
+
+    // Additions for Automatic Schema Extraction
+
+    public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
+    public static final String HGQLS_MAPPING = HGQL_NAMESPACE + "mapping/";
+    public static final String HGQLS_OBJECT = HGQLS_MAPPING + "object";
+    public static final String HGQLS_FIELD = HGQLS_MAPPING + "field";
+    public static final String HGQLS_IMPLEMENTS = HGQLS_MAPPING + "implements";
+    public static final String HGQLS_IMPLIED_FIELD = HGQLS_MAPPING + "impliedField";
+    public static final String HGQLS_FIELD_OBJECT = HGQLS_MAPPING + "fieldObject";
+    public static final String HGQLS_FIELD_OUTPUTTYPE = HGQLS_MAPPING + "fieldOutputType";
+    public static final String HGQLS_IMPLEMENTS_MUTUALLY = HGQLS_MAPPING + "implementsMutually";
+    public static final String HGQLS_SHARED_OUTPUTTYPE = HGQLS_MAPPING + "sharedOutputType";
+    public static final String HGQLS_SAME_AS = HGQLS_MAPPING + "sameAs";
 
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";
     public static final String HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY = "impliedBy";
