@@ -48,12 +48,19 @@ public class ApplicationConfigurationService {
         return Collections.singletonList(config);
     }
 
+    /**
+     * Generates a List of HGQLConfigs from the given configuration URL.
+     * @param configUri HTML page with the configuration information in the body
+     * @param username username to access the given URI
+     * @param password password to access the given URI
+     * @return List of HGQLConfigs
+     */
     public List<HGQLConfig> readConfigurationFromUrl(final String configUri, final String username, final String password) {
 
         final GetRequest getRequest;
-        if(username == null && password == null) {
+        if(username == null && password == null) {   // Assume that NO authentication is needed
             getRequest = Unirest.get(configUri);
-        } else {
+        } else {   // Auth needed
             getRequest = Unirest.get(configUri).basicAuth(username, password);
         }
 
@@ -66,6 +73,12 @@ public class ApplicationConfigurationService {
         }
     }
 
+    /**
+     * Generates for any given configuration file a corresponding list with HGQLConfigs and merges these lists together.
+     * @param configPathStrings List of configuration files OR directories containing config files. Config files MUST
+     *                          be of type JSON.
+     * @return List of HGQLConfigs
+     */
     public List<HGQLConfig> getConfigFiles(final String ... configPathStrings) {
 
         final List<HGQLConfig> configFiles = new ArrayList<>();
@@ -76,6 +89,12 @@ public class ApplicationConfigurationService {
         return configFiles;
     }
 
+    /**
+     * Generates for given configuration file a corresponding list with HGQLConfigs.
+     * @param configPathString Configuration file OR directory containing config files. Config files MUST
+     *                         be of type JSON.
+     * @return List of HGQLConfigs
+     */
     List<HGQLConfig> getConfigurationsFromFile(final String configPathString) {
 
         final File configPath = new File(configPathString); // it always has this
@@ -86,6 +105,7 @@ public class ApplicationConfigurationService {
                 final File[] jsonFiles = configPath.listFiles(pathname ->
                         FilenameUtils.isExtension(pathname.getName(), "json"));
                 if (jsonFiles != null) {
+                    //Add all HGQLConfigs generated from the config files to the configurations list
                     Arrays.stream(jsonFiles).forEach(file -> {
                         final String path = file.getAbsolutePath();
                         try (InputStream in = new FileInputStream(file)) {
@@ -128,6 +148,12 @@ public class ApplicationConfigurationService {
         return Collections.emptyList();
     }
 
+    /**
+     * If a "!" is in the given String then return the substring after the last "!" in the String and add a "/" at the
+     * at the beginning of the result if not already present
+     * @param configPathString Config file name
+     * @return String without "!" and with an "/" ath the beginning
+     */
     private String getConfigFilename(final String configPathString) {
 
         final String fn = configPathString.contains("!")

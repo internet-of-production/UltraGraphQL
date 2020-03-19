@@ -36,8 +36,8 @@
             "type": "HGraphQLService",
             "url": "http://localhost:0/graphql",
             "graph": "",
-            "user": "",
-            "password": ""
+            "user": "test",
+            "password": "pwd123"
         }
     ]
 }

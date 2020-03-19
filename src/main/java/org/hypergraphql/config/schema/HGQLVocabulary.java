@@ -83,4 +83,35 @@ public class HGQLVocabulary {
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";
     public static final String HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY = "impliedBy";
     public static final String HGQL_DIRECTIVE_PARAMETER_SAMEAS = "sameAs";
+    public static final String HGQL_DIRECTIVE_SERVICE = "service";
+    public static final String HGQL_DIRECTIVE_SERVICE_PARAMETER_ID = "id";
+
+
+    // class
+    public static final String HGQL_QUERY_TEMPLATE_CLASS = "class";
+    public static final String HGQL_QUERY_TEMPLATE_CLASSES = "classes";
+
+    public static final String HGQL_QUERY_TEMPLATE_PROPERTY = "property";
+    public static final String HGQL_QUERY_TEMPLATE_PROPERTIES = "properties";
+
+    public static final String HGQL_QUERY_TEMPLATE_DOMAIN = "domain";
+    public static final String HGQL_QUERY_TEMPLATE_DOMAINS = "domains";
+
+    public static final String HGQL_QUERY_TEMPLATE_RANGE = "range";
+    public static final String HGQL_QUERY_TEMPLATE_RANGES = "ranges";
+
+    public static final String HGQL_QUERY_TEMPLATE_SUBCLASSOF = "subClassOf";
+    public static final String HGQL_QUERY_TEMPLATE_SUBCLASSESOF = "subClassesOf";
+
+    public static final String HGQL_QUERY_TEMPLATE_SUBPROPERTYOF = "subPropertyOf";
+    public static final String HGQL_QUERY_TEMPLATE_SUBPROPERTIESOF = "subPropertiesOf";
+
+    public static final String HGQL_QUERY_TEMPLATE_EQUIVALENTCLASS = "equivalentClass";
+    public static final String HGQL_QUERY_TEMPLATE_EQUIVALENTCLASSES = "equivalentClasses";
+
+    public static final String HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTY = "equivalentProperty";
+    public static final String HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTIES = "equivalentProperties";
+
+    public static final String HGQL_QUERY_TEMPLATE_SAMEAS = "sameAs";
+    public static final String HGQL_QUERY_TEMPLATE_SAMEASES = "sameAses";
 }

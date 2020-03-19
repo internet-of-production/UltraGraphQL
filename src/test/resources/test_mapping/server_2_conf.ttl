@@ -1,0 +1,31 @@
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix :        <#> .
+
+[] rdf:type fuseki:Server;
+        fuseki:passwd "src/test/resources/test_mapping/passwords.properties";
+        fuseki:auth    "digest".
+
+<#service1> rdf:type fuseki:Service ;
+        fuseki:name         "dataset" ;
+        fuseki:dataset      <#dataset> ;
+        fuseki:allowedUsers             "user1", "user3";
+
+        fuseki:serviceQuery             "query" ;
+        fuseki:serviceQuery             "sparql" ;
+        fuseki:serviceReadGraphStore    "get" ;
+
+        fuseki:serviceUpdate            "update" ;
+        fuseki:serviceUpload            "upload" ;
+        fuseki:serviceReadWriteGraphStore "data".
+
+<#dataset> rdf:type ja:RDFDataset ;
+        rdfs:label "dataset_2" ;
+        ja:defaultGraph
+            [ rdfs:label "dataset_2.ttl" ;
+              a ja:MemoryModel ;
+              ja:content [ja:externalContent <file:data/dataset_2.ttl> ] ;
+            ].

@@ -65,8 +65,10 @@ public class Directive {
             this.parameter.put(name, new DirectiveParameter(name, value));
         }else{
             if(parameter instanceof DirectiveParameter){
-                Set<String> values = new HashSet<String>(Arrays.asList(value, ((DirectiveParameter) parameter).getValue()));
-                this.parameter.replace(name, new DirectiveParameterList(name, values));
+                if(!value.equals(((DirectiveParameter)this.parameter.get(name)).getValue())){
+                    Set<String> values = new HashSet<String>(Arrays.asList(value, ((DirectiveParameter) parameter).getValue()));
+                    this.parameter.replace(name, new DirectiveParameterList(name, values));
+                }
             }else if(parameter instanceof DirectiveParameterList){
                 ((DirectiveParameterList) parameter).addValue(value);
             }

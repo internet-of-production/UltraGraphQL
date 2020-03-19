@@ -31,3 +31,4 @@ owl:equivalentProperty a hgqls:sharedOutputType.
 
 # sameAs - defines equalities between schema entities
 owl:sameAs a hgqls:sameAs.
+rdf:sameAs a hgqls:sameAs.

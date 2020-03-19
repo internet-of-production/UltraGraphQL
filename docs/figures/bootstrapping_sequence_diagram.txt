@@ -1,0 +1,132 @@
+title HyperGraphQL Process Flow during Bootstrapping (only SPARQLEndpointServices)
+
+participant Application
+participant ApplicationConfigurationService
+participant HGQLConfigService
+participant ExractionController
+participant SPARQLExtraction
+participant RDFtoHGQL
+database Triplestore
+participant HGQLConfig
+participant GraphQLConfig
+participant ServiceConfig
+participant HGQLSchemaWiring
+participant HGQLSchema
+participant SPARQLEndpointService
+participant TypeConfig
+participant FieldConfig
+participant QueryFieldConfig
+participant Controller
+
+entryspacing 1.1
+activate Application
+Application-->*ApplicationConfigurationService: <<creates>>
+ApplicationConfigurationService-->*HGQLConfigService:<<creates>>
+Application->ApplicationConfigurationService: getConfigFiles()
+activate ApplicationConfigurationService
+ApplicationConfigurationService-->ApplicationConfigurationService:foreach Config
+activate ApplicationConfigurationService
+ApplicationConfigurationService->HGQLConfigService:loadHGQLConfig()
+activate HGQLConfigService
+
+
+group #2f2e7b Endpoint Configuration Handling #white
+HGQLConfigService->*HGQLConfig: parse config to object
+activate HGQLConfig
+HGQLConfig->*GraphQLConfig: parse config to object\n (server infos)
+activate GraphQLConfig
+GraphQLConfig -->HGQLConfig:
+deactivate GraphQLConfig
+HGQLConfig->*ServiceConfig: parse config to object\n (service infos)
+activate ServiceConfig
+ServiceConfig -->HGQLConfig:
+deactivate ServiceConfig
+HGQLConfig-->HGQLConfigService:
+note over HGQLConfigService:Information of the schema\nnow avaliable.\nStart schema extraction\nif schema not provided
+end
+
+group #red Schema Extraction and Mapping #white
+HGQLConfigService->*ExractionController:<<create>>\nParameter: ServiceConfigs,\nmappingModel
+activate ExractionController
+ExractionController->*SPARQLExtraction:<<create>>\nParameter:\nmappingModel
+activate SPARQLExtraction
+note over SPARQLExtraction:Build query with\nthe given mapping
+deactivate SPARQLExtraction
+
+ExractionController->*RDFtoHGQL:
+note over RDFtoHGQL:Build mapping table
+
+activate ExractionController
+note over ExractionController: For each service:\n1.extract schema\n2.add to HGQLschema
+ExractionController->SPARQLExtraction:getRDFSchema(ServiceConfig)
+
+activate SPARQLExtraction
+SPARQLExtraction-->Triplestore:Schema query
+Triplestore-->SPARQLExtraction:RDF Schema
+SPARQLExtraction->ExractionController:RDF Schema
+deactivate SPARQLExtraction
+
+ExractionController->RDFtoHGQL:addRDFSchema(RDFS)
+activate RDFtoHGQL
+note over RDFtoHGQL:Add the Schema to the HGQL schema.\nIf the entity already exist only add\nthe service to the service directive
+RDFtoHGQL-->ExractionController:
+deactivate RDFtoHGQL
+
+
+deactivate ExractionController
+
+ExractionController->RDFtoHGQL:getHGQLSchema()
+activate RDFtoHGQL
+RDFtoHGQL->ExractionController:HGQL schema
+deactivate RDFtoHGQL
+
+ExractionController->HGQLConfigService: HGQL schema
+deactivate ExractionController
+end
+
+deactivate HGQLConfig
+HGQLConfigService->HGQLConfigService:init reader\nfor schema
+HGQLConfigService->HGQLConfigService:create TypeDefinitionRegistry\nby parsing schema
+
+
+
+group #grey Generate GraphQL HypergrapQL schema wiring form the schema #white
+HGQLConfigService->*HGQLSchemaWiring:<create>> Parameter: registry, endpoint name, services
+activate HGQLSchemaWiring
+HGQLSchemaWiring-->HGQLSchemaWiring:Map list of ServiceConfigs\nto <id,Service>
+activate HGQLSchemaWiring
+HGQLSchemaWiring->*SPARQLEndpointService:<<create>>
+activate SPARQLEndpointService
+HGQLSchemaWiring->SPARQLEndpointService:setParameters(serviceConfig)
+deactivate SPARQLEndpointService
+
+deactivate HGQLSchemaWiring
+group #red HGQL internal Schema wiring #white
+HGQLSchemaWiring->* HGQLSchema: <<create>> \nParameter: registry,\n endpoint name,\n<id,Service>
+activate HGQLSchema
+note over HGQLSchema:Build RDF graph that\nrepresents the schema\nwith HGQL annotations.\nAdds the queries to\nthe schema
+HGQLSchema->*TypeConfig: <<create for each type in the schema>>
+HGQLSchema->*FieldConfig: <<create for each field in the schema>>
+HGQLSchema->*QueryFieldConfig: <<create for each queryfield in the schema>>
+HGQLSchema-->HGQLSchemaWiring:
+deactivate HGQLSchema
+end
+HGQLSchemaWiring-->HGQLSchemaWiring:Add the queries\nfrom hgql schema\nto the graphql schema
+HGQLSchemaWiring->HGQLConfigService:
+deactivate HGQLSchemaWiring
+end
+HGQLConfigService->ApplicationConfigurationService:return HGQLConfig
+deactivate HGQLConfigService
+
+activate HGQLConfig
+ApplicationConfigurationService->HGQLConfig:setGraphQLSchema(GraphQLSchema)
+ApplicationConfigurationService->HGQLConfig:setHGQLSchema(HGQLSchema)
+deactivate HGQLConfig
+
+deactivate ApplicationConfigurationService
+
+ApplicationConfigurationService->Application:return List<HGQLConfig>
+deactivate ApplicationConfigurationService
+Application->Controller:start(HGQLConfig)
+deactivate Application
+activate Controller

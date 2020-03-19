@@ -7,9 +7,11 @@
 
 # Object
 rdfs:Class a hgqls:object.
+ex:Klasse a hgqls:object. # Only for testing
 
 # Field
 rdf:Property a hgqls:field.
+ex:Eigenschaft a hgqls:field. # Only for testing
 
 # object implements (subObject)
 rdfs:subClassOf a hgqls:implements.
@@ -19,15 +21,19 @@ rdfs:subPropertyOf a hgqls:impliedField.
 
 # fieldObject - defines which objects have this field
 rdfs:domain a hgqls:fieldObject.
+schema:domainInclude a hgqls:fieldObject.
 
 # outputtype of a field
 rdfs:range a hgqls:fieldOutputType.
+schema:rangeIncludes a hgqls:fieldOutputType.
 
 # implementsMutually - used to define that objects implement each other
 owl:equivalentClass a hgqls:implementsMutually.
+owl:equivalentKlasse a hgqls:implementsMutually. # Only for testing
 
 # sharedOutputType - used to define that fields share the same output type
 owl:equivalentProperty a hgqls:sharedOutputType.
+owl:equivalentEigenschaft a hgqls:sharedOutputType. # Only for testing
 
 # sameAs - defines equalities between schema entities
 owl:sameAs a hgqls:sameAs.

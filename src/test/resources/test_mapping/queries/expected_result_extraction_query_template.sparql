@@ -1,0 +1,73 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Delete any leftovers of previous schemata
+#DROP GRAPH <http://example.org/LOVInferred>;
+
+# Find all predicates used in the current dataset and their equivalents and generalizations
+INSERT {
+  ?predicate a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#domain> ?pDomain;
+    <http://www.w3.org/2000/01/rdf-schema#range> ?pRange.
+}
+WHERE {
+  {
+    SERVICE <TESTService_2>{
+        {SELECT DISTINCT ?x ?pDomain ?pRange {
+          ?s ?x ?o.
+          OPTIONAL { ?s a ?pDomain}
+          OPTIONAL { ?o a ?pRange}
+        }}
+        ?x (<http://www.w3.org/2000/01/rdf-schema#subPropertyOf>|<http://www.w3.org/2002/07/owl#equivalentProperty>|^(<http://www.w3.org/2002/07/owl#equivalentProperty>)|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>))* ?predicate FILTER(!isBlank(?predicate))
+    }
+  }
+};
+
+# Find all classes used in the current dataset or implied through entailment
+INSERT {
+  ?y a <http://www.w3.org/2000/01/rdf-schema#Class>
+}
+WHERE {
+  {
+    SELECT DISTINCT ?y {
+        SERVICE <TESTService_2> {
+            [] a ?y FILTER(!isBlank(?y))
+        }
+    }
+  } UNION {
+    {SELECT DISTINCT ?y {
+      ?predicate a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>
+      SERVICE <TESTService_2>{
+        ?predicate (<http://www.w3.org/2000/01/rdf-schema#range>|<http://www.w3.org/2000/01/rdf-schema#domain>) ?y FILTER(!isBlank(?y))
+      }
+    }}
+  }
+};
+
+# Find all class equivalences implied through entailment
+INSERT {
+  ?concept a <http://www.w3.org/2000/01/rdf-schema#Class>
+}
+WHERE {
+  {
+    ?y a <http://www.w3.org/2000/01/rdf-schema#Class>
+    SERVICE <TESTService_2>{
+        ?y (<http://www.w3.org/2000/01/rdf-schema#subClassOf>|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>)|<http://www.w3.org/2002/07/owl#equivalentClass>|^(<http://www.w3.org/2002/07/owl#equivalentClass>))+ ?concept FILTER(!isBlank(?concept))
+    }
+  }
+};
+
+
+# Find describing information of previously discovered classes and predicates
+INSERT {
+  ?s ?p ?o
+}
+WHERE {
+  {
+    {?s a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>} UNION {?s a <http://www.w3.org/2000/01/rdf-schema#Class>}
+    SERVICE <TESTService_2>{
+        ?s ?p ?o
+    }
+  }
+};

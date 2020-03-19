@@ -124,6 +124,22 @@ public class Type {
         }
     }
 
+    /**
+     * Add the given service id to the service directive. If the service directive is not set add one.
+     * @param serviceId id of the service
+     */
+    public void addServiceDirective(String serviceId){
+        Optional<Directive> direc = this.directives.stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
+                .findFirst();
+        if(direc.isPresent()){
+            //Add parameter
+            direc.get().addParameter(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceId);
+        }else{
+            addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceId);
+        }
+    }
+
     public String getBase_interface_id(){
         return this.base_interface_id;
     }

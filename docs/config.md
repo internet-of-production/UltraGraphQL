@@ -1,0 +1,125 @@
+# HGQL Configuration File
+## name
+Defines the name of the HypergraphQL Endpoint.
+> Datatype: String
+
+## schema
+Name of the schema file. If the extraction property is true then the extracted schema is saved in this file. 
+If NO schema file is provided then the schema extraction still functions but the schema will not be saved in a file.
+> Datatype: String
+
+## extraction
+True if the schema MUST be extracted from the given services otherwise use the provided schema file.
+If this key is missing then it is assumed to be False.
+> Datatype: Boolean
+
+## mapping
+Name of the mapping file. The Mapping defines how the RDF Schema is mapped to the GraphQL schema.
+The syntax of the mapping file is described [here](./schema_mapping.md).
+>Datatype: String
+>File datatype: Turtle
+
+## query
+Name of the schema extraction query file. How the query must be written is defined [here](./schema_extraction_query.md)
+>Datatype: String
+
+## server
+The server object holds information about the HGQL server endpoint like port and URL paths.
+### port
+Port under which the HGQL endpoint is accessible.
+>Datatype: INT
+
+### graphql
+URL path to reach the GraphQL service.
+> Datatype: String (URL path)
+
+### graphiql
+URL path to reach the [GraphiQL](https://github.com/graphql/graphiql) service.
+> Datatype: String (URL path)
+
+## services
+Contains a list of individual services. 
+
+>Datatype: JSON-list
+### Service
+A Service object consists of the id, type and URL of the service.
+Additionally the graph in which the data is stored is given and authentication information to access this service are given.
+>Datatype: JSON-object
+#### id
+The id of a service MUST be unique for this service and will be used to link schema entities to a corresponding service using the **@service** directive.
+#### type
+The type defines of which type the service is.
+The name of the type MUST correspond to a service java class.
+Supported Services:         
+ - SPARQLEndpointService:   (remote) SPARQL endpoints 
+ - LocalModelSPARQLService: local RDF files
+ - HGraphQLService: HyperGraphQL instance
+>Datatype: String - MUST be one of the supported services listed above
+#### url
+The url key is only needed for the services *SPARQLEndpointService* or *HGraphQLService* is used. 
+Defines where the service can be accessed.
+>Datatype: String (URL)
+#### filepath
+Only if the service is a *LocalModelSPARQLService*. Path to the dataset.
+>Datatype: String 
+#### filetype
+Only if the service is a *LocalModelSPARQLService*. File type of the dataset.
+>Datatype: String 
+#### graph
+Specifies in which graph of the data (If the data is stored in Quads).
+>Dataset: String
+#### user
+Username to access the service
+>Datatype: String
+#### password
+Password to access the service
+>Datatype: String
+
+## Example configuration
+### Configuration with extraction and SPARQLEndpointService
+```json
+{
+  "name": "hgql-example-with-sparql",
+  "schema": "gql/schema.graphql",
+  "extraction": true,
+  "mapping": "mapping.ttl",
+  "query": "query.sparql",
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dbpedia-sparql",
+      "type": "SPARQLEndpointService",
+      "url": "http://dbpedia.org/sparql/",
+      "graph": "http://dbpedia.org",
+      "user": "admin",
+      "password": "admin"
+    }
+  ]
+}
+```
+
+### Configuration with predefined schema and an local RDF Dataset
+```json
+{
+  "name": "hgql-example-with-sparql",
+  "schema": "gql/schema.graphql",
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dbpedia-sparql",
+      "type": "SPARQLEndpointService",
+      "filepath": "data/dataset_8000.ttl",
+      "fieltype": "TTL",
+      "graph": "http://dbpedia.org"
+    }
+  ]
+}
+```

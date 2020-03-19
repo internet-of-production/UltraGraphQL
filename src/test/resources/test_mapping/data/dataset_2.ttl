@@ -1,0 +1,18 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/>.
+@prefix hgqls: <http://hypergraphql.org/mapping/>.
+@prefix sa: <http://sample.org/>.
+@prefix ex: <http://example.org/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+sa:Person a sa:Human.
+sa:Person owl:sameAs foaf:Person.
+
+sa:Car a sa:vehicle.
+
+sa:vehicle owl:sameAs ex:vehicle.
+ex:vehicle a rdfs:Class.
+
+ex:car ex:has ex:door.

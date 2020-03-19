@@ -1,0 +1,74 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Delete any leftovers of previous schemata
+#DROP GRAPH <http://example.org/LOVInferred>;
+
+# Find all predicates used in the current dataset and their equivalents and generalizations
+INSERT {
+  ?predicate a rdf:Property; #x2
+    rdfs:domain ?pDomain; #x6
+    rdfs:range ?pRange. #x7
+}
+WHERE {
+  {
+    SERVICE ?service{
+        {SELECT DISTINCT ?x ?pDomain ?pRange {
+          ?s ?x ?o.
+          OPTIONAL { ?s a ?pDomain}
+          OPTIONAL { ?o a ?pRange}
+        }}
+        # x1
+        ?x (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty|owl:sameAs|^owl:sameAs)* ?predicate FILTER(!isBlank(?predicate))
+    }
+  }
+};
+
+# Find all classes used in the current dataset or implied through entailment
+INSERT {
+  ?y a rdfs:Class
+}
+WHERE {
+  {
+    SELECT DISTINCT ?y {
+        SERVICE ?service {
+            [] a ?y FILTER(!isBlank(?y))
+        }
+    }
+  } UNION {
+    {SELECT DISTINCT ?y {
+      ?predicate a rdf:Property #x2
+      SERVICE ?service{
+        ?predicate (rdfs:range|rdfs:domain) ?y FILTER(!isBlank(?y)) #x3
+      }
+    }}
+  }
+};
+
+# Find all class equivalences implied through entailment
+INSERT {
+  ?concept a rdfs:Class
+}
+WHERE {
+  {
+    ?y a rdfs:Class #x4
+    SERVICE ?service{
+        ?y (rdfs:subClassOf|owl:sameAs|^owl:sameAs|owl:equivalentClass|^owl:equivalentClass)+ ?concept FILTER(!isBlank(?concept)) #x5
+    }
+  }
+};
+
+
+# Find describing information of previously discovered classes and predicates
+INSERT {
+  ?s ?p ?o
+}
+WHERE {
+  {
+    {?s a rdf:Property} UNION {?s a rdfs:Class} #x2 & x4
+    SERVICE ?service{
+        ?s ?p ?o
+    }
+  }
+};
