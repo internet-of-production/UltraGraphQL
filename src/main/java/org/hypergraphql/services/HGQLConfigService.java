@@ -74,6 +74,7 @@ public class HGQLConfigService {
             final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
 
             LOGGER.debug("Schema config path: " + fullSchemaPath);
+            Reader reader = null;
             if(config.getExtraction()){
                 //Extract schema
                 Model mapping = ModelFactory.createDefaultModel();
@@ -82,11 +83,11 @@ public class HGQLConfigService {
                         mapping,
                         (new FileInputStream(config.getSchemaFile()).toString()));
                 exractionController.extractAndMap();
-
+                reader = exractionController.getHGQLSchemaReader();
+            }else{
+                reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
-            final Reader reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             final TypeDefinitionRegistry registry = schemaParser.parse(reader);
-
             final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
             config.setGraphQLSchema(wiring.getSchema());
             config.setHgqlSchema(wiring.getHgqlSchema());

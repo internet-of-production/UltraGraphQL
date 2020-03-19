@@ -8,8 +8,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.log4j.Logger;
 import org.hypergraphql.config.system.ServiceConfig;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -46,5 +45,7 @@ public class ExtractionController {
         return this.mapper.buildSDL();
     }
 
-
+    public Reader getHGQLSchemaReader(){
+        return new StringReader(this.mapper.buildSDL());
+    }
 }
