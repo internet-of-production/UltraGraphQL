@@ -82,7 +82,6 @@ class ExtractionControllerTest {
         services.add(config_2);
         services.add(config_3);
         ExtractionController controller = new ExtractionController(services,mapping,readFile(template_query_file_path));
-        controller.extractAndMap();
         String schema = controller.getHGQLSchema();
         log.info(schema);
     }
