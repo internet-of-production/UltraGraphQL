@@ -122,6 +122,7 @@ public class QueryTemplatingEngine {
     public String buildQuery(String service){
         ParameterizedSparqlString res = new ParameterizedSparqlString(query_service_template);
         res.setIri("service", service);
+        System.out.print(res.toString());
         return res.toString();
     }
 }

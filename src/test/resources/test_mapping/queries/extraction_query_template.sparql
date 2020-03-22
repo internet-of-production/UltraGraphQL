@@ -19,8 +19,9 @@ WHERE {
           OPTIONAL { ?s a ?pDomain}
           OPTIONAL { ?o a ?pRange}
         }}
-        ?x (?subPropertiesOf|?equivalentProperties|^(?equivalentProperties)|?sameAses|^(?sameAses))* ?predicate FILTER(!isBlank(?predicate))
+        ?x (?subPropertiesOf|?equivalentProperties|^(?equivalentProperties)|?sameAses|^(?sameAses))* ?predicate
     }
+    FILTER(!isBlank(?predicate))
   }
 };
 
@@ -53,8 +54,9 @@ WHERE {
   {
     ?y a ?class
     SERVICE ?service{
-        ?y (?subClassesOf|?sameAses|^(?sameAses)|?equivalentClasses|^(?equivalentClasses))+ ?concept FILTER(!isBlank(?concept))
+        ?y (?subClassesOf|?sameAses|^(?sameAses)|?equivalentClasses|^(?equivalentClasses))+ ?concept
     }
+    FILTER(!isBlank(?concept))
   }
 };
 

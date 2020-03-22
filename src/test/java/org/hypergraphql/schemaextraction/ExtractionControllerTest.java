@@ -3,11 +3,15 @@ package org.hypergraphql.schemaextraction;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.jena.assembler.assemblers.ReasonerFactoryAssembler;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.log4j.Logger;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -72,9 +76,11 @@ class ExtractionControllerTest {
         final ObjectMapper mapper = new ObjectMapper();
         final ServiceConfig config_1 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_1.json"), ServiceConfig.class);
         final ServiceConfig config_2 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_2.json"), ServiceConfig.class);
+        final ServiceConfig config_3 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_3.json"), ServiceConfig.class);
         List<ServiceConfig> services = new ArrayList<ServiceConfig>();
         services.add(config_1);
         services.add(config_2);
+        services.add(config_3);
         ExtractionController controller = new ExtractionController(services,mapping,readFile(template_query_file_path));
         controller.extractAndMap();
         String schema = controller.getHGQLSchema();
@@ -83,7 +89,7 @@ class ExtractionControllerTest {
 
     private void server_1_setup() throws FileNotFoundException {
         model_1 = ModelFactory.createDefaultModel();
-        String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
+        String inputFileName = "./src/test/resources/test_mapping/data/dataset_1.ttl";
         model_1.read(new FileInputStream(inputFileName),null,"TTL");
         ds1 = DatasetFactory.create(model_1);
         server1 = FusekiServer.create()

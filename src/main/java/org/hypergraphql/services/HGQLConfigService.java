@@ -18,15 +18,12 @@ import org.hypergraphql.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.stream.Collectors;
 
 /**
  * Provides methods to load the HGQL configuration and based on the configuration to parse the schema to setup the
@@ -81,16 +78,21 @@ public class HGQLConfigService {
                 mapping.read(new FileInputStream(config.getMappingFile()),null,"TTL");
                 ExtractionController exractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
-                        (new FileInputStream(config.getSchemaFile()).toString()));
+                        new String ( Files.readAllBytes( Paths.get(config.getQueryFile()))));
                 exractionController.extractAndMap();
                 reader = exractionController.getHGQLSchemaReader();
+                if(config.getSchemaFile() != null){
+                    Path file = Paths.get(config.getSchemaFile());
+                    BufferedReader buffer = new BufferedReader(reader);
+                    Files.write(file, buffer.lines().collect(Collectors.joining("\n")).getBytes(), StandardOpenOption.CREATE);
+                }
             }else{
                 reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
-            final TypeDefinitionRegistry registry = schemaParser.parse(reader);
-            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
-            config.setGraphQLSchema(wiring.getSchema());
-            config.setHgqlSchema(wiring.getHgqlSchema());
+//            final TypeDefinitionRegistry registry = schemaParser.parse(reader);
+//            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
+//            config.setGraphQLSchema(wiring.getSchema());
+//            config.setHgqlSchema(wiring.getHgqlSchema());
             return config;
 
         } catch (IOException | URISyntaxException e) {

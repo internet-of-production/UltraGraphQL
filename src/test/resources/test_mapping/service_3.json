@@ -1,0 +1,8 @@
+{
+  "id": "Local-dataset",
+  "type": "LocalModelSPARQLService",
+  "filepath": "./src/test/resources/test_mapping/data/dataset_1.ttl",
+  "filetype": "TTL",
+  "user": "",
+  "password": ""
+}

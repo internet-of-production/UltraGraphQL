@@ -17,7 +17,9 @@ import java.util.List;
  */
 public class ExtractionController {
 
-
+    static Logger log = Logger.getLogger(ExtractionController.class.getName());
+    private static final String SPARQL_ENDPOINT = "SPARQLEndpointService";
+    private static final String LOCAL_RDF_MODEL = "LocalModelSPARQLService";
     private List<ServiceConfig>  serviceConfigs;
     MappingConfig mapping;
     SPARQLExtraction extractor;
@@ -36,8 +38,22 @@ public class ExtractionController {
      */
     public void extractAndMap(){
         for (ServiceConfig conf: serviceConfigs) {
-            Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword());
-            this.mapper.create(serviceSchema, conf.getId());
+            if(conf.getType().equals(SPARQL_ENDPOINT)){
+                Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword());
+                this.mapper.create(serviceSchema, conf.getId());
+            }else if(conf.getType().equals(LOCAL_RDF_MODEL)){
+                Model serviceSchema = null;
+                try{
+                    serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype());
+                }catch(Exception e){
+                    log.info("File "+ conf.getFilepath() +" not found skip the Service "+ conf.getId());
+                    continue;
+                }
+                this.mapper.create(serviceSchema, conf.getId());
+            }else{
+                log.info("The Service type \""+conf.getType()+"\" is NOT supported for the schema extraction. Skip this service type.");
+            }
+
         }
     }
 

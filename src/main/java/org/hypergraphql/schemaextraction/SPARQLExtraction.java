@@ -26,6 +26,8 @@ public class SPARQLExtraction {
 
     private MappingConfig mapConfig;
     private QueryTemplatingEngine engine;
+    private static final String RDF_FILE_ENDPOINT_ADDRESS = "http://localhost:";
+    private static final String RDF_FILE_ENDPOINT_DATASET = "/dataset";
 
     public SPARQLExtraction(MappingConfig mapConfig, String query_template){
         this.mapConfig = mapConfig;
@@ -41,16 +43,35 @@ public class SPARQLExtraction {
         }
         Model upModel = ModelFactory.createDefaultModel();
         //Auth
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        Credentials credentials = new UsernamePasswordCredentials(username, password);
-        credsProvider.setCredentials(AuthScope.ANY, credentials);
-        HttpClient httpclient = HttpClients.custom()
-                .setDefaultCredentialsProvider(credsProvider)
-                .build();
-        HttpOp.setDefaultHttpClient(httpclient);
-
+        if(!username.equals("") || !password.equals("")){
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            Credentials credentials = new UsernamePasswordCredentials(username, password);
+            credsProvider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpclient = HttpClients.custom()
+                    .setDefaultCredentialsProvider(credsProvider)
+                    .build();
+            HttpOp.setDefaultHttpClient(httpclient);
+        }else{
+            HttpOp.setDefaultHttpClient(HttpOp.initialDefaultHttpClient);
+        }
         UpdateAction.parseExecute(engine.buildQuery(service), upModel);
         return upModel;
     }
 
+
+    public Model extractSchemaFromLocalRDFFile(String filename, String type) throws FileNotFoundException {
+        FusekiServer server;
+        Model model = ModelFactory.createDefaultModel();
+        model.read(new FileInputStream(filename), null, type);
+        Dataset ds = DatasetFactory.create(model);
+        server = FusekiServer.create()
+                .add(RDF_FILE_ENDPOINT_DATASET, ds)
+                .build();
+        server.start();
+        String address = RDF_FILE_ENDPOINT_ADDRESS+server.getPort()+RDF_FILE_ENDPOINT_DATASET;
+        System.out.print(address);
+        Model res = extractSchema(address,null, null);
+        server.stop();
+        return res;
+    }
 }

@@ -23,6 +23,7 @@ public class HGQLConfig {
     private List<ServiceConfig> serviceConfigs;
     private Boolean extraction;
     private  String mappingFile;
+    private  String queryFile;
 
     //Additional attributes
     private GraphQLSchema schema;
@@ -45,7 +46,8 @@ public class HGQLConfig {
             @JsonProperty("server") GraphqlConfig graphqlConfig,
             @JsonProperty("services") List<ServiceConfig> services,
             @JsonProperty("extraction") Boolean extraction,
-            @JsonProperty("mapping") String mappingFile
+            @JsonProperty("mapping") String mappingFile,
+            @JsonProperty("query") String queryFile
     ) {
         this.name = name;
         this.schemaFile = schemaFile;
@@ -53,6 +55,7 @@ public class HGQLConfig {
         this.serviceConfigs = services;
         this.extraction = extraction;
         this.mappingFile = mappingFile;
+        this.queryFile = queryFile;
     }
 
     /**
@@ -154,6 +157,13 @@ public class HGQLConfig {
         return mappingFile;
     }
 
+    /**
+     * Getter method for the attribute queryFile.
+     * @return Path to the file that contains the schema extraction query.
+     */
+    public String getQueryFile(){
+        return queryFile;
+    }
 }
 
 
