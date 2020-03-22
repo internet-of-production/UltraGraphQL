@@ -14,7 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * ToDo
+ * RDFtoHGQL obtains a mapping configuration and can then be used to generate HGQL schema from RDF schemata.
+ * It is possible to insert multiple RDF schemata into one HGQL schema by calling create() multiple times before the
+ * buildSDL() call. To seperate different schemata use different service ids.
  */
 public class RDFtoHGQL {
     private MappingConfig mapConfig;
@@ -30,6 +32,15 @@ public class RDFtoHGQL {
         this.mapConfig = mappingConf;
     }
 
+    /**
+     * Given a RDF schema and a serviceId this method creates a corresponding HGQL representation.
+     * If called again (with different schema) only new schema entities are added the rest is skipped.
+     * Allows to insert multiple RDF schemata into one HGQL schema.
+     * To get the HGQL schema call buildSDL().
+     *
+     * @param schema
+     * @param serviceId
+     */
     public void create(Model schema, String serviceId){
         // Type
 
@@ -106,7 +117,12 @@ public class RDFtoHGQL {
     }
 
 
-
+    /**
+     * Converts a set of RDFNodes(as string) to one string containing the nodes as alternative path.
+     * The reurned string is intended to be used in a property path query.
+     * @param nodes RDFNodes
+     * @return Given nodes as alternative paths
+     */
     private String convertToSPARQLPropertyOr(Set<String> nodes){
         String res = nodes.stream()
                 .collect(Collectors.joining("|"));
@@ -135,11 +151,25 @@ public class RDFtoHGQL {
     }
 
 
-
+    /**
+     * Check if the given field is already in the HGQL schema. If not in the schema add the field otherwise only add the
+     * serviceId and merge output types and domains of the field.
+     * @param schema RDF schema
+     * @param field RDFNode that represents a field
+     * @param serviceId Id of the service the given schema belongs to
+     */
     private void buildField(Model schema, RDFNode field, String serviceId){
         buildField(schema, field, null, serviceId);
     }
 
+    /**
+     * Check if the given field or impliedField is already in the HGQL schema. If not in the schema add the field
+     * otherwise only add the serviceId and merge output types and domains of the field.
+     * @param schema RDF schema
+     * @param field RDFNode that represents a field
+     * @param impliedField field that is implied through the given field
+     * @param serviceId Id of the service the given schema belongs to
+     */
     private void buildField(Model schema, RDFNode field, RDFNode impliedField, String serviceId){
         if(field.isResource()){
             String id = prefixService.getId(field.asResource());
@@ -199,6 +229,12 @@ public class RDFtoHGQL {
         }
     }
 
+    /**
+     * Map the equivalentTypes relations from the given schema into the HGQL schema of this object.
+     * The serviceId is added to all field sand types that are interlinked with this relation.
+     * @param schema RDF schema containing potential information regarding equivalentTypes relations
+     * @param serviceId Id of the service the schema belongs to.
+     */
     private void buildEquivalentTypes(Model schema, String serviceId){
         Set<Property> equivalentTypeMappings = mapConfig.getEquivalentTypeMapping();   // Get all objects that represent a equivalent type in HGQL
         String mappings = convertToSPARQLPropertyOr(equivalentTypeMappings.stream()
@@ -227,6 +263,12 @@ public class RDFtoHGQL {
         }
     }
 
+    /**
+     * Map the equivalentFields relations from the given schema into the HGQL schema of this object.
+     * The serviceId is added to all field sand types that are interlinked with this relation.
+     * @param schema RDF schema containing potential information regarding equivalentFields relations
+     * @param serviceId Id of the service the schema belongs to.
+     */
     private void buildEquivalentFields(Model schema, String serviceId){
         Set<Property> equivalentFieldMappings = mapConfig.getEquivalentFieldMapping();   // Get all objects that represent a equivalent field in HGQL
         String mappings = convertToSPARQLPropertyOr(equivalentFieldMappings.stream()
@@ -252,6 +294,13 @@ public class RDFtoHGQL {
         }
     }
 
+    /**
+     * Map sameAs relations from the given schema into the HGQL schema of this object.
+     * The sameAs relation is handled for types and fields. The serviceId is added to all field sand types that are
+     * interlinked with this relation.
+     * @param schema RDF schema containing potential information regarding sameAs relations
+     * @param serviceId Id of the service the schema belongs to.
+     */
     private void buildSameAs(Model schema, String serviceId){
         Set<Property> sameAsMappingMappings = mapConfig.getSameAsMapping();
         String mappings = convertToSPARQLPropertyOr(sameAsMappingMappings.stream()
@@ -311,18 +360,20 @@ public class RDFtoHGQL {
                 field_s_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_o_obj.getId());
             }
         }
-        //ToDo: Same procedure for sameAs Properties/Fields
     }
 
+    /**
+     * Generates the HGQL context object type out of the types and fields.
+     */
     private void buildContext(){
         this.types.values().forEach(value -> this.context.put(value.getId(), value.getUri()));
         this.fields.values().forEach(value -> this.context.put(value.getId(), value.getUri()));
     }
 
     /**
-     * NOT finished currently only for testing
-     * //ToDo:
-     * @return
+     * Builds a SDL representation of the HGQL schema and returns it as string.
+     * The order of the schema elements is context, interfaces, unions, types.
+     * @return HGQL schema
      */
     public String buildSDL(){
         String sdl = "";
@@ -330,7 +381,7 @@ public class RDFtoHGQL {
         String context_content = this.context.keySet().stream()
                 .map(key -> String.format("\t%s:\t_@href(iri:\"%s\")", key, this.context.get(key)))
                 .collect(Collectors.joining("\n"));
-        String context = String.format("type __context{\n%s\n}", context_content);
+        String context = String.format("type __Context{\n%s\n}", context_content);
         //build interfaces (come with the fields)
         String interfaces = this.interfaces.values().stream()
                 .map(Interface::build)

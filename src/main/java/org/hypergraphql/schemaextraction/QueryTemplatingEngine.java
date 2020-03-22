@@ -1,14 +1,16 @@
 package org.hypergraphql.schemaextraction;
 
 import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.sparql.ARQException;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 
 import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * QueryTemplatingEngine obtains a template query and a mapping configuration and provides an interface to get the query
+ * customized for given services. The template that is supported is described in the documentation.
+ */
 public class QueryTemplatingEngine {
 
     private MappingConfig mapping;
@@ -28,9 +30,11 @@ public class QueryTemplatingEngine {
     private HashMap<String,Set<String>> all_nodes;
 
 
-
-
-
+    /**
+     * Obtains a template query and a mapping configuration and initializes the template variables.
+     * @param template_query SPARQL query with template variables
+     * @param mapping mapping configuration
+     */
     public QueryTemplatingEngine(String template_query, MappingConfig mapping){
         this.mapping = mapping;
         this.template_query  = new ParameterizedSparqlString(template_query);
@@ -95,6 +99,9 @@ public class QueryTemplatingEngine {
         prebuild();
     }
 
+    /**
+     * Replace all template variables but the service variable.
+     */
     private void prebuild(){
         for(HashMap.Entry<String,String> entry : one_node.entrySet()){
             String key = entry.getKey();
@@ -105,20 +112,30 @@ public class QueryTemplatingEngine {
             String key = entry.getKey();
             Set<String> nodes = entry.getValue();
             String currQ = template_query.toString();
-            //System.out.print(currQ);
-            //System.out.print(currQ.replaceAll("(\\?test)+\\b",alternativePath(nodes)));
+
             template_query = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+key+")+\\b",alternativePath(nodes)));
 
         }
         this.query_service_template = template_query.toString();
     }
 
+    /**
+     * Builds a property path with the given nodes as alternative paths.
+     * @param nodes
+     * @return
+     */
     private String alternativePath(Set<String> nodes){
         return nodes.stream()
                 .map(t->String.format("<%s>",t.toString()))
                 .collect(Collectors.joining("|"));
     }
 
+    /**
+     * Replace the service template variable with the given service URL and return the query.
+     * The returned query does not contain any template variables.
+     * @param service Service URL
+     * @return SPARQL query
+     */
     public String buildQuery(String service){
         ParameterizedSparqlString res = new ParameterizedSparqlString(query_service_template);
         res.setIri("service", service);

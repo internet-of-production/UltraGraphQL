@@ -97,6 +97,9 @@ public class PrefixService {
     private String fetchPrefix(String namespace) {
         String query_uri = "https://prefix.cc/reverse";
         URIBuilder builder = new URIBuilder();
+        if(namespace.endsWith("#")){
+            namespace = namespace.substring(0, namespace.length() - 1);
+        }
         builder.setScheme("https").setHost("prefix.cc").setPath("/reverse")
                 .setParameter("uri", namespace)
                 .setParameter("format", "json");

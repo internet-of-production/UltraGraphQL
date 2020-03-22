@@ -6,6 +6,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
@@ -79,20 +80,19 @@ public class HGQLConfigService {
                 ExtractionController exractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
                         new String ( Files.readAllBytes( Paths.get(config.getQueryFile()))));
-                exractionController.extractAndMap();
                 reader = exractionController.getHGQLSchemaReader();
                 if(config.getSchemaFile() != null){
-                    Path file = Paths.get(config.getSchemaFile());
-                    BufferedReader buffer = new BufferedReader(reader);
-                    Files.write(file, buffer.lines().collect(Collectors.joining("\n")).getBytes(), StandardOpenOption.CREATE);
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(config.getSchemaFile()));
+                    writer.write(exractionController.getHGQLSchema());
+                    writer.close();
                 }
             }else{
                 reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
-//            final TypeDefinitionRegistry registry = schemaParser.parse(reader);
-//            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
-//            config.setGraphQLSchema(wiring.getSchema());
-//            config.setHgqlSchema(wiring.getHgqlSchema());
+            final TypeDefinitionRegistry registry = schemaParser.parse(reader);
+            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
+            config.setGraphQLSchema(wiring.getSchema());
+            config.setHgqlSchema(wiring.getHgqlSchema());
             return config;
 
         } catch (IOException | URISyntaxException e) {
