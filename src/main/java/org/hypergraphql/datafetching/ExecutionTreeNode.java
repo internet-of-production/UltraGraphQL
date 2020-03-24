@@ -39,7 +39,7 @@ public class ExecutionTreeNode {
     private Service service; // getService configuration
     private JsonNode query; // GraphQL in a basic Json format
     private String executionId; // unique identifier of this execution node
-    private Map<String, ExecutionForest> childrenNodes; // succeeding executions
+    private Map<String, ExecutionForest> childrenNodes; // succeeding executions - Forest contains the ExecutionTreeNodes of fields that have a different service
     private String rootType;
     private Map<String, String> ldContext;
     private HGQLSchema hgqlSchema;
@@ -93,7 +93,7 @@ public class ExecutionTreeNode {
     ExecutionTreeNode(Field field, String nodeId , HGQLSchema schema ) {
 
         if(schema.getQueryFields().containsKey(field.getName())) {
-            this.service = schema.getQueryFields().get(field.getName()).service();
+            this.service = schema.getQueryFields().get(field.getName()).service();   // service that is responsible for given field
         } else if(schema.getFields().containsKey(field.getName())) {
             LOGGER.info("here");
         } else {
@@ -149,6 +149,13 @@ public class ExecutionTreeNode {
     }
 
 
+    /**
+     * Generates a JSON object containing the JSON representation of all given fields
+     * @param fields set of fields of one object
+     * @param parentId objectId of the object tht has the given fields
+     * @param parentType object name
+     * @return JSON object containing the given fields
+     */
     private JsonNode getFieldsJson(Set<Field> fields, String parentId, String parentType) {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -167,6 +174,15 @@ public class ExecutionTreeNode {
     }
 
 
+    /**
+     * Generates a JSON object representing the given field and its subfield if defined. For subfields with a different
+     * service a new ExecutionTreeNode is created  and added to the ExecutionForest of this object
+     * @param field Field of the query
+     * @param parentId objectId of this field
+     * @param nodeId The query variable that MUST be used to query the given field
+     * @param parentType object name of the field
+     * @return JSON object o the given field
+     */
     private JsonNode getFieldJson(Field field, String parentId, String nodeId, String parentType) {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -198,6 +214,11 @@ public class ExecutionTreeNode {
         return query;
     }
 
+    /**
+     * Returns the IRI of the field that corresponds to the given key
+     * @param contextLdKey Key of a field
+     * @return context of the given field (in most cases he IRI of the field)
+     */
     private String getContextLdValue(String contextLdKey) {
 
         if (hgqlSchema.getFields().containsKey(contextLdKey)) {
@@ -207,6 +228,14 @@ public class ExecutionTreeNode {
         }
     }
 
+    /**
+     * Generates a JSON representation for the subfields with the same service. For subfields with a different service
+     * create a new ExecutionTreeNode and add the new object to the ExecutionForest of this object
+     * @param field Field containing a query selection set
+     * @param parentId id of the objectType of the given field
+     * @param parentType name of the objectType of the given field
+     * @return JSON object of the subfields that have the same service or null if no subfield uses this service
+     */
     private JsonNode traverse(Field field, String parentId, String parentType) {
 
         SelectionSet subFields = field.getSelectionSet();
@@ -215,20 +244,22 @@ public class ExecutionTreeNode {
             FieldOfTypeConfig fieldConfig = hgqlSchema.getTypes().get(parentType).getField(field.getName());
             String targetName = fieldConfig.getTargetName();
 
-            Map<Service, Set<Field>> splitFields = getPartitionedFields(targetName, subFields);
+            Map<Service, Set<Field>> splitFields = getPartitionedFields(targetName, subFields);   // service_1 [field_1, field_3] means service_1 is responsible for field_1 and field_3
 
-            Set<Service> serviceCalls = splitFields.keySet();
+            Set<Service> serviceCalls = splitFields.keySet();   // All services that need to be called
 
             for (Map.Entry<Service, Set<Field>> entry : splitFields.entrySet()) {
-                if (!entry.getKey().equals(this.service)) {
+                if (!entry.getKey().equals(this.service)) {   // If the service is NOT the same service as the service of this object create a new ExecutionTreeNode
                     ExecutionTreeNode childNode = new ExecutionTreeNode(
-                            entry.getKey(),
-                            entry.getValue(),
-                            parentId,
-                            targetName,
+                            entry.getKey(),   //service
+                            entry.getValue(),   // fields
+                            parentId,   // object of the given field
+                            targetName,   //outputtype of given field
                             hgqlSchema
                     );
 
+
+                    // Add newly created ExecutionTreeNode to the ExecutionForest of the object
                     if (this.childrenNodes.containsKey(parentId)) {
                         try {
                             this.childrenNodes.get(parentId).getForest().add(childNode);
@@ -247,15 +278,21 @@ public class ExecutionTreeNode {
                 }
             }
 
-            if (serviceCalls.contains(this.service)) {
+            if (serviceCalls.contains(this.service)) {  // at least one subfield has the same service as this field
 
                 Set<Field> subfields = splitFields.get(this.service);
-                return getFieldsJson(subfields, parentId, targetName);
+                return getFieldsJson(subfields, parentId, targetName);   // return Json representation of the subfields of the selectionSet
             }
         }
         return null;
     }
 
+    /**
+     * Map the List of given GraphQL arguments to an JSON object
+     * Example: (id:5, names:["Test"]) -> {"id": 5, "names": ["Test"]}
+     * @param args GraphQL query arguments
+     * @return JSON representation of the given arguments
+     */
     private JsonNode getArgsJson(List<Argument> args) {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -301,6 +338,13 @@ public class ExecutionTreeNode {
     }
 
 
+    /**
+     * Generates a mapping of the services needed for the selectionSet to a Set of fields from the selection set using
+     * these services.
+     * @param parentType name of an objectType
+     * @param selectionSet selectionSet with the given parentType as parent
+     * @return Mapping between services and fields which defines which service is responsible for which field
+     */
     private Map<Service, Set<Field>> getPartitionedFields(String parentType, SelectionSet selectionSet) {
 
         Map<Service, Set<Field>> result = new HashMap<>();
@@ -313,14 +357,14 @@ public class ExecutionTreeNode {
 
                 Field field = (Field) child;
 
-                if (hgqlSchema.getFields().containsKey(field.getName())) {
+                if (hgqlSchema.getFields().containsKey(field.getName())) {   //Field of the selection set is part of the object in the hgql schema
 
                     Service serviceConfig;
 
                     if(hgqlSchema.getTypes().containsKey(parentType)) {
 
                         if(hgqlSchema.getTypes().get(parentType).getFields().containsKey(field.getName())) {
-                            serviceConfig = hgqlSchema.getTypes().get(parentType).getFields().get(field.getName()).getService();
+                            serviceConfig = hgqlSchema.getTypes().get(parentType).getFields().get(field.getName()).getService();   // Service of field/child
                         } else {
                             throw new HGQLConfigurationException("Schema is missing field '"
                                     + parentType + "::" + field.getName() + "'");
@@ -328,7 +372,7 @@ public class ExecutionTreeNode {
                     } else {
                         throw new HGQLConfigurationException("Schema is missing type '" + parentType + "'");
                     }
-
+                    // Add the service to the result
                     if (result.containsKey(serviceConfig)) {
 
                         result.get(serviceConfig).add(field);

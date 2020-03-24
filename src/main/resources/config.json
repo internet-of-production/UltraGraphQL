@@ -1,7 +1,7 @@
 {
     "name": "hgql-example-with-sparql",
     "schema": "gql/schema.graphql",
-    "extraction": true,
+    "extraction": false,
     "mapping": "mapping.ttl",
     "server": {
         "port": 8080,

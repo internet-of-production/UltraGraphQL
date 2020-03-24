@@ -53,7 +53,7 @@ public class HGQLConfig {
         this.schemaFile = schemaFile;
         this.graphqlConfig = graphqlConfig;
         this.serviceConfigs = services;
-        this.extraction = extraction;
+        this.extraction = extraction != null? extraction : false;
         this.mappingFile = mappingFile;
         this.queryFile = queryFile;
     }

@@ -96,7 +96,7 @@ public class ApplicationConfigurationService {
      * @return List of HGQLConfigs
      */
     List<HGQLConfig> getConfigurationsFromFile(final String configPathString) {
-
+        System.out.print(configPathString);
         final File configPath = new File(configPathString); // it always has this
         final List<HGQLConfig> configurations = new ArrayList<>();
         try {

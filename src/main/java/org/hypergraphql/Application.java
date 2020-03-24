@@ -89,6 +89,7 @@ public class Application {
         configurations.forEach(config -> {
             LOGGER.info("Starting controller...");
             new Controller().start(config);
+            LOGGER.debug("Started REST API");
         });
     }
 

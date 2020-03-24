@@ -82,7 +82,7 @@ task execute(type:JavaExec) {
 sourceSets {
     main {
         resources {
-            include '**/*.json', '**/*.xml', '**/*.vtl', '**/*.properties', '**/*.txt', '**/*.graphql'
+            include '**/*.json', '**/*.xml', '**/*.vtl', '**/*.properties', '**/*.txt', '**/*.graphql,', '**/*.sparql', '**/*.ttl'
         }
     }
 }

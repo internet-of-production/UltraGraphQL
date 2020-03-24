@@ -3,6 +3,8 @@ package org.hypergraphql.config.schema;
 import graphql.schema.GraphQLOutputType;
 import org.hypergraphql.datafetching.services.Service;
 
+import java.util.Set;
+
 public class FieldOfTypeConfig {
 
     public String getId() {
@@ -10,7 +12,7 @@ public class FieldOfTypeConfig {
     }
 
     public Service getService() {
-        return service;
+        return service.iterator().next();
     }
 
     public GraphQLOutputType getGraphqlOutputType() {
@@ -31,12 +33,12 @@ public class FieldOfTypeConfig {
 
     private String id;
     private String name;
-    private Service service;
+    private Set<Service> service;
     private GraphQLOutputType graphqlOutputType;
     private Boolean isList;
     private String targetName;
 
-    public FieldOfTypeConfig(String name, String id, Service service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
+    public FieldOfTypeConfig(String name, String id, Set<Service> service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
 
         this.name = name;
         this.id=id;

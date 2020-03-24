@@ -66,20 +66,25 @@ public class HGQLConfigService {
 
         try {
 
+            LOGGER.info("Try to map configuration");
             final HGQLConfig config = mapper.readValue(inputStream, HGQLConfig.class);
+            LOGGER.info("Mapping successful");
             final SchemaParser schemaParser = new SchemaParser();
 
             final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
 
             LOGGER.debug("Schema config path: " + fullSchemaPath);
             Reader reader = null;
+            LOGGER.info(config.getExtraction().toString());
             if(config.getExtraction()){
                 //Extract schema
                 Model mapping = ModelFactory.createDefaultModel();
-                mapping.read(new FileInputStream(config.getMappingFile()),null,"TTL");
+                final String fullMappingPath = extractFullSchemaPath(hgqlConfigPath, config.getMappingFile());
+                final String fullQueryPath = extractFullSchemaPath(hgqlConfigPath, config.getQueryFile());
+                mapping.read(new FileInputStream(fullMappingPath),null,"TTL");
                 ExtractionController exractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
-                        new String ( Files.readAllBytes( Paths.get(config.getQueryFile()))));
+                        new String ( Files.readAllBytes( Paths.get(fullQueryPath))));
                 reader = exractionController.getHGQLSchemaReader();
                 if(config.getSchemaFile() != null){
                     BufferedWriter writer = new BufferedWriter(new FileWriter(config.getSchemaFile()));

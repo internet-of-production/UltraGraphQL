@@ -51,6 +51,7 @@ public class SPARQLEndpointService extends SPARQLService {
 
         List<String> inputList = getStrings(query, input, markers, rootType, schema, resultSet);
 
+        // run the query but if the id restriction form _GET_BY_ID has more then VALUES_SIZE_LIMIT URIS then run multiple queries with each query having maximum of VALUES_SIZE_LIMIT IDds
         do {
 
             Set<String> inputSubset = new HashSet<>();
@@ -97,7 +98,7 @@ public class SPARQLEndpointService extends SPARQLService {
         for (String marker : markers) {
             resultSet.put(marker, new HashSet<>());
         }
-
+        //ToDo: Handle the _GET_BY_ID to function if the argument id is given and is not null
         if (rootType.equals("Query")&&schema.getQueryFields().get(query.get("name").asText()).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
             Iterator<JsonNode> uris = query.get("args").get("uris").elements();
             while (uris.hasNext()) {

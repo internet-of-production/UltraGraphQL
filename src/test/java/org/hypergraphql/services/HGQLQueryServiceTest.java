@@ -1,6 +1,7 @@
 package org.hypergraphql.services;
 
 import org.hypergraphql.config.system.HGQLConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class HGQLQueryServiceTest {
 
         final String query = "" +
                 "{\n" +
-                "Company_GET(limit:1, offset:3) {\n" +
+                "Company(limit:1, offset:3) {\n" +
                 "  name\n" +
                 "  owner {\n" +
                 "    name \n" +
@@ -41,5 +42,13 @@ class HGQLQueryServiceTest {
         assertNotNull(actual);
         assertFalse(actual.isEmpty());
         assertTrue(actual.containsKey("data"));
+    }
+
+    @BeforeEach
+    void setUp() {
+    }
+
+    @Test
+    void results() {
     }
 }

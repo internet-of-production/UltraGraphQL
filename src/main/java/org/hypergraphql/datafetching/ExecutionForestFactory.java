@@ -18,6 +18,13 @@ public class ExecutionForestFactory {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExecutionForestFactory.class);
 
+    /**
+     * Generate ExecutionForest for the given query by adding an ExecutionTreeNode to the forest for each field of the
+     * query
+     * @param queryDocument valid GraphQL query
+     * @param schema HGQLSchema of the query
+     * @return ExecutionForest that contains ExecutionTreeNode for each field of the query
+     */
     public ExecutionForest getExecutionForest(Document queryDocument , HGQLSchema schema) {
 
         ExecutionForest forest = new ExecutionForest();
@@ -37,6 +44,11 @@ public class ExecutionForestFactory {
         return forest;
     }
 
+    /**
+     * Extracts the SelectionSet from a given GraphQL query
+     * @param queryDocument valid GraphQL query
+     * @return SelectionSet of the given queryDocument
+     */
     private SelectionSet selectionSet(final Document queryDocument) {
 
         final Definition definition = queryDocument.getDefinitions().get(0);
@@ -52,6 +64,11 @@ public class ExecutionForestFactory {
         throw new IllegalArgumentException(queryDocument.getClass().getName() + " is not supported");
     }
 
+    /**
+     * Replace the links to fragments in the query with the fragment definition.
+     * @param queryDocument GraphQLQuery with fragments
+     * @return GraphQLQuery without fragments
+     */
     private SelectionSet getFragmentSelectionSet(final Document queryDocument) {
 
         // NPE

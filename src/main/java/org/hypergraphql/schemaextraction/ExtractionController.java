@@ -1,7 +1,12 @@
 package org.hypergraphql.schemaextraction;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.reasoner.*;
+import org.apache.jena.reasoner.rulesys.OWLMicroReasonerFactory;
+import org.apache.jena.reasoner.rulesys.OWLMiniReasoner;
 import org.apache.log4j.Logger;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.exception.HGQLConfigurationException;
@@ -57,6 +62,8 @@ public class ExtractionController {
                     continue;
                 }
                 serviceSchema.write(System.out);
+                Reasoner res = new OWLMiniReasoner(OWLMicroReasonerFactory.theInstance());
+                InfModel infModel = ModelFactory.createInfModel(res, serviceSchema);
                 this.mapper.create(serviceSchema, conf.getId());
             }else{
                 log.info("The Service type \""+conf.getType()+"\" is NOT supported for the schema extraction. Skip this service type.");
