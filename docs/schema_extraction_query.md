@@ -42,7 +42,7 @@ The template variable names are based on the Default Mapping Vocabulary because 
 
 
 ## Example Schema Extraction Query Using Templating
-####Template Query
+#### Template Query
 ```sparql
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -119,7 +119,7 @@ WHERE {
 };
 ```
 
-####Resulting Query
+#### Resulting Query
 - Mapping: default mapping
 - Service url: <TESTService_2:
 ```sparql
