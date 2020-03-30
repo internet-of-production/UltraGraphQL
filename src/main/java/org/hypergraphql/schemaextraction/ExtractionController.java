@@ -62,8 +62,6 @@ public class ExtractionController {
                     continue;
                 }
                 serviceSchema.write(System.out);
-                Reasoner res = new OWLMiniReasoner(OWLMicroReasonerFactory.theInstance());
-                InfModel infModel = ModelFactory.createInfModel(res, serviceSchema);
                 this.mapper.create(serviceSchema, conf.getId());
             }else{
                 log.info("The Service type \""+conf.getType()+"\" is NOT supported for the schema extraction. Skip this service type.");
@@ -77,7 +75,9 @@ public class ExtractionController {
      * @return HGQL schema
      */
     public String getHGQLSchema(){
-        return this.mapper.buildSDL();
+        String schema  = this.mapper.buildSDL();
+        log.info(schema);
+        return  schema;
     }
 
     /**

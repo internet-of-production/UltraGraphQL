@@ -4,7 +4,7 @@ Defines the name of the HypergraphQL Endpoint.
 > Datatype: String
 
 ## schema
-Name of the schema file. If the extraction property is true then the extracted schema is saved in this file. 
+Name of the schema file. If the extraction property is true then the extracted schema is saved in this file.
 If NO schema file is provided then the schema extraction still functions but the schema will not be saved in a file.
 > Datatype: String
 
@@ -38,9 +38,11 @@ URL path to reach the [GraphiQL](https://github.com/graphql/graphiql) service.
 > Datatype: String (URL path)
 
 ## services
-Contains a list of individual services. 
+Contains a list of individual services.
 
 >Datatype: JSON-list
+
+-----------------------
 ### Service
 A Service object consists of the id, type and URL of the service.
 Additionally the graph in which the data is stored is given and authentication information to access this service are given.
@@ -50,21 +52,21 @@ The id of a service MUST be unique for this service and will be used to link sch
 #### type
 The type defines of which type the service is.
 The name of the type MUST correspond to a service java class.
-Supported Services:         
- - SPARQLEndpointService:   (remote) SPARQL endpoints 
+Supported Services:
+ - SPARQLEndpointService:   (remote) SPARQL endpoints
  - LocalModelSPARQLService: local RDF files
  - HGraphQLService: HyperGraphQL instance
 >Datatype: String - MUST be one of the supported services listed above
 #### url
-The url key is only needed for the services *SPARQLEndpointService* or *HGraphQLService* is used. 
+The url key is only needed for the services *SPARQLEndpointService* or *HGraphQLService* is used.
 Defines where the service can be accessed.
 >Datatype: String (URL)
 #### filepath
 Only if the service is a *LocalModelSPARQLService*. Path to the dataset.
->Datatype: String 
+>Datatype: String
 #### filetype
 Only if the service is a *LocalModelSPARQLService*. File type of the dataset.
->Datatype: String 
+>Datatype: String
 #### graph
 Specifies in which graph of the data (If the data is stored in Quads).
 >Dataset: String

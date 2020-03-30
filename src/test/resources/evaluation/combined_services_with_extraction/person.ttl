@@ -1,0 +1,19 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex:   <http://www.example.org/> .
+
+ex:Alice a ex:Person ;
+        rdfs:label "Alice";
+        ex:lastName "Hellmann";
+        ex:firstName "Alice";
+        ex:address ex:addr_a .
+
+ex:addr_a a ex:Address .
+ex:addr_b a ex:Address .
+
+ex:Bob a ex:Person ;
+       rdfs:label "Bob";
+       ex:lastName "Rivest";
+       ex:firstName "Bob" ;
+        ex:address ex:addr_b .
+

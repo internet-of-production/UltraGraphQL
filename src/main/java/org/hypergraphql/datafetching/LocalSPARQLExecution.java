@@ -8,6 +8,7 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.engine.http.Service;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
@@ -20,11 +21,13 @@ import java.util.Set;
 public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
     private Model model;
+    private String serviceId;
 
 
     public LocalSPARQLExecution(JsonNode query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema , Model localmodel, String rootType) {
         super(query, inputSubset, markers, sparqlEndpointService, schema, rootType);
         this.model = localmodel;
+        this.serviceId = sparqlEndpointService.getId();
     }
 
     @Override
@@ -36,7 +39,7 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
         Model unionModel = ModelFactory.createDefaultModel();
 
         SPARQLServiceConverter converter = new SPARQLServiceConverter(schema);
-        String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType);
+        String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, serviceId);
         logger.debug(sparqlQuery);
         Query jenaQuery = QueryFactory.create(sparqlQuery);
 

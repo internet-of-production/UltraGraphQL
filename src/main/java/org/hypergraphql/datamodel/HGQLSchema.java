@@ -12,6 +12,7 @@ import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
+import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
 import org.slf4j.Logger;
@@ -257,11 +258,22 @@ public class HGQLSchema {
 
         for (RDFNode node : queryFieldNodes) {
             String name = rdfSchema.getValueOfDataProperty(node, HGQL_HAS_NAME);
+            Service queryFieldService = null;
             Set<Service>  queryFieldServices = getServices(services, node);
+            if(queryFieldServices.size() > 1){
+                // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
+                ManifoldService manifoldService = new ManifoldService();
+                manifoldService.setParameters(queryFieldServices);
+                queryFieldService = manifoldService;
+            }else if(queryFieldServices.size() == 1){
+                queryFieldService = queryFieldServices.iterator().next();
+            }else{
+                LOGGER.debug(String.format("QueryField %s has no assigned service", name));
+            }
             //ToDo: Implement the functionality for the newly defined directives
 
             String type = (queryGetFieldNodes.contains(node)) ? HGQL_QUERY_GET_FIELD : HGQL_QUERY_GET_BY_ID_FIELD;  //ToDo: unnecessary check if _GET_BY_ID is removed
-            QueryFieldConfig fieldConfig = new QueryFieldConfig(queryFieldServices, type);
+            QueryFieldConfig fieldConfig = new QueryFieldConfig(queryFieldService, type);
             queryFields.put(name, fieldConfig);
         }
 
@@ -282,7 +294,18 @@ public class HGQLSchema {
                 RDFNode href = rdfSchema.getValueOfObjectProperty(field, HGQL_HREF);
                 String hrefURI = (href!=null) ? href.asResource().getURI() : null;
                 //ToDo: Create list of services
-                Set<Service> fieldOfTypeService = getServices(services, field);
+                Service fieldOfTypeService = null;
+                Set<Service> fieldOfTypeServices = getServices(services, field);
+                if(fieldOfTypeServices.size() > 1){
+                    // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
+                    ManifoldService manifoldService = new ManifoldService();
+                    manifoldService.setParameters(fieldOfTypeServices);
+                    fieldOfTypeService = manifoldService;
+                }else if(fieldOfTypeServices.size() == 1){
+                    fieldOfTypeService = fieldOfTypeServices.iterator().next();
+                }else{
+                    LOGGER.debug(String.format("FieldOfType %s has no assigned service", fieldOfTypeName));
+                }
 
                 RDFNode outputTypeNode = rdfSchema.getValueOfObjectProperty(field, HGQL_OUTPUT_TYPE);
                 GraphQLOutputType graphqlOutputType = getGraphQLOutputType(outputTypeNode);

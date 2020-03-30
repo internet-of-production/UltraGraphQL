@@ -58,7 +58,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         Model unionModel = ModelFactory.createDefaultModel();
 
         SPARQLServiceConverter converter = new SPARQLServiceConverter(schema);
-        String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType);
+        String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
         logger.debug(sparqlQuery);
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();

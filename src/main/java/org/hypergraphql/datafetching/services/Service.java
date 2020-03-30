@@ -55,6 +55,21 @@ public abstract class Service {
 
     public abstract void setParameters(ServiceConfig serviceConfig);
 
+    /**
+     * Builds a RDF model that contains information about the schema of the used SPARQL variables in the given query.
+     * Adds for the currentNode a triple using the variable id of the parentNode as subject and the
+     * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
+     * outputtype/target variable id is is added.
+     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
+     *      x_1 owner x_1_2.
+     *      x_1_2 a Person.
+     *      hgql:query hgql:query/owner x_1_2.
+     * Note: The variables used in the example can be arbitrary.
+     * @param query JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
+     * @param results Results of the query
+     * @param schema HGQLSchema
+     * @return Returns a model containing schema information of the query variables
+     */
     public Model getModelFromResults(JsonNode query, QuerySolution results , HGQLSchema schema) {
 
         Model model = ModelFactory.createDefaultModel();
@@ -70,23 +85,38 @@ public abstract class Service {
                 JsonNode currentNode = nodesIterator.next();
                 Model currentModel = buildModel(results, currentNode , schema);
                 model.add(currentModel);
-                model.add(getModelFromResults(currentNode.get("fields"), results ,schema));
+                model.add(getModelFromResults(currentNode.get("fields"), results ,schema));   // recursive call for selectionSet of the field
             }
         } else {
             Model currentModel = buildModel(results, query , schema);
             model.add(currentModel);
-            model.add(getModelFromResults(query.get("fields"), results, schema));
+            model.add(getModelFromResults(query.get("fields"), results, schema));   // recursive call for selectionSet of the field
         }
         return model;
 
     }
 
+    /**
+     * Builds a RDF model that contains information about the schema of the used SPARQL variables by querying the given
+     * currentNode. Adds for the currentNode a triple using the variable id of the parentNode as subject and the
+     * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
+     * outputtype/target variable id is is added.
+     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
+     *      x_1 owner x_1_2.
+     *      x_1_2 a Person.
+     *      hgql:query hgql:query/owner x_1_2.
+     * Note: The variables used in the example can be arbitrary.
+     * @param results Results of the query
+     * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
+     * @param schema HGQLSchema
+     * @return Returns a model containing schema information of the query variables
+     */
     private Model buildModel(QuerySolution results, JsonNode currentNode , HGQLSchema schema) {
 
         Model model = ModelFactory.createDefaultModel();
 
         FieldConfig propertyString = schema.getFields().get(currentNode.get("name").asText());
-        TypeConfig targetTypeString = schema.getTypes().get(currentNode.get("targetName").asText());
+        TypeConfig targetTypeString = schema.getTypes().get(currentNode.get("targetName").asText());   // field output type
 
         populateModel(results, currentNode, model, propertyString, targetTypeString);
 
@@ -94,7 +124,7 @@ public abstract class Service {
 
         if (queryField != null) {
 
-            String typeName = (currentNode.get("alias").isNull()) ? currentNode.get("name").asText() : currentNode.get("alias").asText();
+            String typeName = (currentNode.get("alias").isNull()) ? currentNode.get("name").asText() : currentNode.get("alias").asText();  // use the name if alias is null otherwise use alias
             Resource object = results.getResource(currentNode.get("nodeId").asText());
             Resource subject = model.createResource(HGQL_QUERY_URI);
             Property predicate = model.createProperty("", HGQL_QUERY_NAMESPACE + typeName);
@@ -103,6 +133,7 @@ public abstract class Service {
         return model;
     }
 
+    //only used by HGraphQLService
     Map<String, Set<String>> getResultset(Model model, JsonNode query, Set<String> input, Set<String> markers, HGQLSchema schema) {
 
         Map<String, Set<String>> resultset = new HashMap<>();
@@ -134,6 +165,7 @@ public abstract class Service {
         return resultset;
     }
 
+    //only used by method call of HGraphQLService
     private Set<String> findRootIdentifiers(Model model, TypeConfig targetName) {
 
         Set<String> identifiers = new HashSet<>();
@@ -149,11 +181,13 @@ public abstract class Service {
         return identifiers;
     }
 
+    //only used by method call of HGraphQLService
     private String getLeafMarker(LinkedList<QueryNode> path) {
 
         return path.getLast().getMarker();
     }
 
+    //only used by method call of HGraphQLService
     private Set<String> findIdentifiers(Model model, Set<String> input, LinkedList<QueryNode> path) {
 
         Set<String> subjects;
@@ -188,6 +222,7 @@ public abstract class Service {
         return objects;
     }
 
+    //only used by method call of HGraphQLService
     private boolean hasMarkerLeaf(LinkedList<QueryNode> path, Set<String> markers) {
 
         for (String marker : markers) {
@@ -204,6 +239,7 @@ public abstract class Service {
         return paths;
     }
 
+    //only used by method call of HGraphQLService
     private void getQueryPathsRecursive(JsonNode query, Set<LinkedList<QueryNode>> paths, LinkedList<QueryNode> path, HGQLSchema schema) {
 
         Model model = ModelFactory.createDefaultModel();
@@ -226,6 +262,7 @@ public abstract class Service {
         }
     }
 
+    //only used by method call of HGraphQLService
     private void getFieldPath(Set<LinkedList<QueryNode>> paths, LinkedList<QueryNode> path, HGQLSchema schema, Model model, JsonNode currentNode) {
 
         LinkedList<QueryNode> newPath = new LinkedList<>(path);
@@ -246,6 +283,21 @@ public abstract class Service {
         }
     }
 
+    /**
+     * Builds a RDF model that contains information about the schema using the SPARQL variables. Adds for the
+     * currentNode a triple using the variable id of the parentNode as subject and the variable id of the outputtype/target as
+     * object. Furthermore a triple indicating which object/class the outputtype/target variable id is is added.
+     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
+     *      x_1 owner x_1_2.
+     *      x_1_2 a Person.
+     * Note: The variables used in the example can be arbitrary.
+     * ToDo: Change names of the parameter, the suffix "String" is misleading.
+     * @param results Results of the query
+     * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
+     * @param model A model to insert the generated triples.
+     * @param propertyString FieldConfig od the field which is the root of the currentNode
+     * @param targetTypeString TypeConfig of the field of which is the root of the currentNode
+     */
     private void populateModel(
             final QuerySolution results,
             final JsonNode currentNode,

@@ -339,7 +339,7 @@ public class ExecutionTreeNode {
 
 
     /**
-     * Generates a mapping of the services needed for the selectionSet to a Set of fields from the selection set using
+     * Generates a mapping of the services, needed for the selectionSet, to a Set of fields from the selectionSet using
      * these services.
      * @param parentType name of an objectType
      * @param selectionSet selectionSet with the given parentType as parent

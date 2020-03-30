@@ -1,0 +1,27 @@
+type __Context{
+    City:           _@href(iri: "http://dbpedia.org/ontology/City")
+    label:          _@href(iri: "http://www.w3.org/2000/01/rdf-schema#label")
+    Person:         _@href(iri: "http://www.example.org/Person")
+    lastName:       _@href(iri: "http://www.example.org/lastName")
+    firstName:      _@href(iri: "http://www.example.org/firstName")
+    address:        _@href(iri: "http://www.example.org/address")
+    Address:        _@href(iri: "http://www.example.org/Address")
+    street:         _@href(iri: "http://www.example.org/street")
+    city:           _@href(iri: "http://www.example.org/city")
+}
+
+type Person  @service(id:"person"){
+    label: [String]   @service(id:"person")
+    lastName: [String]   @service(id:"person")
+    firstName: [String]   @service(id:"person")
+    address: [Address]   @service(id:"person")
+}
+
+type Address   @service(id:"address"){
+    street: [String]   @service(id:"address")
+    city: [City]   @service(id:"address")
+}
+
+type City   @service(id:"city"){
+    label: [String]   @service(id:"city")
+}

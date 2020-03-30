@@ -3,18 +3,18 @@ package org.hypergraphql.query.converters;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import jdk.internal.jimage.ImageReaderFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 
+import org.hypergraphql.datafetching.services.ManifoldService;
+import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The SPARQLServiceConverter provides methods to covert GraphQl queries into SPARQL queries according to the schema this
@@ -216,9 +216,10 @@ public class SPARQLServiceConverter {
      * @param jsonQuery
      * @param input
      * @param rootType
+     * @param serviceId id of the service that called this method. Used to select the right service from a ManifoldService
      * @return
      */
-    public String getSelectQuery(JsonNode jsonQuery, Set<String> input, String rootType) {
+    public String getSelectQuery(JsonNode jsonQuery, Set<String> input, String rootType, String serviceId) {
 
         Map<String, QueryFieldConfig> queryFields = schema.getQueryFields();
 
@@ -228,10 +229,10 @@ public class SPARQLServiceConverter {
             JsonNode args = jsonQuery.get(ARGS);
             if (args != null) {
                 if (args.has(ID)) {
-                    return getSelectRoot_GET_BY_ID(jsonQuery);
+                    return getSelectRoot_GET_BY_ID(jsonQuery, serviceId);
                 }
             }
-            return getSelectRoot_GET(jsonQuery);
+            return getSelectRoot_GET(jsonQuery, serviceId);
 
 //            if (queryFields.get(jsonQuery.get(NAME).asText()).type().equals(HGQLVocabulary.HGQL_QUERY_GET_FIELD)) { // ToDo: Do NOT check the name, check the arguments for _id
 //                return getSelectRoot_GET(jsonQuery);
@@ -239,16 +240,17 @@ public class SPARQLServiceConverter {
 //                return getSelectRoot_GET_BY_ID(jsonQuery);
 //            }
         } else {
-            return getSelectNonRoot((ArrayNode) jsonQuery, input, rootType);
+            return getSelectNonRoot((ArrayNode) jsonQuery, input, rootType, serviceId);
         }
     }
 
     /**
      * Generates A SPARQL query from a given GraphQl SelectionSet where the root is restricted by a list of given ids.
      * @param queryField
+     * @param serviceId id of the service that called this method. Used to select the right service from a ManifoldService
      * @return
      */
-    private String getSelectRoot_GET_BY_ID(JsonNode queryField) {
+    private String getSelectRoot_GET_BY_ID(JsonNode queryField, String serviceId) {
 
         Iterator<JsonNode> urisIter = queryField.get(ARGS).get(ID).elements();
 
@@ -258,7 +260,8 @@ public class SPARQLServiceConverter {
 
         String targetName = queryField.get(TARGET_NAME).asText();
         String targetURI = schema.getTypes().get(targetName).getId();
-        String graphID = ((SPARQLEndpointService) schema.getQueryFields().get(queryField.get(NAME).asText()).service()).getGraph();
+
+        String graphID = getGraphId(queryField, serviceId);
         String nodeId = queryField.get(NODE_ID).asText();
         String selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
         String valueSTR = valuesClause(nodeId, uris);
@@ -273,13 +276,14 @@ public class SPARQLServiceConverter {
     /**
      * Generates A SPARQL query from a given GraphQl SelectionSet with no restrictions to the root selection.
      * @param queryField GraphQl SelectionSet
+     * @param serviceId id of the service that called this method. Used to select the right service from a ManifoldService
      * @return
      */
-    private String getSelectRoot_GET(JsonNode queryField) {
+    private String getSelectRoot_GET(JsonNode queryField, String serviceId) {
 
         String targetName = queryField.get(TARGET_NAME).asText();
         String targetURI = schema.getTypes().get(targetName).getId();
-        String graphID = ((SPARQLEndpointService) schema.getQueryFields().get(queryField.get(NAME).asText()).service()).getGraph();  // The Graph is defined over the HGQL Schema directive service
+        String graphID = getGraphId(queryField, serviceId);  // The Graph is defined over the HGQL Schema directive service
         String nodeId = queryField.get(NODE_ID).asText();
         String limitOffsetSTR = limitOffsetClause(queryField);
         String selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
@@ -297,13 +301,18 @@ public class SPARQLServiceConverter {
      * @param jsonQuery Multiple field elements
      * @param input Set of values which the result of the query should match in the subject of a triple
      * @param rootType type from which the graph is used
+     * @param serviceId id of the service that called this method. Used to select the right service from a ManifoldService
      * @return
      */
-    private String getSelectNonRoot(ArrayNode jsonQuery, Set<String> input, String rootType) {
+    private String getSelectNonRoot(ArrayNode jsonQuery, Set<String> input, String rootType, String serviceId) {
 
 
         JsonNode firstField = jsonQuery.elements().next();
-        String graphID = ((SPARQLEndpointService) schema.getTypes().get(rootType).getFields().get(firstField.get(NAME).asText()).getService()).getGraph();
+        Service service =  schema.getTypes().get(rootType).getFields().get(firstField.get(NAME).asText()).getService();
+        if(service instanceof ManifoldService){
+            service = ((ManifoldService) service).getService(serviceId);
+        }
+        String graphID = ((SPARQLEndpointService) service).getGraph();
         String parentId = firstField.get(PARENT_ID).asText();
         String valueSTR = valuesClause(parentId, input);   // restrict the ?parentId to the values defined in the input list
 
@@ -357,5 +366,20 @@ public class SPARQLServiceConverter {
         StringBuilder whereClause = new StringBuilder();
         subfields.elements().forEachRemaining(field -> whereClause.append(getFieldSubquery(field)));
         return whereClause.toString();
+    }
+
+    /**
+     * Returns the graph of the service that is responsible for the given queryField. If the responsible service is a
+     * ManifoldService then select the service by the given serviceId.
+     * @param queryField queryField must be the root field
+     * @param serviceId
+     * @return
+     */
+    private String getGraphId(JsonNode queryField, String serviceId){
+        Service service =  schema.getQueryFields().get(queryField.get(NAME).asText()).service();
+        if(service instanceof ManifoldService){
+            service = ((ManifoldService) service).getService(serviceId);
+        }
+        return ((SPARQLEndpointService) service).getGraph();  // The Graph is defined over the HGQL Schema directive service
     }
 }

@@ -1,7 +1,7 @@
 {
   "id": "dbpedia-sparql",
   "type": "SPARQLEndpointService",
-  "url": "http://localhost:8001/dataset",
+  "url": "https://query.wikidata.org/",
   "graph": "http://dbpedia.org",
   "user": "",
   "password": ""

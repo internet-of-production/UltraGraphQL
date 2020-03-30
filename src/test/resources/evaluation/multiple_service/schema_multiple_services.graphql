@@ -1,0 +1,9 @@
+type __Context {
+    City:           _@href(iri: "http://dbpedia.org/ontology/City")
+    label:          _@href(iri: "http://www.w3.org/2000/01/rdf-schema#label")
+}
+
+type City @service(id:["service_1","service_2"]) {
+    label: [String] @service(id:["service_1","service_2"])
+}
+

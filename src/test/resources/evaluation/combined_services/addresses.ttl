@@ -1,0 +1,16 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dbo:   <http://dbpedia.org/ontology/> .
+@prefix dbr:   <http://dbpedia.org/resource/> .
+@prefix ex:   <http://www.example.org/> .
+
+ex:addr_a a ex:Address;
+        ex:street "123 Fake Street";
+        ex:city dbr:Aachen .
+
+ex:addr_b a ex:Address;
+          ex:street "742 Evergreen Terrace";
+          ex:city dbr:koeln .
+
+dbr:koeln  a dbo:City .
+dbr:Aachen  a dbo:City .

@@ -71,9 +71,7 @@ public class HGQLConfigService {
             LOGGER.info("Mapping successful");
             final SchemaParser schemaParser = new SchemaParser();
 
-            final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
 
-            LOGGER.debug("Schema config path: " + fullSchemaPath);
             Reader reader = null;
             LOGGER.info(config.getExtraction().toString());
             if(config.getExtraction()){
@@ -92,6 +90,9 @@ public class HGQLConfigService {
                     writer.close();
                 }
             }else{
+                final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
+
+                LOGGER.debug("Schema config path: " + fullSchemaPath);
                 reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
             final TypeDefinitionRegistry registry = schemaParser.parse(reader);

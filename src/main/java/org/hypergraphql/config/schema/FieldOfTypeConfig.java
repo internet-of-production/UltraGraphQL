@@ -12,7 +12,7 @@ public class FieldOfTypeConfig {
     }
 
     public Service getService() {
-        return service.iterator().next();
+        return service;
     }
 
     public GraphQLOutputType getGraphqlOutputType() {
@@ -33,12 +33,12 @@ public class FieldOfTypeConfig {
 
     private String id;
     private String name;
-    private Set<Service> service;
+    private Service service;
     private GraphQLOutputType graphqlOutputType;
     private Boolean isList;
     private String targetName;
 
-    public FieldOfTypeConfig(String name, String id, Set<Service> service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
+    public FieldOfTypeConfig(String name, String id, Service service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
 
         this.name = name;
         this.id=id;

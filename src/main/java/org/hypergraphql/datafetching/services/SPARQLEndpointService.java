@@ -9,6 +9,8 @@ import org.hypergraphql.datafetching.SPARQLEndpointExecution;
 import org.hypergraphql.datafetching.SPARQLExecutionResult;
 import org.hypergraphql.datafetching.TreeExecutionResult;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ import java.util.concurrent.Future;
 
 public class SPARQLEndpointService extends SPARQLService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(SPARQLEndpointService.class);
     private String url;
     private String user;
     private String password;
@@ -44,7 +47,7 @@ public class SPARQLEndpointService extends SPARQLService {
     @Override
     public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
-
+        LOGGER.debug(String.format("%s: Start query execution", this.getId()));
         Map<String, Set<String>> resultSet = new HashMap<>();
         Model unionModel = ModelFactory.createDefaultModel();
         Set<Future<SPARQLExecutionResult>> futureSPARQLresults = new HashSet<>();
@@ -94,6 +97,17 @@ public class SPARQLEndpointService extends SPARQLService {
         }
     }
 
+    /**
+     * Init resultSet by inserting each marker as key with a empty set as value. Also add to the input set the URIs of
+     * the id argument of the query and return them as list.
+     * @param query JSON representation of a graphql query needed to extract information about query arguments
+     * @param input
+     * @param markers variables for the SPARQL query
+     * @param rootType type of the query root
+     * @param schema HGQLSchema
+     * @param resultSet
+     * @return List with input values
+     */
     List<String> getStrings(JsonNode query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema, Map<String, Set<String>> resultSet) {
         for (String marker : markers) {
             resultSet.put(marker, new HashSet<>());

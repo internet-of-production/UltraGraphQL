@@ -39,6 +39,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
     @Override
     public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
+        LOGGER.debug(String.format("%s: Start query execution", this.getId()));
         Map<String, Set<String>> resultSet = new HashMap<>();
         Model unionModel = ModelFactory.createDefaultModel();
         Set<Future<SPARQLExecutionResult>> futureSPARQLresults = new HashSet<>();

@@ -170,7 +170,7 @@ public class Field {
 
     private String buildOutputType(){
         if(getOutputtypeName().equals("")){
-            return "";
+            return "[String]";
         }else{
             String res = getOutputtypeName();
             if(isList){

@@ -1,0 +1,25 @@
+{
+  "name": "multiple-service-test",
+  "schema": "schema_multiple_services.graphql",
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "service_1",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/multiple_service/dataset_1.ttl",
+      "filetype":  "Turtle",
+      "graph": ""
+    },
+    {
+      "id": "service_2",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/multiple_service/dataset_2.ttl",
+      "filetype":  "Turtle",
+      "graph": ""
+    }
+  ]
+}
