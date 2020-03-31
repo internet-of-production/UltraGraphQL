@@ -15,6 +15,7 @@ import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The SPARQLServiceConverter provides methods to covert GraphQl queries into SPARQL queries according to the schema this
@@ -34,6 +35,7 @@ public class SPARQLServiceConverter {
     private final static String LIMIT = "limit";
     private final static String OFFSET = "offset";
     private final static String ID = "_id";
+    private final static String SAMEAS = "sameas";
 
     private final HGQLSchema schema;
 
@@ -201,12 +203,12 @@ public class SPARQLServiceConverter {
      * nodeId is a rdf:type of typeURI.
      * @param parentId Id to be used as variable in the sentence subject.
      * @param nodeId Id to be used as variable in the sentence object.
-     * @param predicateURI predicate of the sentence.
+     * @param predicateURI predicate of the sentence. If the predicate has sameAs properties then the predicateURI is a property path
      * @param typeURI Required type of the given nodeId,
      * @return
      */
     private String fieldPattern(String parentId, String nodeId, String predicateURI, String typeURI) {
-        String predicateTriple = (parentId.equals("")) ? "" : toTriple(toVar(parentId), uriToResource(predicateURI), toVar(nodeId));  // parentId == "" : "" | "?parentId <predicateURI> ?nodeId."
+        String predicateTriple = (parentId.equals("")) ? "" : toTriple(toVar(parentId), predicateURI, toVar(nodeId));  // parentId == "" : "" | "?parentId <predicateURI> ?nodeId."
         String typeTriple = (typeURI.equals("")) ? "" : toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(typeURI));   // typeURI == "" : "" | "?nodeId rdf:type <typeURI>."
         return predicateTriple + typeTriple;
     }
@@ -263,9 +265,23 @@ public class SPARQLServiceConverter {
 
         String graphID = getGraphId(queryField, serviceId);
         String nodeId = queryField.get(NODE_ID).asText();
-        String selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
+        String limitOffsetSTR = limitOffsetClause(queryField);
+        String selectTriple ="";
+        if(hasSameAsTypes(targetName)){
+            Set<String> values = getSameAsTypes(targetName);
+            values.add(targetName);
+            values = values.stream()
+                    .map(s -> schema.getTypes().get(s).getId())
+                    .collect(Collectors.toSet());
+            String value = valuesClause(SAMEAS, values);
+            selectTriple = value + toTriple(toVar(nodeId), RDF_TYPE_URI, toVar(SAMEAS));
+        }else{
+            selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
+        }
         String valueSTR = valuesClause(nodeId, uris);
         String filterSTR = filterClause(nodeId, uris);   // NOT used ?? -> same as valuesClause?
+
+
 
         JsonNode subfields = queryField.get(FIELDS);
         String subQuery = getSubQueries(subfields);
@@ -284,9 +300,20 @@ public class SPARQLServiceConverter {
         String targetName = queryField.get(TARGET_NAME).asText();
         String targetURI = schema.getTypes().get(targetName).getId();
         String graphID = getGraphId(queryField, serviceId);  // The Graph is defined over the HGQL Schema directive service
-        String nodeId = queryField.get(NODE_ID).asText();
+        String nodeId = queryField.get(NODE_ID).asText();   // SPARQL variable
         String limitOffsetSTR = limitOffsetClause(queryField);
-        String selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
+        String selectTriple ="";
+        if(hasSameAsTypes(targetName)){
+            Set<String> values = getSameAsTypes(targetName);
+            values.add(targetName);
+            values = values.stream()
+                    .map(s -> schema.getTypes().get(s).getId())
+                    .collect(Collectors.toSet());
+            String value = valuesClause(SAMEAS, values);
+            selectTriple = value + toTriple(toVar(nodeId), RDF_TYPE_URI, toVar(SAMEAS));
+        }else{
+            selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
+        }
         String rootSubquery = selectSubqueryClause(nodeId, selectTriple, limitOffsetSTR);
 
         JsonNode subfields = queryField.get(FIELDS);
@@ -336,6 +363,16 @@ public class SPARQLServiceConverter {
         }
 
         String fieldURI = schema.getFields().get(fieldName).getId();
+        // if field has sameAs fields replace field uri with property path querying all sameAs fields
+        if(hasSameAsFields(fieldName)){
+            Set<String> sameAs_fields = getSameAsFields(fieldName).stream()
+                    .map(s -> schema.getFields().get(s).getId())
+                    .collect(Collectors.toSet());
+            sameAs_fields.add(fieldURI);
+            fieldURI = alternativePath(sameAs_fields);
+        }else{
+            fieldURI = uriToResource(fieldURI);
+        }
         String targetName = fieldJson.get(TARGET_NAME).asText();
         String parentId = fieldJson.get(PARENT_ID).asText();
         String nodeId = fieldJson.get(NODE_ID).asText();
@@ -382,4 +419,57 @@ public class SPARQLServiceConverter {
         }
         return ((SPARQLEndpointService) service).getGraph();  // The Graph is defined over the HGQL Schema directive service
     }
+
+    private boolean hasSameAsTypes(String targetName){
+        if(schema.getTypes().containsKey(targetName)){
+            return !schema.getTypes().get(targetName).getSameAs().isEmpty();
+
+        }else{
+            // Given targetName is NOT a type of the schema
+            return false;
+        }
+    }
+
+    private Set<String> getSameAsTypes(String targetName){
+        if(schema.getTypes().containsKey(targetName)){
+            return schema.getTypes().get(targetName).getSameAs();
+
+        }else{
+            // Given targetName is NOT a type of the schema
+            return null;
+        }
+    }
+
+    private boolean hasSameAsFields(String targetName){
+        if(schema.getFields().containsKey(targetName)){
+            return !schema.getFields().get(targetName).getSameAs().isEmpty();
+
+        }else{
+            // Given targetName is NOT a type of the schema
+            return false;
+        }
+    }
+
+    private Set<String> getSameAsFields(String targetName){
+        if(schema.getFields().containsKey(targetName)){
+            return schema.getFields().get(targetName).getSameAs();
+
+        }else{
+            // Given targetName is NOT a type of the schema
+            return null;
+        }
+    }
+
+    /**
+     * Builds a property path with the given nodes as alternative paths.
+     * @param nodes
+     * @return
+     */
+    private String alternativePath(Set<String> nodes){
+        return nodes.stream()
+                .map(t->String.format("<%s>",t.toString()))
+                .collect(Collectors.joining("|"));
+    }
+
+
 }

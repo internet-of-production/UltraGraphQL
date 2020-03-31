@@ -1,0 +1,25 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dbo:   <http://dbpedia.org/ontology/> .
+@prefix dbr:   <http://dbpedia.org/resource/> .
+@prefix ex:   <http://www.example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+ex:alice a ex:Person ;
+        rdfs:label "Alice";
+        ex:address ex:addr_a .
+
+ex:addr_a a ex:Address;
+        ex:street "123 Fake Street" .
+
+ex:bob a dbo:Person ;
+        ex:label "Bob" ;
+        dbo:address  dbr:addr_b .
+
+dbr:addr_b a dbo:Address ;
+        dbo:street_number "742" ;
+        dbo:street_name "Evergreen Terrac" .
+
+ex:Person owl:sameAs dbo:Person .
+
+ex:label owl:sameAs rdfs:label .

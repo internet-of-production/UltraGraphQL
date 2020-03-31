@@ -1,8 +1,14 @@
 package org.hypergraphql.config.schema;
 
+import org.apache.jena.rdf.model.RDFNode;
+
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TypeConfig  {
+
+    private Set<String> sameAs;
 
     public String getName() {
         return name;
@@ -32,6 +38,14 @@ public class TypeConfig  {
         this.id = id;
         this.fields=fields;
 
+    }
+
+    public Set<String> getSameAs() {
+        return sameAs;
+    }
+
+    public void setSameAs(Set<String> sameAs) {
+        this.sameAs = sameAs;
     }
 
 }

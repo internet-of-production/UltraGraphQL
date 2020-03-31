@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class ApplicationTest {
 
-    long SOCKET_CLOSING = 200;
+    long SOCKET_CLOSING = 300;
 // This method can be used for testing with the GraphiQL interface
 //    @Test
 //    void main() throws Exception {
@@ -141,6 +141,26 @@ class ApplicationTest {
             }
         }
         assertTrue(correctly_nested);
+        Thread.sleep(SOCKET_CLOSING);
+    }
+
+    @Test
+    void sameAsTest() throws Exception {
+        String config = "build/resources/test/evaluation/sameAs/config.json";
+        String query = "{eg_Person{_id rdfs_label }}";
+        JSONObject json_response = sendPost(config, query);
+        System.out.println(json_response);
+        boolean bob = false;
+        boolean alice = false;
+        for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
+            JSONObject person = (JSONObject) o;
+            if(person.getJSONArray("rdfs_label").get(0).equals("Alice")){
+                alice = true;
+            }else if(person.getJSONArray("rdfs_label").get(0).equals("Bob")){
+                bob = true;
+            }
+        }
+        assertTrue(alice && bob);
         Thread.sleep(SOCKET_CLOSING);
     }
 

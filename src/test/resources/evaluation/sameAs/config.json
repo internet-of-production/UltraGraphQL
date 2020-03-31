@@ -1,0 +1,21 @@
+{
+  "name": "combined-service--with-extraction-test",
+  "schema": "extracted_schema.graphql",
+  "extraction": true,
+  "mapping": "mapping.ttl",
+  "query": "query.sparql",
+  "server": {
+    "port": 8082,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dataset_1",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/sameAs/dataset_1.ttl",
+      "filetype": "Turtle",
+      "graph": ""
+    }
+  ]
+}

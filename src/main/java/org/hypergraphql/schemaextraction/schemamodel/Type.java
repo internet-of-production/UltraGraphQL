@@ -55,6 +55,7 @@ public class Type {
     public void addSameAsType(Type type){
         this.sameAs.add(type);
         addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, type.id);
+        //ToDo: add the services of the given type to the services of this type ?????????????????
     }
 
     /**

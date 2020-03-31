@@ -8,10 +8,7 @@ import graphql.schema.GraphQLTypeReference;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.hypergraphql.config.schema.FieldConfig;
-import org.hypergraphql.config.schema.FieldOfTypeConfig;
-import org.hypergraphql.config.schema.QueryFieldConfig;
-import org.hypergraphql.config.schema.TypeConfig;
+import org.hypergraphql.config.schema.*;
 import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
@@ -121,7 +118,7 @@ public class HGQLSchema {
 
         Map<String, String> contextMap = new HashMap<>();
 
-        children.forEach(node -> {
+        children.forEach(node -> {   // iterate through context
             FieldDefinition field = ((FieldDefinition) node);
             String iri = ((StringValue) field.getDirective("href").getArgument("iri").getValue()).getValue();
             contextMap.put(field.getName(), iri);
@@ -183,6 +180,18 @@ public class HGQLSchema {
                         addTypeService(getQueryUri, serviceId);
                     }
 
+                }else if (dir.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA)) {
+                    if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
+                        final List<Value> sameAs_type = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
+                        for(Value sameAs : sameAs_type){
+                            rdfSchema.insertObjectTriple(typeUri, HGQLVocabulary.HGQLS_SAME_AS, schemaNamespace + ((StringValue)sameAs).getValue());
+                        }
+                    }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue){
+                        rdfSchema.insertObjectTriple(typeUri,
+                                HGQLVocabulary.HGQLS_SAME_AS,
+                                schemaNamespace + ((StringValue)dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
+
+                    }
                 }
                 //ToDo: Implement the functionality for the newly defined directives
                 //ToDo: sameAs
@@ -203,19 +212,34 @@ public class HGQLSchema {
 
                     final List<Directive> field_directives = field.getDirectives();
                     for (Directive dir : field_directives) {
-                        if (dir.getArgument("id").getValue() instanceof ArrayValue) {
-                            // Multiple services are defined for one type add all serviceIds for this type
-                            // The serviceIds that is extracted here is from @service(id:[serviceNames]) of the type in the schema
-                            final List<Value> serviceIds_field = ((ArrayValue) dir.getArgument("id").getValue()).getValues();
-                            for (Value seriveId : serviceIds_field) {
-                                addTypeService(fieldURI, ((StringValue) seriveId).getValue());
+                        if (dir.getName().equals("service")) {
+                            if (dir.getArgument("id").getValue() instanceof ArrayValue) {
+                                // Multiple services are defined for one type add all serviceIds for this type
+                                // The serviceIds that is extracted here is from @service(id:[serviceNames]) of the type in the schema
+                                final List<Value> serviceIds_field = ((ArrayValue) dir.getArgument("id").getValue()).getValues();
+                                for (Value seriveId : serviceIds_field) {
+                                    addTypeService(fieldURI, ((StringValue) seriveId).getValue());
+                                }
+                            } else if(dir.getArgument("id").getValue() instanceof  StringValue) {
+                                // The serviceId that is extracted here is from @service(id:"serviceName") of the type in the schema
+                                String serviceId = ((StringValue) dir.getArgument("id").getValue()).getValue();
+                                addTypeService(fieldURI, serviceId);
                             }
-                        } else {
-                            // The serviceId that is extracted here is from @service(id:"serviceName") of the type in the schema
-                            String serviceId = ((StringValue) dir.getArgument("id").getValue()).getValue();
-                            addTypeService(fieldURI, serviceId);
+                        }else if (dir.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA)) {
+                            if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
+                                final List<Value> sameAs_field = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
+                                for(Value sameAs : sameAs_field){
+                                    rdfSchema.insertObjectTriple(fieldURI,
+                                            HGQLVocabulary.HGQLS_SAME_AS,
+                                            schemaNamespace + typeName + "/" + ((StringValue)sameAs).getValue());
+                                }
+                            }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue) {
+                                rdfSchema.insertObjectTriple(fieldURI,
+                                        HGQLVocabulary.HGQLS_SAME_AS,
+                                        schemaNamespace + typeName + "/" + ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
+                            }
                         }
-
+                        //ToDo: Implement the functionality for the newly defined directives
                         //ToDo: sameAs
                     }
 
@@ -248,8 +272,12 @@ public class HGQLSchema {
             RDFNode href = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HREF);
             RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HAS_SERVICE);
             String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);   // Not used, because it is not supported in FieldConfig
-
             FieldConfig fieldConfig = new FieldConfig(href.asResource().getURI());
+            final List<RDFNode> sameAs_fields = rdfSchema.getValuesOfObjectProperty(fieldNode, HGQLVocabulary.HGQLS_SAME_AS);
+            Set<String> sameAs = sameAs_fields.stream()
+                    .map(sameAs_field -> rdfSchema.getValueOfDataProperty(sameAs_field, HGQL_HAS_NAME))
+                    .collect(Collectors.toSet());
+            fieldConfig.setSameAs(sameAs);
             fields.put(name, fieldConfig);
         }
 
@@ -324,6 +352,11 @@ public class HGQLSchema {
             });
 
             TypeConfig typeConfig = new TypeConfig(typeName, typeURI, fields);
+            final List<RDFNode> sameAs_types = rdfSchema.getValuesOfObjectProperty(rdfNode, HGQLVocabulary.HGQLS_SAME_AS);
+            Set<String> sameAs = sameAs_types.stream()
+                    .map(sameAs_type -> rdfSchema.getValueOfDataProperty(sameAs_type, HGQL_HAS_NAME))
+                    .collect(Collectors.toSet());
+            typeConfig.setSameAs(sameAs);
 
             this.types.put(typeName, typeConfig);
 
