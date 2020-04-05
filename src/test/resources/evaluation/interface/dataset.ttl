@@ -1,0 +1,21 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dbo:   <http://dbpedia.org/ontology/> .
+@prefix dbr:   <http://dbpedia.org/resource/> .
+@prefix ex:   <http://www.example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+ex:Alice a ex:Person;
+        ex:firstName "Alice";
+        ex:lastName "Rivest";
+        ex:pet ex:dog_a;
+        ex:pet ex:cat_a .
+
+ex:dog_a a ex:dog;
+        ex:name "Santa's Little Helper";
+        ex:age "10";
+        ex:color "brown" .
+
+ex:cat_a a ex:cat;
+        ex:name "Snowball";
+        ex:age "3" .

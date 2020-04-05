@@ -43,7 +43,10 @@ public class HGQLVocabulary {
     public static final String HGQL_OUTPUT_TYPE = HGQL_NAMESPACE + "outputType";
     public static final String HGQL_OF_TYPE = HGQL_NAMESPACE + "ofType";
     public static final String HGQL_KIND = HGQL_NAMESPACE + "kind";
-
+    public static final String HGQL_UNION_TYPE = HGQL_NAMESPACE + "UnionType";
+    public static final String HGQL_HAS_UNION_MEMBER = HGQL_NAMESPACE + "unionMember";
+    public static final String HGQL_INTERFACE_TYPE = HGQL_NAMESPACE + "InterfaceType";
+    public static final String HGQL_IMPLEMENTS = HGQL_NAMESPACE + "implements";
 
     public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("String", HGQL_STRING);

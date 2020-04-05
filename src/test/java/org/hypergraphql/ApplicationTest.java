@@ -6,6 +6,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.jena.atlas.json.JsonArray;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class ApplicationTest {
 
-    long SOCKET_CLOSING = 300;
+    long SOCKET_CLOSING = 500;
 // This method can be used for testing with the GraphiQL interface
 //    @Test
 //    void main() throws Exception {
@@ -103,7 +105,6 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/combined_services/config.json";
         String query = "{Person{firstName address{street city{ _id label(lang:\\\"de\\\")}}}}";
         JSONObject json_response = sendPost(config, query);
-        System.out.println(json_response);
         String alice_firstName = "Alice";
         String alice_residence = "Aachen";
         boolean correctly_nested = false;
@@ -126,7 +127,6 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/combined_services_with_extraction/config.json";
         String query = "{eg_Person{eg_firstName eg_address{eg_street eg_city{ _id rdfs_label(lang:\\\"de\\\")}}}}";
         JSONObject json_response = sendPost(config, query);
-        System.out.println(json_response);
         String alice_firstName = "Alice";
         String alice_residence = "Aachen";
         boolean correctly_nested = false;
@@ -149,7 +149,6 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/sameAs/config.json";
         String query = "{eg_Person{_id rdfs_label }}";
         JSONObject json_response = sendPost(config, query);
-        System.out.println(json_response);
         boolean bob = false;
         boolean alice = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
@@ -162,6 +161,70 @@ class ApplicationTest {
         }
         assertTrue(alice && bob);
         Thread.sleep(SOCKET_CLOSING);
+    }
+
+    @Test
+    void unionTest() throws Exception {
+        String config = "build/resources/test/evaluation/union/config.json";
+        String query = "{eg_Person{_id rdfs_label eg_address{... on eg_Address{_id eg_street}  ... on dbo_Address{dbo_street_name  dbo_street_number} }}}";
+        JSONObject json_response = sendPost(config, query);
+        boolean bob = false;
+        boolean alice = false;
+        for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
+            JSONObject person = (JSONObject) o;
+            if(person.getJSONArray("rdfs_label").get(0).equals("Alice")){
+                final JSONArray addressObjects = person.getJSONArray("eg_address");
+                for (Object object : addressObjects) {
+                    JSONObject addressObject = (JSONObject) object;
+                    if (addressObject.keySet().contains("eg_street")) {
+                        assertTrue(alice = ((JSONArray) addressObject.get("eg_street")).get(0).equals("123 Fake Street"));
+                    }
+                }
+            }else if(person.getJSONArray("rdfs_label").get(0).equals("Bob")){
+                final JSONArray addressObjects = person.getJSONArray("eg_address");
+                for (Object object : addressObjects) {
+                    JSONObject addressObject = (JSONObject) object;
+                    if(addressObject.keySet().contains("dbo_street_name")){
+                        assertTrue(bob = bob || ((JSONArray) addressObject.get("dbo_street_name")).get(0).equals("Evergreen Terrace"));
+                    }
+                    if(addressObject.keySet().contains("dbo_street_name")){
+                        assertTrue((bob = bob || (((JSONArray) addressObject.get("dbo_street_number")).get(0).equals("742"))));
+                    }
+                }
+            }
+        }
+        assertTrue(alice && bob);
+        Thread.sleep(SOCKET_CLOSING);
+    }
+
+    @Test
+    void interfaceTest() throws Exception {
+        String config = "build/resources/test/evaluation/interface/config.json";
+        String query = "{Person{firstName pet{_id name...on dog{color}}}}";
+        JSONObject json_response = sendPost(config, query);
+        boolean has_type_1 = false;
+        boolean has_type_2 = false;
+        boolean has_typeSpecificField_of_type_1 = false;
+        System.out.println(json_response);
+        for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
+            JSONObject person = (JSONObject) o;
+            if(person.getJSONArray("firstName").get(0).equals("Alice")){
+                JSONArray pets = person.getJSONArray("pet");
+                for(Object o1 : pets){
+                    JSONObject pet = (JSONObject) o1;
+                    if(pet.get("_id").equals("http://www.example.org/dog_a")){
+                        has_type_1 = true;
+                        if(pet.getJSONArray("color").get(0).equals("brown")){
+                            has_typeSpecificField_of_type_1 = true;
+                        }
+                    }else if(pet.get("_id").equals("http://www.example.org/cat_a")){
+                        has_type_2 = true;
+                    }
+                }
+            }
+        }
+        Thread.sleep(SOCKET_CLOSING);
+        assertTrue(has_type_1 && has_type_2 && has_typeSpecificField_of_type_1);
     }
 
 

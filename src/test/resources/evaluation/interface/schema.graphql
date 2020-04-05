@@ -1,0 +1,39 @@
+type __Context{
+    lastName:	_@href(iri:"http://www.example.org/lastName")
+    firstName:	_@href(iri:"http://www.example.org/firstName")
+    owner:	_@href(iri:"http://www.example.org/owner")
+    name:	_@href(iri:"http://www.example.org/name")
+    age:	_@href(iri:"http://www.example.org/age")
+    dog:	_@href(iri:"http://www.example.org/dog")
+    cat:	_@href(iri:"http://www.example.org/cat")
+    pet:	_@href(iri:"http://www.example.org/pet")
+    Person:	_@href(iri:"http://www.example.org/Person")
+    color:	_@href(iri:"http://www.example.org/color")
+}
+
+
+interface animal{
+    name: [String] @service(id: "dataset")
+    age: [String] @service(id: "dataset")
+}
+
+interface blank{
+
+}
+
+type dog implements animal @service(id: "dataset"){
+    name: [String] @service(id: "dataset")
+    age: [String] @service(id: "dataset")
+    color: [String] @service(id: "dataset")
+}
+
+type cat implements animal @service(id: "dataset"){
+    name: [String] @service(id: "dataset")
+    age: [String] @service(id: "dataset")
+}
+
+type Person implements blank @service(id: "dataset"){
+    firstName: [String] @service(id: "dataset")
+    lastName: [String] @service(id: "dataset")
+    pet: [animal] @service(id: "dataset")
+}

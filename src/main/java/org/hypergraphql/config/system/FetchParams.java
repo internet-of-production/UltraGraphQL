@@ -2,6 +2,7 @@ package org.hypergraphql.config.system;
 
 import graphql.language.Field;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLNamedType;
 import org.apache.jena.rdf.model.Resource;
 import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.datamodel.HGQLSchema;
@@ -65,9 +66,9 @@ public class FetchParams {
 
     private String extractTargetURI(final DataFetchingEnvironment environment, final HGQLSchema schema, final String predicate) {
 
-        if (!environment.getParentType().getName().equals("Query")) {
+        if (!((GraphQLNamedType)environment.getParentType()).getName().equals("Query")) {  // Fix to use latest graohql version () added casting
             String targetName =
-                    schema.getTypes().get(environment.getParentType().getName()).getField(predicate).getTargetName();
+                    schema.getTypes().get(((GraphQLNamedType)environment.getParentType()).getName()).getField(predicate).getTargetName();  // Fix to use latest graohql version () added casting
 
             if (schema.getTypes().containsKey(targetName) && schema.getTypes().get(targetName).getId() != null) {
                 return schema.getTypes().get(targetName).getId();

@@ -2,7 +2,7 @@
   "name": "combined-service-test",
   "schema": "schema.sparql",
   "server": {
-    "port": 8082,
+    "port": 8087,
     "graphql": "/graphql",
     "graphiql": "/graphiql"
   },

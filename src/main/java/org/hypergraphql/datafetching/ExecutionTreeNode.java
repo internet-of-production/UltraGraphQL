@@ -4,35 +4,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.language.Argument;
-import graphql.language.BooleanValue;
-import graphql.language.Field;
-import graphql.language.IntValue;
-import graphql.language.Node;
-import graphql.language.Selection;
-import graphql.language.SelectionSet;
-import graphql.language.StringValue;
-import graphql.language.Value;
+import graphql.language.*;
 import org.apache.jena.rdf.model.Model;
+import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.HGQLVocabulary;
+import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.exception.HGQLConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class ExecutionTreeNode {
 
@@ -167,8 +158,156 @@ public class ExecutionTreeNode {
 
             i++;
             String nodeId = parentId + "_" + i;
-            query.add(getFieldJson(field, parentId, nodeId, parentType));
+            FieldOfTypeConfig fieldConfig = this.hgqlSchema.getTypes().get(parentType).getField(field.getName());
+            TypeConfig target = this.hgqlSchema.getTypes().get(fieldConfig.getTargetName());
+            if(target != null){
+                if(target.isInterface()){
+                    query.addAll(getVirtualFieldsJson(field, parentId, nodeId, parentType, target));
+                } else if (target.isUnion()) {
+                    query.addAll(getVirtualFieldsJson(field, parentId, nodeId, parentType, target));
+                }
+            }else{
+                query.add(getFieldJson(field, parentId, nodeId, parentType));
+            }
 
+        }
+        return query;
+    }
+
+
+    /**
+     * Handling of fields that have union or interface as outputType
+     * @param field
+     * @param parentId
+     * @param nodeId
+     * @param parentType
+     * @return
+     */
+    private ArrayNode getVirtualFieldsJson(Field field, String parentId, String nodeId, String parentType, TypeConfig target) {
+        nodeId = nodeId + "_y";
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode query = mapper.createArrayNode();
+        final SelectionSet selectionSet = field.getSelectionSet();
+        AtomicBoolean hasInlineFragment = new AtomicBoolean(false);
+        if (selectionSet != null) {
+            List<Selection> selectionList = selectionSet.getSelections();
+            if(!selectionList.isEmpty()){
+                List<Field> fields = selectionList.stream()
+                        .filter(selection -> selection instanceof Field)
+                        .map(selection -> (Field)selection)
+                        .collect(Collectors.toList());
+                List<InlineFragment> inlineFragments = selectionList.stream()
+                        .filter(selection -> selection instanceof InlineFragment)
+                        .map(selection -> (InlineFragment)selection)
+                        .collect(Collectors.toList());
+                boolean has__typename = fields.stream().anyMatch(field1 -> field1.getName().equals("__typename"));
+                // filter out __type Field
+//                fields = fields.stream()
+//                        .filter(field1 -> field1.getName().equals("__typename"))
+//                        .collect(Collectors.toList());
+
+                if(target.isUnion()){
+                    // ignore all fields but __typename
+                    // if no inlineFragment but __typename query all union members with _id
+                    if(inlineFragments.isEmpty() && has__typename){
+                        for(String member : target.getUnionMembers().keySet()){
+                            InlineFragment inlineFragment = InlineFragment.newInlineFragment()
+                                    .typeCondition(TypeName.newTypeName()
+                                            .name(member)
+                                            .build())
+                                    .selectionSet(SelectionSet.newSelectionSet()
+                                            .selection(Field.newField("_type")
+                                                    .build())
+                                            .build())
+                                    .build();
+                            inlineFragments.add(inlineFragment);
+                        }
+                    }
+                }else if(target.isInterface()){
+                    // add fields outside the inlineFragments into the SelectionSet of each InlineFragment
+                    if(!fields.isEmpty()){
+                        for(String object : target.getInterafaceObjects()){
+                            InlineFragment inlineFragment;
+                            final Optional<InlineFragment> inlineFragmentOptional = inlineFragments.stream()
+                                    .filter(inlineFragment1 -> inlineFragment1.getTypeCondition().getName().equals(object))
+                                    .findFirst();
+                            if(inlineFragmentOptional.isPresent()){
+                                InlineFragment oldFragment = inlineFragmentOptional.get();
+                                List<Selection> newFields = new ArrayList<>(fields);
+                                newFields.addAll(oldFragment.getSelectionSet().getSelections());
+                                inlineFragment = InlineFragment.newInlineFragment()
+                                        .typeCondition(oldFragment.getTypeCondition())
+                                        .additionalData(oldFragment.getAdditionalData())
+                                        .comments(oldFragment.getComments())
+                                        .directives(oldFragment.getDirectives())
+                                        .ignoredChars(oldFragment.getIgnoredChars())
+                                        .sourceLocation(oldFragment.getSourceLocation())
+                                        .selectionSet(SelectionSet.newSelectionSet()
+                                                .selections(newFields)
+                                                .build())
+                                        .build();
+                                inlineFragments.remove(oldFragment);
+                                inlineFragments.add(inlineFragment);
+                            }else {
+                                inlineFragment = InlineFragment.newInlineFragment()
+                                        .typeCondition(TypeName.newTypeName()
+                                                .name(object)
+                                                .build())
+                                        .selectionSet(SelectionSet.newSelectionSet()
+                                                .selections(fields)
+                                                .build())
+                                        .build();
+                                inlineFragments.add(inlineFragment);
+                            }
+                        }
+                    }
+                }
+                int j = 0;
+                for(InlineFragment inlineFragment : inlineFragments){
+                    j++;
+                    Field typeField = Field.newField()
+                            .name(field.getName())
+                            .alias(field.getAlias())
+                            .arguments(field.getArguments())
+                            .comments(field.getComments())
+                            .directives(field.getDirectives())
+                            .ignoredChars(field.getIgnoredChars())
+                            .selectionSet(inlineFragment.getSelectionSet())
+                            .build();
+                    query.add(getFieldJson(typeField, parentId, nodeId + "_" + j, parentType, inlineFragment.getTypeCondition().getName()));
+                }
+            }
+
+
+
+            //-------------------------
+//            final Optional<Selection> optionalSelection = selectionSet.getSelections().stream().filter(selection -> selection instanceof InlineFragment).findFirst();
+//            if (optionalSelection.isPresent()) {
+//                nodeId += "_y";
+//                hasInlineFragment.set(true);
+//            }
+//            final List<Selection> selections = selectionSet.getSelections();
+//            int j = 0;
+//
+//
+//            for (Selection selection : selections) {
+//                j++;
+//                if (selection instanceof InlineFragment) {
+//                    InlineFragment inlineFragment = (InlineFragment) selection;
+//                    final SelectionSet selectionSetFragment = inlineFragment.getSelectionSet();
+//                    Field typeField = Field.newField()
+//                            .name(field.getName())
+//                            .alias(field.getAlias())
+//                            .arguments(field.getArguments())
+//                            .comments(field.getComments())
+//                            .directives(field.getDirectives())
+//                            .ignoredChars(field.getIgnoredChars())
+//                            .selectionSet(inlineFragment.getSelectionSet())
+//                            .build();
+//                    nodeId = nodeId + "_" + j;
+//                    query.add(getFieldJson(typeField, parentId, nodeId, parentType, inlineFragment.getTypeCondition().getName()));
+//                }
+//            }
         }
         return query;
     }
@@ -184,6 +323,22 @@ public class ExecutionTreeNode {
      * @return JSON object o the given field
      */
     private JsonNode getFieldJson(Field field, String parentId, String nodeId, String parentType) {
+        FieldOfTypeConfig fieldConfig = hgqlSchema.getTypes().get(parentType).getField(field.getName());
+        String targetName = fieldConfig.getTargetName();
+
+        return getFieldJson(field, parentId, nodeId, parentType, targetName);
+    }
+
+    /**
+     * Generates a JSON object representing the given field and its subfield if defined. For subfields with a different
+     * service a new ExecutionTreeNode is created  and added to the ExecutionForest of this object
+     * @param field Field of the query
+     * @param parentId objectId of this field
+     * @param nodeId The query variable that MUST be used to query the given field
+     * @param parentType object name of the field
+     * @return JSON object o the given field
+     */
+    private JsonNode getFieldJson(Field field, String parentId, String nodeId, String parentType, String  targetName) {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode query = mapper.createObjectNode();
@@ -205,11 +360,8 @@ public class ExecutionTreeNode {
             query.set("args", getArgsJson(args));
         }
 
-        FieldOfTypeConfig fieldConfig = hgqlSchema.getTypes().get(parentType).getField(field.getName());
-        String targetName = fieldConfig.getTargetName();
-
         query.put("targetName", targetName);
-        query.set("fields", this.traverse(field, nodeId, parentType));
+        query.set("fields", this.traverse(field, nodeId, parentType, targetName));
 
         return query;
     }
@@ -237,13 +389,24 @@ public class ExecutionTreeNode {
      * @return JSON object of the subfields that have the same service or null if no subfield uses this service
      */
     private JsonNode traverse(Field field, String parentId, String parentType) {
+        FieldOfTypeConfig fieldConfig = hgqlSchema.getTypes().get(parentType).getField(field.getName());
+        String targetName = fieldConfig.getTargetName();
+        return traverse(field, parentId, parentType, targetName);
+    }
+
+    /**
+     * Generates a JSON representation for the subfields with the same service. For subfields with a different service
+     * create a new ExecutionTreeNode and add the new object to the ExecutionForest of this object
+     * @param field Field containing a query selection set
+     * @param parentId id of the objectType of the given field
+     * @param parentType name of the objectType of the given field
+     * @param targetName targetName of the field (outputtype)
+     * @return JSON object of the subfields that have the same service or null if no subfield uses this service
+     */
+    private JsonNode traverse(Field field, String parentId, String parentType, String targetName) {
 
         SelectionSet subFields = field.getSelectionSet();
         if (subFields != null) {
-
-            FieldOfTypeConfig fieldConfig = hgqlSchema.getTypes().get(parentType).getField(field.getName());
-            String targetName = fieldConfig.getTargetName();
-
             Map<Service, Set<Field>> splitFields = getPartitionedFields(targetName, subFields);   // service_1 [field_1, field_3] means service_1 is responsible for field_1 and field_3
 
             Set<Service> serviceCalls = splitFields.keySet();   // All services that need to be called
@@ -345,7 +508,7 @@ public class ExecutionTreeNode {
      * @param selectionSet selectionSet with the given parentType as parent
      * @return Mapping between services and fields which defines which service is responsible for which field
      */
-    private Map<Service, Set<Field>> getPartitionedFields(String parentType, SelectionSet selectionSet) {
+    private Map<Service, Set<Field>> getPartitionedFields(String parentType, SelectionSet selectionSet) {   //ToDo: correct handling of inline fragments in case od unions as output ---- Maybe not handeled here if previously changed to multiple fields
 
         Map<Service, Set<Field>> result = new HashMap<>();
 

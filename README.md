@@ -4,6 +4,8 @@
 ## New Features
 - [Automatic Bootstrapping (through schema extraction)](./docs/bootstrapping.md)
 - [multiple services per schema entity](./docs/multiple_service_feature.md)
+- [Support of Unions](./docs/union.md)
+- [Support of Interfaces](./docs/interface.md)
 
 ## Process Flow of HyperGraphQL
 ### Bootstrapping and Initialization Phase

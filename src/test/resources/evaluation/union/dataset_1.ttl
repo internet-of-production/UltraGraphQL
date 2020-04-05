@@ -23,3 +23,5 @@ dbr:addr_b a dbo:Address ;
 ex:Person owl:sameAs dbo:Person .
 
 ex:label owl:sameAs rdfs:label .
+
+ex:address owl:sameAs dbo:address .

@@ -2,6 +2,7 @@ package org.hypergraphql.datamodel;
 
 import graphql.language.Field;
 import graphql.schema.DataFetcher;
+import graphql.schema.GraphQLNamedType;
 import org.apache.jena.rdf.model.RDFNode;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.schema.TypeConfig;
@@ -10,6 +11,9 @@ import org.hypergraphql.config.system.FetchParams;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * DataFetchers called by the GraphQL library to fetch the data from the provided RDF Model with the results
+ */
 public class FetcherFactory {
 
     private final HGQLSchema schema;
@@ -19,6 +23,11 @@ public class FetcherFactory {
         this.schema = hgqlSchema;
     }
 
+    /**
+     * Fetcher for the id of the given environment.
+     * For Example used for the default _id field.
+     * @return
+     */
     public DataFetcher<String> idFetcher() {
         
         return environment -> {
@@ -32,9 +41,15 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     * Fetcher for the type of the given environment.
+     * For Example used for the default _type field.
+     * @param types
+     * @return
+     */
     public DataFetcher<String> typeFetcher(Map<String, TypeConfig> types) {
         return  environment -> {
-            String typeName = environment.getParentType().getName();
+            String typeName = ((GraphQLNamedType)environment.getParentType()).getName();   // Fix to use latest graphql version () added casting
             return (types.containsKey(typeName)) ? types.get(typeName).getId() : null;
         };
     }
@@ -55,6 +70,11 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     * Fetcher for retrieving the output object of a field (given environment)
+     * The type of the output object is a type of the schema.
+     * @return
+     */
     public DataFetcher<RDFNode> objectFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);
@@ -67,7 +87,9 @@ public class FetcherFactory {
     }
 
     /**
-     *
+     * Fetcher for retrieving all output objects of a field (given environment).
+     * The type of the output object is a type of the schema.
+     * Here the OutputType of the field MUST be a list/array
      * @return
      */
     public DataFetcher<List<RDFNode>> objectsFetcher() {
@@ -81,6 +103,10 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     * Fetcher for retrieving a scalar OutputType object of a field (given environment)
+     * @return
+     */
     public DataFetcher<String> literalValueFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);
@@ -92,6 +118,10 @@ public class FetcherFactory {
         };
     }
 
+    /**
+     * Fetcher for retrieving all scalar OutputType objects of a field (given environment)
+     * @return
+     */
     public DataFetcher<List<String>> literalValuesFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);

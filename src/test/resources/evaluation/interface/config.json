@@ -1,0 +1,18 @@
+{
+  "name": "union-test",
+  "schema": "schema.graphql",
+  "server": {
+    "port": 8095,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/interface/dataset.ttl",
+      "filetype": "Turtle",
+      "graph": ""
+    }
+  ]
+}

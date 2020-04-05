@@ -13,47 +13,50 @@ type __Context{
 	eg_address:	_@href(iri:"http://www.example.org/address")
 }
 interface dbo_Address_Interface {
+	dbo_street_name: [String] @service(id: "dataset_1")
 	dbo_street_number: [String] @service(id: "dataset_1")
 	rdf_type: [String] @service(id: "dataset_1")
-	dbo_street_name: [String] @service(id: "dataset_1")
 }
 interface eg_Person_Interface {
-	eg_address: [eg_Address] @service(id: "dataset_1")
-	rdfs_label: [String] @schema(sameAs: "eg_label") @service(id: "dataset_1")
 	rdf_type: [String] @service(id: "dataset_1")
-	eg_label: [String] @service(id: "dataset_1") @schema(sameAs: "rdfs_label")
+	eg_label: [String] @schema(sameAs: "rdfs_label") @service(id: "dataset_1")
+	rdfs_label: [String] @service(id: "dataset_1") @schema(sameAs: "eg_label")
+	dbo_address: [dbo_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "eg_address")
+	eg_address: [eg_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "dbo_address")
 }
 interface eg_Address_Interface {
 	rdf_type: [String] @service(id: "dataset_1")
 	eg_street: [String] @service(id: "dataset_1")
 }
 interface dbo_Person_Interface {
-	dbo_address: [dbo_Address] @service(id: "dataset_1")
-	rdfs_label: [String] @schema(sameAs: "eg_label") @service(id: "dataset_1")
 	rdf_type: [String] @service(id: "dataset_1")
-	eg_label: [String] @service(id: "dataset_1") @schema(sameAs: "rdfs_label")
+	eg_label: [String] @schema(sameAs: "rdfs_label") @service(id: "dataset_1")
+	rdfs_label: [String] @service(id: "dataset_1") @schema(sameAs: "eg_label")
+	dbo_address: [dbo_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "eg_address")
+	eg_address: [eg_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "dbo_address")
 }
-
-type eg_Person implements dbo_Person_Interface & eg_Person_Interface @service(id: "dataset_1") @schema(sameAs: "dbo_Person") {
- 	dbo_address: [dbo_Address] @service(id: "dataset_1")
-	eg_address: [eg_Address] @service(id: "dataset_1")
-	rdfs_label: [String] @schema(sameAs: "eg_label") @service(id: "dataset_1")
-	rdf_type: [String] @service(id: "dataset_1")
-	eg_label: [String] @service(id: "dataset_1") @schema(sameAs: "rdfs_label")
+union dbo_address_OutputType = eg_Address | dbo_Address
+union eg_address_OutputType = eg_Address | dbo_Address
+type eg_Person implements eg_Person_Interface & dbo_Person_Interface @schema(sameAs: "dbo_Person") @service(id: "dataset_1") {
+ 	rdf_type: [String] @service(id: "dataset_1")
+	eg_label: [String] @schema(sameAs: "rdfs_label") @service(id: "dataset_1")
+	rdfs_label: [String] @service(id: "dataset_1") @schema(sameAs: "eg_label")
+	dbo_address: [dbo_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "eg_address")
+	eg_address: [eg_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "dbo_address")
 }
 type eg_Address implements eg_Address_Interface @service(id: "dataset_1") {
  	rdf_type: [String] @service(id: "dataset_1")
 	eg_street: [String] @service(id: "dataset_1")
 }
 type dbo_Address implements dbo_Address_Interface @service(id: "dataset_1") {
- 	dbo_street_number: [String] @service(id: "dataset_1")
+ 	dbo_street_name: [String] @service(id: "dataset_1")
+	dbo_street_number: [String] @service(id: "dataset_1")
 	rdf_type: [String] @service(id: "dataset_1")
-	dbo_street_name: [String] @service(id: "dataset_1")
 }
-type dbo_Person implements dbo_Person_Interface & eg_Person_Interface @service(id: "dataset_1") @schema(sameAs: "eg_Person") {
- 	dbo_address: [dbo_Address] @service(id: "dataset_1")
-	eg_address: [eg_Address] @service(id: "dataset_1")
-	rdfs_label: [String] @schema(sameAs: "eg_label") @service(id: "dataset_1")
-	rdf_type: [String] @service(id: "dataset_1")
-	eg_label: [String] @service(id: "dataset_1") @schema(sameAs: "rdfs_label")
+type dbo_Person implements eg_Person_Interface & dbo_Person_Interface @schema(sameAs: "eg_Person") @service(id: "dataset_1") {
+ 	rdf_type: [String] @service(id: "dataset_1")
+	eg_label: [String] @schema(sameAs: "rdfs_label") @service(id: "dataset_1")
+	rdfs_label: [String] @service(id: "dataset_1") @schema(sameAs: "eg_label")
+	dbo_address: [dbo_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "eg_address")
+	eg_address: [eg_address_OutputType] @service(id: "dataset_1") @schema(sameAs: "dbo_address")
 }

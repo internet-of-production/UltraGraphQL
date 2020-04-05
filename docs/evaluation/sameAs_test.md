@@ -1,6 +1,6 @@
 # Test of the sameAs feature
-
-## Test Setup 
+This test is preformed [here](../../src/test/java/org/hypergraphql/ApplicationTest.java) in the sameAsTest() method.
+## Test Setup
 One dataset with sameAs definitions between classes and properties. To extract and map the schema the defaults were used.
 
 ## Expected Outcome
@@ -84,22 +84,22 @@ type dbo_Person implements dbo_Person_Interface & eg_Person_Interface @service(i
 
 ## SPARQL Query
 ```sparql
-SELECT * 
-WHERE { 
+SELECT *
+WHERE {
     {
-        SELECT ?x_1 
-        WHERE { 
-            VALUES ?sameas { 
-                <http://dbpedia.org/ontology/Person> 
-                <http://www.example.org/Person> 
-            } 
-            ?x_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?sameas . 
-        }  
-    }  
-    OPTIONAL { 
-        ?x_1 <http://www.w3.org/2000/01/rdf-schema#label>|<http://www.example.org/label> ?x_1_1 . 
-    }  
-} 
+        SELECT ?x_1
+        WHERE {
+            VALUES ?sameas {
+                <http://dbpedia.org/ontology/Person>
+                <http://www.example.org/Person>
+            }
+            ?x_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?sameas .
+        }
+    }
+    OPTIONAL {
+        ?x_1 <http://www.w3.org/2000/01/rdf-schema#label>|<http://www.example.org/label> ?x_1_1 .
+    }
+}
 ```
 
 ## GRAPHQL Response

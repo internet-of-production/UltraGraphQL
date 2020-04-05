@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public class HGQLQueryService {
 
-    private GraphQL graphql;
-    private GraphQLSchema schema;
+    private GraphQL graphql;   // only used for IntrospectionQuery
+    private GraphQLSchema schema;   // only used for IntrospectionQuery
     private HGQLSchema hgqlSchema;
 
 
@@ -55,9 +55,9 @@ public class HGQLQueryService {
             return result;
         }
 
-        if (query.contains("IntrospectionQuery") || query.contains("__")) {
+        if (query.contains("IntrospectionQuery")){ //|| query.contains("__")) {   // the filtering for "__" also interferes with the "__typename" field for unions and interfaces
 
-            qlResult = graphql.execute(query);
+            qlResult = graphql.execute(query);   // data correctly returned
             data.putAll(qlResult.getData());
 
         } else {

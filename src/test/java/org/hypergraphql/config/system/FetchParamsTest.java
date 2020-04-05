@@ -2,6 +2,7 @@ package org.hypergraphql.config.system;
 
 import graphql.language.Field;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLType;
 import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
@@ -44,7 +45,7 @@ class FetchParamsTest {
 
         GraphQLType parent = mock(GraphQLType.class);
         when(environment.getParentType()).thenReturn(parent);
-        when(parent.getName()).thenReturn("Query");
+        when(((GraphQLNamedType)parent).getName()).thenReturn("Query");
 
         FetchParams fetchParams = new FetchParams(environment, schema);
 
@@ -75,7 +76,7 @@ class FetchParamsTest {
 
         GraphQLType parent = mock(GraphQLType.class);
         when(environment.getParentType()).thenReturn(parent);
-        when(parent.getName()).thenReturn("non-Query");
+        when(((GraphQLNamedType)parent).getName()).thenReturn("non-Query");
 
         TypeConfig typeConfig = mock(TypeConfig.class);
         Map<String, TypeConfig> types = Collections.singletonMap("non-Query", typeConfig);

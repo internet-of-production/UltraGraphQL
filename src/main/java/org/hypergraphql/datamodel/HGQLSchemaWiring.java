@@ -1,38 +1,36 @@
 package org.hypergraphql.datamodel;
 
-import graphql.schema.DataFetcher;
-import graphql.schema.GraphQLArgument;
-import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLList;
-import graphql.schema.GraphQLNonNull;
-import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLType;
+import graphql.TypeResolutionEnvironment;
+import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
+import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.rdf.model.impl.ResourceImpl;
+import org.apache.jena.vocabulary.RDF;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
+import org.hypergraphql.config.system.FetchParams;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
+import org.hypergraphql.schemaextraction.PrefixService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static graphql.Scalars.GraphQLID;
 import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
+import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static graphql.schema.GraphQLObjectType.newObject;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_GET_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.SCALAR_TYPES;
+import static graphql.schema.GraphQLUnionType.newUnionType;
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
 /**
  * Created by szymon on 24/08/2017.
@@ -135,15 +133,32 @@ public class HGQLSchemaWiring {
     private GraphQLSchema generateSchema() {
 
         Set<String> typeNames = this.hgqlSchema.getTypes().keySet();
-        GraphQLObjectType builtQueryType = registerGraphQLQueryType(this.hgqlSchema.getTypes().get("Query"));
+        GraphQLObjectType builtQueryType = registerGraphQLQueryType(this.hgqlSchema.getTypes().get("Query"));   // convert query type to GraphQLObjectType
         Set<GraphQLType> builtTypes = typeNames.stream()
                 .filter(typeName -> !typeName.equals("Query"))
-                .map(typeName -> registerGraphQLType(this.hgqlSchema.getTypes().get(typeName)))   // implicit conversion to GraphQlType for GraphQlSchema
+                .map(typeName -> {
+                    TypeConfig type = this.hgqlSchema.getTypes().get(typeName);
+                    if(type.isUnion()){
+                        return registerGrapQLUnionType(type);
+                    }else if(type.isInterface()){
+//                        //currently treating Interfaces as objects
+//                        /**
+//                         * To support this feature add to each type TypeConfig (OBJECT) the TypeConfigs of the interfaces it implements.
+//                         * This allows to build an type resolver that decides if the requested type implements this interface.
+//                         * Example: Query segment: ... on Dog{}
+//                         * Schema: interface animal{} type Dog implements animal{} type Cat implements animal{}
+//                         */
+                        return  registerGraphQLInterfaceType(type);
+                    }else{
+                        return registerGraphQLObjectType(type);
+                    }
+                })   // implicit conversion to GraphQlType for GraphQlSchema
                 .collect(Collectors.toSet());
 
         return GraphQLSchema.newSchema()
                 .query(builtQueryType)
-                .build(builtTypes);   // ToDo: build(Set<GraphQLType> additionalTypes) is deprecated change to additionalType method
+                .additionalTypes(builtTypes)
+                .build();   // ToDo: build(Set<GraphQLType> additionalTypes) is deprecated change to additionalType method
 
     }
 
@@ -211,7 +226,7 @@ public class HGQLSchemaWiring {
      * @param type TypeCobfig object that is not the Query field   //ToDo: Add Mutation if mutations are supported
      * @return GraphQLObjectType object corresponding to the given type
      */
-    private GraphQLObjectType registerGraphQLType(TypeConfig type) {
+    private GraphQLObjectType registerGraphQLObjectType(TypeConfig type) {
 
         String typeName = type.getName();
         String uri = this.hgqlSchema.getTypes().get(typeName).getId();
@@ -230,11 +245,110 @@ public class HGQLSchemaWiring {
         builtFields.add(getidField());
         builtFields.add(gettypeField());
 
+        Set<GraphQLTypeReference> interfaces = this.hgqlSchema.getImplementsInterface(type).stream()
+                .map(GraphQLTypeReference::new)
+                .collect(Collectors.toSet());
+        GraphQLTypeReference[] interfaces_ref = new GraphQLTypeReference[interfaces.size()];
+        interfaces_ref = interfaces.toArray(interfaces_ref);
+
+        // ToDo: add Interfaces to the object
         return newObject()
                 .name(typeName)
                 .description(description)
                 .fields(builtFields)
+                .withInterfaces(interfaces_ref)
+                .comparatorRegistry(GraphqlTypeComparatorRegistry.BY_NAME_REGISTRY)
                 .build();
+    }
+
+    /*
+     * Generates a GraphQLObjectType object for the given type and also GraphQLFieldDefinition objects for all its fields.
+     * The type object does not provide a dataFetcher only fields do.
+     * @param type TypeCobfig object that is not the Query field   //ToDo: Add Mutation if mutations are supported
+     * @return GraphQLObjectType object corresponding to the given type
+     */
+    private GraphQLInterfaceType registerGraphQLInterfaceType(TypeConfig type) {
+
+        String typeName = type.getName();
+        String uri = this.hgqlSchema.getTypes().get(typeName).getId();
+        String description = "Instances of \"" + uri + "\".";
+
+        List<GraphQLFieldDefinition> builtFields;
+
+        Map<String, FieldOfTypeConfig> fields = type.getFields();
+
+        Set<String> fieldNames = fields.keySet();
+
+        builtFields = fieldNames.stream()
+                .map(fieldName -> registerGraphQLField(type.getField(fieldName)))
+                .collect(Collectors.toList());
+
+        builtFields.add(getidField());
+        builtFields.add(gettypeField());
+
+        return newInterface()
+                .name(typeName)
+                .description(description)
+                .fields(builtFields)
+                .typeResolver(env -> {
+                    ModelContainer resultPool = env.getContext();
+                    ResourceImpl resource = env.getObject();
+                    final NodeIterator nodeIterator = resultPool.model.listObjectsOfProperty(resource.asResource(), resultPool.model.getProperty(RDF_TYPE));
+                    while (nodeIterator.hasNext()){
+                        final RDFNode targetNode = nodeIterator.next();
+                        String targetUri = targetNode.toString();
+                        final Optional<String> targetId = type.getInterafaceObjects().stream()
+                                .filter(typeConfig -> this.hgqlSchema.getTypes().get(typeConfig).getId().equals(targetUri))
+                                .findFirst();
+                        if(targetId.isPresent()){
+                            if(type.getInterafaceObjects().contains(targetId.get())){
+                                return this.schema.getObjectType(targetId.get());
+                            }
+                        }
+
+                    }
+                    return null;
+                })
+                .build();
+    }
+
+    /**
+     * Generates a GraphQLUnionType for the given TypeConfig. If the given TypeConfig is a NOT a UNION null is returned.
+     * @param type TypeConfig with type == UNION
+     * @return GraphQLUnionType
+     */
+    private GraphQLUnionType registerGrapQLUnionType(TypeConfig type){
+        String typeName = type.getName();
+        if(type.isUnion()){
+            final GraphQLUnionType.Builder unionBuilder = newUnionType()
+                    .name(typeName);
+            type.getUnionMembers().keySet().forEach(memberName -> {
+                unionBuilder.possibleType(new GraphQLTypeReference(memberName));
+            });
+            unionBuilder.typeResolver(env -> {
+                ModelContainer resultPool = env.getContext();
+                ResourceImpl resource = env.getObject();
+                final NodeIterator nodeIterator = resultPool.model.listObjectsOfProperty(resource.asResource(), resultPool.model.getProperty(RDF_TYPE));
+                while (nodeIterator.hasNext()){
+                    final RDFNode targetNode = nodeIterator.next();
+                    String targetUri = targetNode.toString();
+                    final Optional<TypeConfig> targetId = type.getUnionMembers().values().stream()
+                            .filter(typeConfig -> typeConfig.getId().equals(targetUri))
+                            .findFirst();
+                    if(targetId.isPresent()){
+                        if(type.getUnionMembers().keySet().contains(targetId.get().getName())){
+                            return this.schema.getObjectType(targetId.get().getName());
+                        }
+                    }
+
+                }
+                //ToDo: Extend resolver for Interfaces
+                return null;
+            });
+            unionBuilder.description("UnionType");
+            return unionBuilder.build();
+        }
+        return null;
     }
 
     /**

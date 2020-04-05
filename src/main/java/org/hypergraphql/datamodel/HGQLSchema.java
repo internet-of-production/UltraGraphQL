@@ -1,13 +1,11 @@
 package org.hypergraphql.datamodel;
 
 import graphql.language.*;
-import graphql.schema.GraphQLList;
-import graphql.schema.GraphQLNonNull;
-import graphql.schema.GraphQLOutputType;
-import graphql.schema.GraphQLTypeReference;
+import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.tdb2.store.NodeIdType;
 import org.hypergraphql.config.schema.*;
 import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
@@ -18,33 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_Boolean;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_HAS_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_HAS_ID;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_HAS_NAME;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_HAS_SERVICE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_HREF;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_ID;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_Int;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_LIST_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_NON_NULL_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_OBJECT_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_OF_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_OUTPUT_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_GET_FIELD;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SERVICE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SERVICE_NAMESPACE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_STRING;
-import static org.hypergraphql.config.schema.HGQLVocabulary.RDF_TYPE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.SCALAR_TYPES;
-import static org.hypergraphql.config.schema.HGQLVocabulary.SCALAR_TYPES_TO_GRAPHQL_OUTPUT;
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
 
 public class HGQLSchema {
@@ -127,6 +99,33 @@ public class HGQLSchema {
         Set<String> typeNames = types.keySet();
         typeNames.remove("__Context");
 
+        // union
+
+        Map<String, UnionTypeDefinition> unions = new HashMap<>();
+        types.forEach((s, typeDefinition) -> {
+            if(typeDefinition instanceof UnionTypeDefinition){
+                unions.put(s, (UnionTypeDefinition) typeDefinition);
+            }
+        });
+        Set<String> unionNames = unions.keySet();
+        typeNames.removeIf(s -> unionNames.contains(s));// remove the union so that it is not insertet into rdfSchema as objectType
+        for(String unionName : unionNames){
+            String unionUri = schemaNamespace + unionName;
+            UnionTypeDefinition union = unions.get(unionName);
+            rdfSchema.insertObjectTriple(unionUri, RDF_TYPE, HGQL_UNION_TYPE);
+            rdfSchema.insertStringLiteralTriple(unionUri, HGQL_HAS_NAME, unionName);
+            List<Type> memberTypes =  union.getMemberTypes();
+            memberTypes.forEach(type -> {
+                if(type instanceof TypeName){
+                    TypeName typeName = (TypeName) type;
+                    String typeUri = schemaNamespace + typeName.getName();
+                    rdfSchema.insertObjectTriple(unionUri, HGQL_HAS_UNION_MEMBER, typeUri);
+                }
+            });
+        }
+
+        // Services
+
         Set<String> serviceIds = services.keySet();   // Contains all defined services of one HGQLConfig
 
         // Add all services to the RDF representation of the schema
@@ -137,18 +136,38 @@ public class HGQLSchema {
         });
 
 
+        // ObjectTypes InterfaceTypes
+
         for (String typeName : typeNames) {
             String typeUri = schemaNamespace + typeName;
             rdfSchema.insertStringLiteralTriple(typeUri, HGQL_HAS_NAME, typeName);
             rdfSchema.insertObjectTriple(typeUri, HGQL_HREF, contextMap.get(typeName));
-            rdfSchema.insertObjectTriple(typeUri, RDF_TYPE, HGQL_OBJECT_TYPE);
 
 
             TypeDefinition type = types.get(typeName);
+            if(type instanceof ObjectTypeDefinition){
+                rdfSchema.insertObjectTriple(typeUri, RDF_TYPE, HGQL_OBJECT_TYPE);
+                // ToDo: add information which types the object implements
+
+                final List<Type> anImplements = ((ObjectTypeDefinition) type).getImplements();
+                for(Type t : anImplements){
+                    if(t instanceof TypeName){
+                        rdfSchema.insertObjectTriple(typeUri, HGQL_IMPLEMENTS, schemaNamespace + ((TypeName) t).getName());
+                    }
+
+                }
+
+
+            }else if(type instanceof InterfaceTypeDefinition){
+                rdfSchema.insertObjectTriple(typeUri, RDF_TYPE, HGQL_INTERFACE_TYPE);
+            }else{
+                LOGGER.debug(String.format("%s is NOT supported in the HGQL Schema", type.getClass()));
+                continue;
+            }
             final List<Directive> directives = type.getDirectives();
 
             for (Directive dir : directives) {
-                if (dir.getName().equals("service")) {
+                if (dir.getName().equals("service") && type instanceof ObjectTypeDefinition) {
                     String getQueryUri = typeUri;// + "_GET";
 //                    String getByIdQueryUri = typeUri + "_GET_BY_ID";
 
@@ -305,8 +324,12 @@ public class HGQLSchema {
             queryFields.put(name, fieldConfig);
         }
 
-        List<RDFNode> typeNodes = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_OBJECT_TYPE);
-        typeNodes.addAll(rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_QUERY_TYPE));
+        List<RDFNode> objectTypeNodes = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_OBJECT_TYPE);
+        List<RDFNode> queryTypeNodes = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_QUERY_TYPE);
+        List<RDFNode> interfaceTypeNode = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_INTERFACE_TYPE);
+        List<RDFNode> typeNodes = new ArrayList<>(objectTypeNodes);
+        typeNodes.addAll(queryTypeNodes);
+        typeNodes.addAll(interfaceTypeNode);
 
         typeNodes.forEach(rdfNode -> {
             String typeName = rdfSchema.getValueOfDataProperty(rdfNode, HGQL_HAS_NAME);
@@ -317,7 +340,6 @@ public class HGQLSchema {
             Map<String, FieldOfTypeConfig> fields = new HashMap<>();
 
             fieldsOfType.forEach(field -> {
-
                 String fieldOfTypeName = rdfSchema.getValueOfDataProperty(field, HGQL_HAS_NAME);
                 RDFNode href = rdfSchema.getValueOfObjectProperty(field, HGQL_HREF);
                 String hrefURI = (href!=null) ? href.asResource().getURI() : null;
@@ -349,9 +371,19 @@ public class HGQLSchema {
                         targetTypeName);
                 fields.put(fieldOfTypeName, fieldOfTypeConfig);
 
-            });
 
-            TypeConfig typeConfig = new TypeConfig(typeName, typeURI, fields);
+            });
+            TypeConfig typeConfig;
+            if(interfaceTypeNode.contains(rdfNode)){
+                final List<RDFNode> subjects = rdfSchema.getSubjectsOfObjectProperty(HGQL_IMPLEMENTS, schemaNamespace + typeName);
+                Set<String> objectTypes = subjects.stream()
+                        .map(rdfNode1 -> rdfSchema.getValueOfDataProperty(rdfNode1, HGQL_HAS_NAME))
+                        .collect(Collectors.toSet());
+                typeConfig = new TypeConfig(typeName, fields, objectTypes);
+            }else{
+                typeConfig = new TypeConfig(typeName, typeURI, fields);
+            }
+
             final List<RDFNode> sameAs_types = rdfSchema.getValuesOfObjectProperty(rdfNode, HGQLVocabulary.HGQLS_SAME_AS);
             Set<String> sameAs = sameAs_types.stream()
                     .map(sameAs_type -> rdfSchema.getValueOfDataProperty(sameAs_type, HGQL_HAS_NAME))
@@ -361,7 +393,22 @@ public class HGQLSchema {
             this.types.put(typeName, typeConfig);
 
         });
+
+        List<RDFNode> unionTypeNodes = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_UNION_TYPE);
+        unionTypeNodes.forEach(rdfNode -> {
+            String typeName = rdfSchema.getValueOfDataProperty(rdfNode, HGQL_HAS_NAME);
+
+            List<RDFNode> unionMembers = rdfSchema.getValuesOfObjectProperty(rdfNode, HGQL_HAS_UNION_MEMBER);
+            Map<String, TypeConfig> members = new HashMap<>();
+            unionMembers.forEach(member -> {
+                String name = rdfSchema.getValueOfDataProperty(member, HGQL_HAS_NAME);
+                members.put(name, this.types.get(name));
+            });
+            TypeConfig unionType = new TypeConfig(typeName,members);
+            this.types.put(typeName, unionType);
+        });
     }
+
 
     /**
      * Extracts all services that are associated with the given subject from the rdfSchema and returns a set containing
@@ -431,7 +478,7 @@ public class HGQLSchema {
         if (typeURI.equals(HGQL_SCALAR_TYPE)) {
             return SCALAR_TYPES_TO_GRAPHQL_OUTPUT.get(outputTypeNode.asResource().getURI());
         }
-        if (typeURI.equals(HGQL_OBJECT_TYPE)) {
+        if (typeURI.equals(HGQL_OBJECT_TYPE) || typeURI.equals(HGQL_UNION_TYPE) || typeURI.equals(HGQL_INTERFACE_TYPE) ) {
             String typeName = rdfSchema.getValueOfDataProperty(outputTypeNode, HGQL_HAS_NAME);
             return new GraphQLTypeReference(typeName);
         }
@@ -505,5 +552,12 @@ public class HGQLSchema {
         rdfSchema.insertObjectTriple(fieldURI, HGQL_HAS_SERVICE, serviceURI);
 //                        rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_HAS_SERVICE, serviceURI);
         rdfSchema.insertObjectTriple(serviceURI, RDF_TYPE, HGQL_SERVICE);
+    }
+
+    public Set<String> getImplementsInterface(TypeConfig type){
+        final List<RDFNode> interfaces = this.rdfSchema.getValuesOfObjectProperty(schemaNamespace + type.getName(), HGQL_IMPLEMENTS);
+        return interfaces.stream()
+                .map(rdfNode -> this.rdfSchema.getValueOfDataProperty(rdfNode.asResource(), HGQL_HAS_NAME))
+                .collect(Collectors.toSet());
     }
 }

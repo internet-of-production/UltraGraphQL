@@ -1,11 +1,11 @@
 {
-  "name": "combined-service--with-extraction-test",
+  "name": "union-test",
   "schema": "extracted_schema.graphql",
   "extraction": true,
   "mapping": "mapping.ttl",
   "query": "query.sparql",
   "server": {
-    "port": 8090,
+    "port": 8085,
     "graphql": "/graphql",
     "graphiql": "/graphiql"
   },
@@ -13,7 +13,7 @@
     {
       "id": "dataset_1",
       "type": "LocalModelSPARQLService",
-      "filepath": "build/resources/test/evaluation/sameAs/dataset_1.ttl",
+      "filepath": "build/resources/test/evaluation/union/dataset_1.ttl",
       "filetype": "Turtle",
       "graph": ""
     }
