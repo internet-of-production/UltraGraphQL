@@ -165,6 +165,8 @@ public class ExecutionTreeNode {
                     query.addAll(getVirtualFieldsJson(field, parentId, nodeId, parentType, target));
                 } else if (target.isUnion()) {
                     query.addAll(getVirtualFieldsJson(field, parentId, nodeId, parentType, target));
+                }else{
+                    query.add(getFieldJson(field, parentId, nodeId, parentType));
                 }
             }else{
                 query.add(getFieldJson(field, parentId, nodeId, parentType));

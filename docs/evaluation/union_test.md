@@ -2,11 +2,10 @@
 This test is preformed [here](../../src/test/java/org/hypergraphql/ApplicationTest.java) in the unionTest() method.
 Information on how unions were added to HGQL can be found [here](../union.md)
 ## Test Setup
-A [dataset](#dataset) that conatins two properties that are defined as the same but have different ranges.
+To test the union feature the [schema](#hgql-schema) defines the a field with a union as output.
 The GraphQL query queries both types of the field with a different Selection Set for both fields.
 
 ## Expected Outcome
-The schema extraction MUST map each property to a corresponding field with a union as outputType and an schema directive linking to the sameAs field. This union containes the two types that are defined as ranges of the properties.
 It is expected that the query is able to extract the data correctly which means that for each type the corresponding SelectionSet is queried. And scince the field has a defined sameAs field the result MUST contain the results as if both fields were queried.
 
 ### HGQL Schema

@@ -86,6 +86,15 @@ public class Type {
         }
     }
 
+    /**
+     * Getter function for the attribute field
+     * Important: If the fields form the interfaces are not yet fetched this method only returns the directly defined fields
+     * @return
+     */
+    public Set<Field> getFields(){
+        return this.fields;
+    }
+
     public void addDirective(String name, String parameter, Set<String> values){
         // Check if the directive is already added if so only add the parameter
         Optional<Directive> directive = this.directives.stream()
@@ -192,7 +201,10 @@ public class Type {
                 .collect(Collectors.joining("\n\t"));
     }
     private String buildImplements(){
-        String interfaces =  this.interfaces.stream()
+        final Set<Interface> interfaceSet = this.interfaces.stream()
+                .filter(anInterface -> (anInterface instanceof  Union)? anInterface.getFields().size() > 1 : true)
+                .collect(Collectors.toSet());
+        String interfaces =  interfaceSet.stream()
                 .map(Interface::getId)
                 .collect(Collectors.joining(" & "));
         if(!interfaces.equals("")){

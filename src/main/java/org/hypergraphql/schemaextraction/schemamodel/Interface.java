@@ -20,6 +20,10 @@ public class Interface {
         this.id = this.generateName();
     }
 
+    public Interface(String id){
+        this.id = id;
+    }
+
     //ToDo: add a unfetched Fields list where all equivalent types are stored. if the fields of the interface are queried fetch all fields from that list until the list is empty (permanet) This fetching is recursive in the other interfaces.
     //ToDo: Maybe not necessary because of an arbitrary length match in RDFtoHGQL
     public String getId() {

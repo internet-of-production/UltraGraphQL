@@ -127,6 +127,7 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/combined_services_with_extraction/config.json";
         String query = "{eg_Person{eg_firstName eg_address{eg_street eg_city{ _id rdfs_label(lang:\\\"de\\\")}}}}";
         JSONObject json_response = sendPost(config, query);
+        System.out.println(json_response);
         String alice_firstName = "Alice";
         String alice_residence = "Aachen";
         boolean correctly_nested = false;

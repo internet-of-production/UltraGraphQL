@@ -1,9 +1,6 @@
 {
   "name": "union-test",
-  "schema": "extracted_schema.graphql",
-  "extraction": true,
-  "mapping": "mapping.ttl",
-  "query": "query.sparql",
+  "schema": "schema.graphql",
   "server": {
     "port": 8085,
     "graphql": "/graphql",

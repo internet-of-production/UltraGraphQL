@@ -180,7 +180,11 @@ type ex_AI @service(id:"ex-sparql"){
 }
 ```
 #### Multiple Field Output Types
-If a field has multiple output types then a unionType is created containing all output types of the field.
+If a field has multiple output types then a interfaceType is created containing the intersection of the fields of all possible outputtypes.
+The mapping to an interface with an intersection of the fields as minimum set of fields allows to query multiple types at the same time.
+If the types have NO fields in common then it is mappes to an empty interface. 
+The empty interface becomes from HGQL the standard fields *_id* and *_type* so that this fields can be queried over all types.
+If type specific fields are needed then these can be queried with an InlineFragment linking to the specific type.
 > **Note:** The naming of this union is NOT yet decided. **ToDo**
 
 > **Note:** If the union is generated for any field is at the moment undecided. **ToDo**
@@ -194,7 +198,14 @@ Example:
 ex:drives rdf:type  rdf:Property;
           rdfs:range  ex:Car;
           rdfs:range ex:Bicycle;
-          rdfs:domain ex:Person.
+          rdfs:domain ex:Person .
+
+ex:color rdf:type rdf:Property;
+         rdfs:domain ex:Car;
+         rdfs:domain ex:Bicycle .
+
+ex:saddle_height rdf:type rdf:Property;
+         rdfs:domain ex:Bicycle .
 ```
 
 Resulting GraphQl Schema:
@@ -206,12 +217,36 @@ type __context{
    ex_Car:     _@href(iri: "http://example.org/Car")
    ex_drives:  _@href(iri: "http://example.org/drives")
 }
-union ex_drives_Output = Car | Bicycle
+interface ex_drives_OutputType{
+
+}
 
 type ex_Person @service(id:"ex-sparql"){
    ex_drives: [ex_drives_Output] @service(id:"ex-sparql")
 }
 
+type Car implements ex_drives_Output{
+    ex_color: [String]
+}
+
+type Bicycle implements ex_drives_Output{
+    ex_color: [String]
+    ex_saddle_height: [String]
+}
+```
+
+Possible Query:
+```graphql
+{
+    ex_Person{
+        ex_drives{
+            ex_color
+            ...on Bicycle{
+                ex_saddle_height
+            }
+        }
+    }
+}
 ```
 ### ...implies Fields
 Resources that are mapped to *hgqls:impliesField* **must** be a predicate with the field mapping as range and domain. It has the same semantic meaning as [rdfs:subProperty](https://www.w3.org/TR/rdf-schema/#ch_subpropertyof)

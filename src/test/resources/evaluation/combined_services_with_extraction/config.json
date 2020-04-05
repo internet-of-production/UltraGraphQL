@@ -1,5 +1,6 @@
 {
   "name": "combined-service--with-extraction-test",
+  "schema": "schema.graphql",
   "extraction": true,
   "mapping": "mapping.ttl",
   "query": "query.sparql",
