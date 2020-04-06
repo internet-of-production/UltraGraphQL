@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.language.*;
+import graphql.schema.GraphQLEnumType;
+import graphql.schema.GraphQLEnumValueDefinition;
 import org.apache.jena.rdf.model.Model;
 import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
@@ -494,6 +496,10 @@ public class ExecutionTreeNode {
                     }
                     argNode.set(arg.getName(), arrayNode);
                     break;
+                }
+                case "EnumValue":{
+                    EnumValue enum_value = ((EnumValue) val);
+                    argNode.put(arg.getName(), enum_value.getName());
                 }
             }
 

@@ -63,9 +63,11 @@ public class FetcherFactory {
             Field field = (Field) environment.getFields().toArray()[0];
             String predicate = (field.getAlias() == null) ? field.getName() : field.getAlias();   // predicate := field.name || field.alias
             ModelContainer client = environment.getContext();
-            return client.getValuesOfObjectProperty(   // Both subject and predicate are generated in the Service object
+            return client.getValuesOfObjectPropertyWithArgs(   // Both subject and predicate are generated in the Service object
                     HGQLVocabulary.HGQL_QUERY_URI,
-                    HGQLVocabulary.HGQL_QUERY_NAMESPACE + predicate
+                    HGQLVocabulary.HGQL_QUERY_NAMESPACE + predicate,
+                    null,
+                    environment.getArguments()
             );
         };
     }
@@ -95,10 +97,11 @@ public class FetcherFactory {
     public DataFetcher<List<RDFNode>> objectsFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);
-            return params.getClient().getValuesOfObjectProperty(
+            return params.getClient().getValuesOfObjectPropertyWithArgs(
                     params.getSubjectResource(),
                     params.getPredicateURI(),
-                    params.getTargetURI()
+                    params.getTargetURI(),
+                    environment.getArguments()
             );
         };
     }
@@ -125,7 +128,7 @@ public class FetcherFactory {
     public DataFetcher<List<String>> literalValuesFetcher() {
         return environment -> {
             FetchParams params = new FetchParams(environment, schema);
-            return params.getClient().getValuesOfDataProperty(
+            return params.getClient().getValuesOfDataPropertyWithArgs(
                     params.getSubjectResource(),
                     params.getPredicateURI(),
                     environment.getArguments()

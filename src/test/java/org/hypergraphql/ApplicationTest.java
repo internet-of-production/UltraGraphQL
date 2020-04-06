@@ -228,6 +228,18 @@ class ApplicationTest {
         assertTrue(has_type_1 && has_type_2 && has_typeSpecificField_of_type_1);
     }
 
+    @Test
+    void limitAndOffsetTest() throws Exception {
+        String config = "build/resources/test/evaluation/limit_and_offset/config.json";
+        String query = "{Person{_id label }}";
+        JSONObject json_response = sendPost(config, query);
+
+        Thread.sleep(SOCKET_CLOSING);
+        while (true){
+
+        }
+    }
+
 
     private JSONObject sendPost(String config, String query) throws Exception {
         Application.main(new String[]{"-config", config});

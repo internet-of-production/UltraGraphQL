@@ -1,0 +1,10 @@
+type __Context{
+    Person: _@href(iri:"http://www.example.org/Person")
+    label: _@href(iri:"http://www.example.org/label")
+    friends: _@href(iri:"http://www.example.org/friends")
+}
+
+type Person @service(id:"dataset"){
+    label: [String] @service(id:"dataset")
+    friends: [Person] @service(id:"dataset")
+}

@@ -60,12 +60,21 @@ public class HGQLSchemaWiring {
         put("lang", new GraphQLArgument("lang", GraphQLString));
         put("uris", new GraphQLArgument("uris", new GraphQLNonNull(new GraphQLList(GraphQLID))));
         put("_id", new GraphQLArgument("_id", new GraphQLList(GraphQLID)));  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
+        put("order", GraphQLArgument.newArgument()
+                .name("order")
+                .type(GraphQLEnumType.newEnum()
+                        .name("Order_ENUM")
+                        .value("DESCENDING", "DESC")
+                        .value("ASCENDING", "ASC")
+                        .build())
+                .build());
     }};
 
     private List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
         add(defaultArguments.get("_id")); //ToDo: Maybe a list
+        add(defaultArguments.get("order"));
     }};
 
 //    private List<GraphQLArgument> getByIdQueryArgs = new ArrayList<GraphQLArgument>() {{
@@ -257,7 +266,6 @@ public class HGQLSchemaWiring {
                 .description(description)
                 .fields(builtFields)
                 .withInterfaces(interfaces_ref)
-                .comparatorRegistry(GraphqlTypeComparatorRegistry.BY_NAME_REGISTRY)
                 .build();
     }
 
@@ -404,6 +412,17 @@ public class HGQLSchemaWiring {
 
         if (field.getTargetName().equals("String")) {
             args.add(defaultArguments.get("lang"));
+        }
+        if(!(SCALAR_TYPES.containsKey(field.getTargetName()))){
+            if(field.isList()){
+                args.addAll(getQueryArgs);
+            }
+        }else{
+            if(field.isList()){
+                args.add(defaultArguments.get("limit"));
+                args.add(defaultArguments.get("offset"));
+                args.add(defaultArguments.get("order"));
+            }
         }
         //args.add(defaultArguments.get("limit")); // Default Argument for any field.
         if(field.getService() == null) {

@@ -1,20 +1,18 @@
 package org.hypergraphql.datamodel;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.NodeIterator;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.arq.querybuilder.Order;
+import org.apache.jena.arq.querybuilder.SelectBuilder;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.sparql.lang.sparql_11.ParseException;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by szymon on 22/08/2017.
@@ -205,5 +203,132 @@ public class ModelContainer {
 
         model.add(getResourceFromUri(subjectURI), getPropertyFromUri(predicateURI), value);
 
+    }
+
+    public List<RDFNode> getValuesOfObjectPropertyWithArgs(String subjectURI, String predicateURI, String targetURI, Map<String, Object> args){
+        return getValuesOfObjectPropertyWithArgs(getResourceFromUri(subjectURI),
+                predicateURI,
+                targetURI,
+                args);
+    }
+
+    public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, String predicateURI, String targetURI, Map<String, Object> args){
+        final Property property = getPropertyFromUri(predicateURI);
+        final Resource target = (targetURI == null) ? null : getResourceFromUri(targetURI);
+
+        return getValuesOfObjectPropertyWithArgs(subjectURI,
+                property,
+                target,
+                args);
+    }
+
+
+        public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, RDFNode predicateURI, RDFNode targetURI, Map<String, Object> args){
+
+        List<RDFNode> res = new ArrayList<>();
+        SelectBuilder builder = new SelectBuilder();
+        builder.addPrefix( "rdfs",  "http://www.w3.org/2000/01/rdf-schema#" );
+        builder.addPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        builder.addVar( "?object" );
+        if(args.containsKey("limit")){
+            builder.setLimit((Integer) args.get("limit"));
+        }
+        if(args.containsKey("offset")){
+            builder.setOffset((Integer) args.get("offset"));
+        }
+        if(args.containsKey("_id")){
+            final Object idValue = args.get("_id");
+            if(idValue instanceof List){
+                List<String> idlist = (List<String>) idValue;
+                String ids = "";
+                for(String id : idlist){
+                    builder.addValueVar("?object",getResourceFromUri(id));
+
+                }
+
+            }else{
+
+            }
+        }
+        if(args.containsKey("order")){
+            String order = (String) args.get("order");
+            if(order.equals("ASC")){
+                builder.addOrderBy("?object", Order.ASCENDING);
+            }else if(order.equals("DESC")){
+                builder.addOrderBy("?object", Order.DESCENDING);
+            }
+
+        }
+        builder.addWhere(subjectURI, predicateURI,"?object");
+        if(targetURI != null){
+            builder.addWhere("?object", "rdf:type", targetURI);
+        }
+        Query query = builder.build();
+        LOGGER.info(query.toString());
+        QueryExecution qexec = QueryExecutionFactory.create(query, this.model) ;
+        ResultSet results = qexec.execSelect();
+        while (results.hasNext()){
+            final QuerySolution next = results.next();
+            final RDFNode rdfNode = next.get("?object");
+            res.add(rdfNode);
+        }
+        return res;
+    }
+
+    List<String> getValuesOfDataPropertyWithArgs(RDFNode subject, String predicateURI, Map<String, Object> args){
+        final String OBJECT = "?object";
+        List<String> res = new ArrayList<>();
+        SelectBuilder builder = new SelectBuilder();
+        builder.addPrefix( "rdfs",  "http://www.w3.org/2000/01/rdf-schema#" );
+        builder.addPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        builder.addVar( OBJECT );
+        if(args.containsKey("limit")){
+            builder.setLimit((Integer) args.get("limit"));
+        }
+        if(args.containsKey("offset")){
+            builder.setOffset((Integer) args.get("offset"));
+        }
+        if(args.containsKey("order")){
+            String order = (String) args.get("order");
+            if(order.equals("ASC")){
+                builder.addOrderBy(OBJECT, Order.ASCENDING);
+            }else if(order.equals("DESC")){
+                builder.addOrderBy(OBJECT, Order.DESCENDING);
+            }
+
+        }
+        builder.addWhere(subject, getPropertyFromUri(predicateURI),OBJECT);
+        Query query = builder.build();
+        LOGGER.info(query.toString());
+        QueryExecution qexec = QueryExecutionFactory.create(query, this.model) ;
+        ResultSet results = qexec.execSelect();
+        while (results.hasNext()){
+            final QuerySolution next = results.next();
+            final RDFNode rdfNode = next.get("?object");
+            if(rdfNode.isLiteral()){
+                if(args.containsKey("lang")){
+                    if(rdfNode.asLiteral().getLanguage().equals((String) args.get("lang"))){
+                        res.add(rdfNode.asLiteral().getString());
+                    }
+                }else{
+                    res.add(rdfNode.asLiteral().getString());
+                }
+
+            }
+        }
+        return res;
+    }
+
+    public static void main(String[] arguments){
+        ModelContainer model = new ModelContainer(ModelFactory.createDefaultModel());
+        String subject = "http://example.org/alice";
+        String predicate = "http://example.org/friends";
+        String target = "http://example.org/Person";
+        Map<String, Object> args = new HashMap<>();
+        args.put("limit", 2);
+        args.put("offset", 4);
+        args.put("_id", "http://example.org/bob");
+        args.put("order", "DESC");
+        model.getValuesOfObjectPropertyWithArgs(subject, predicate, target, args);
     }
 }

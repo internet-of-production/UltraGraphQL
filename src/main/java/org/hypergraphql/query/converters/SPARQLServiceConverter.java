@@ -34,6 +34,9 @@ public class SPARQLServiceConverter {
     private final static String PARENT_ID = "parentId";
     private final static String LIMIT = "limit";
     private final static String OFFSET = "offset";
+    private final static String ORDER = "order";
+    private final static String ORDER_DESC = "DESCENDING";
+    private final static String ORDER_ASC = "ASCENDING";
     private final static String ID = "_id";
     private final static String SAMEAS = "sameas";
 
@@ -156,6 +159,22 @@ public class SPARQLServiceConverter {
         return "OFFSET " + offset + " ";
     }
 
+
+    private String orderClause(JsonNode jsonQuery){
+        JsonNode args = jsonQuery.get(ARGS);
+        String order = "";
+        String nodeId = jsonQuery.get(NODE_ID).asText();
+        if(args.has(ORDER)){
+            order = args.get(ORDER).asText();
+            if(order.equals(ORDER_DESC)){
+                return  String.format("ORDER  BY DESC(%s)", toVar(nodeId));
+            }else if(order.equals(ORDER_ASC)){
+                return  String.format("ORDER  BY ASC(%s)", toVar(nodeId));
+            }
+        }
+        return "";
+    }
+
     /**
      * Format the given URI to a URI in SPARQL syntax
      * @param uri
@@ -266,6 +285,7 @@ public class SPARQLServiceConverter {
         String graphID = getGraphId(queryField, serviceId);
         String nodeId = queryField.get(NODE_ID).asText();
         String limitOffsetSTR = limitOffsetClause(queryField);
+        String orderSTR = orderClause(queryField);
         String selectTriple ="";
         if(hasSameAsTypes(targetName)){
             Set<String> values = getSameAsTypes(targetName);
@@ -286,7 +306,7 @@ public class SPARQLServiceConverter {
         JsonNode subfields = queryField.get(FIELDS);
         String subQuery = getSubQueries(subfields);
 
-        return selectQueryClause(valueSTR + selectTriple + subQuery, graphID);
+        return selectQueryClause(valueSTR + selectTriple + subQuery, graphID) + orderSTR + limitOffsetSTR;
     }
 
     /**
@@ -302,6 +322,7 @@ public class SPARQLServiceConverter {
         String graphID = getGraphId(queryField, serviceId);  // The Graph is defined over the HGQL Schema directive service
         String nodeId = queryField.get(NODE_ID).asText();   // SPARQL variable
         String limitOffsetSTR = limitOffsetClause(queryField);
+        String orderSTR = orderClause(queryField);
         String selectTriple ="";
         if(hasSameAsTypes(targetName)){
             Set<String> values = getSameAsTypes(targetName);
@@ -314,7 +335,7 @@ public class SPARQLServiceConverter {
         }else{
             selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
         }
-        String rootSubquery = selectSubqueryClause(nodeId, selectTriple, limitOffsetSTR);
+        String rootSubquery = selectSubqueryClause(nodeId, selectTriple, orderSTR + limitOffsetSTR);
 
         JsonNode subfields = queryField.get(FIELDS);
         String whereClause = getSubQueries(subfields);
@@ -377,7 +398,17 @@ public class SPARQLServiceConverter {
         String parentId = fieldJson.get(PARENT_ID).asText();
         String nodeId = fieldJson.get(NODE_ID).asText();
 
+        String limitOffsetSTR = limitOffsetClause(fieldJson);
         String langFilter = langFilterClause(fieldJson);   // Add language filter if defined
+        String orderSTR = orderClause(fieldJson);
+        String valueSTR = "";
+        if(fieldJson.get(ARGS).has(ID)){
+            Iterator<JsonNode> urisIter = fieldJson.get(ARGS).get(ID).elements();
+            Set<String> uris = new HashSet<>();
+            urisIter.forEachRemaining(uri -> uris.add(uri.asText()));
+            valueSTR = valuesClause(nodeId, uris);
+        }
+
 
         String typeURI = (schema.getTypes().containsKey(targetName)) ? schema.getTypes().get(targetName).getId() : "";  // If the output type (targetName) is a type of the schema then typeURI is the Id of this type
 
@@ -387,7 +418,14 @@ public class SPARQLServiceConverter {
 
         String rest = getSubQueries(subfields);   // SPARQL query for the SelectionSet of the field (subfields)
 
-        return optionalClause(fieldPattern + langFilter + rest); // Whole query for the field
+        String selectField = "";
+        if(!limitOffsetSTR.equals("") || !orderSTR.equals("") || !valueSTR.equals("")){   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
+            selectField = "{ "+ selectQueryClause(valueSTR + fieldPattern + langFilter + rest, "") + orderSTR + limitOffsetSTR + " }";
+        }else{
+            selectField = fieldPattern + langFilter + rest;
+        }
+
+        return optionalClause(selectField); // Whole query for the field
     }
 
     /**
