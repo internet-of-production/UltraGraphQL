@@ -1,0 +1,35 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+  ?predicate ?a ?b; a ?property; ?domain ?pDomain; ?range ?pRange.
+  ?concept   ?c ?d; a ?class.
+  ?pDomain a ?class.
+  ?pRange a ?class.
+}
+?from
+WHERE {
+  {
+    SELECT DISTINCT ?p ?pDomain ?pRange {
+      {
+        SELECT DISTINCT ?x ?pDomain ?pRange {
+          ?s ?x ?o.
+          OPTIONAL { ?s a ?pDomain}
+          OPTIONAL { ?o a ?pRange}
+        }
+      }
+      ?x (?subPropertiesOf|?equivalentProperties|^(?equivalentProperties)|?sameAses|^(?sameAses))* ?p
+      FILTER(!isBlank(?p))
+    }
+  }
+  BIND (?p AS ?predicate)
+
+  { SELECT DISTINCT ?y {[] a ?y} }
+  UNION
+  { ?predicate (?ranges|?domains) ?y }
+  ?y (?subClassesOf|?sameAses|^(?sameAses)|?equivalentClass|^(?equivalentClasses))* ?concept
+  FILTER(!isBlank(?concept))
+  OPTIONAL { ?predicate ?a ?b }
+  OPTIONAL { ?concept ?c ?d }
+}

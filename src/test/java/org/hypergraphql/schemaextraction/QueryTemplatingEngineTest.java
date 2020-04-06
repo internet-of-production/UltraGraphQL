@@ -44,17 +44,17 @@ class QueryTemplatingEngineTest {
         String query_template = readFile(template_query_file_path);
         String query_only_service_var = readFile(query_file_path);
         QueryTemplatingEngine engine = new QueryTemplatingEngine(query_only_service_var,mapping);
-        String res = engine.buildQuery("TESTService_1");
+        String res = engine.buildQuery("TESTService_1", null);
         assertEquals(readFile(expected_query_file_path),res);
         log.info("Test 1: successful");
         log.info("Test 2: query with schema syntax from the mapping file but only ONE mapping per feature");
         QueryTemplatingEngine engine2 = new QueryTemplatingEngine(query_template,mapping);
-        String res2 = engine2.buildQuery("TESTService_2");
+        String res2 = engine2.buildQuery("TESTService_2", null);
         assertEquals(readFile(expected_template_query_file_path),res2);
         log.info("Test 2: successful");
         log.info("Test 3: query with schema syntax from the mapping file with multiple mapping for some features");
         QueryTemplatingEngine engine3 = new QueryTemplatingEngine(query_template,mapping_multiple);
-        String res3 = engine3.buildQuery("TESTService_2");
+        String res3 = engine3.buildQuery("TESTService_2", null);
         assertEquals(readFile(expected_template_query_multiple_file_path),res3);
         log.info("Test 3: successful");
     }

@@ -235,10 +235,20 @@ class ApplicationTest {
         JSONObject json_response = sendPost(config, query);
 
         Thread.sleep(SOCKET_CLOSING);
-        while (true){
-
-        }
+//        while (true){
+//
+//        }
     }
+    @Test
+    void foreignEndpointTest() throws Exception {
+        String config = "build/resources/test/evaluation/foreignEndpoint/config_extraction.json";
+        Application.main(new String[]{"-config", config});
+        Thread.sleep(SOCKET_CLOSING);
+//        while(true){
+//
+//        }
+    }
+
 
 
     private JSONObject sendPost(String config, String query) throws Exception {

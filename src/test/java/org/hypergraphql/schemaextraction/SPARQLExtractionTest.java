@@ -125,7 +125,7 @@ class SPARQLExtractionTest {
         MappingConfig conf = new MappingConfig(mapping);
         SPARQLExtraction extractor = new SPARQLExtraction(conf,readFile(template_query_file_path));
         log.debug("Start to query server_1");
-        Model res_1 = extractor.extractSchema(DS1_SUBCLASS_URL,"", "");
+        Model res_1 = extractor.extractSchema(DS1_SUBCLASS_URL,"", "", null);
         System.out.print("=================================");
         res_1.write(System.out, "Turtle");
         ResIterator resIterator = res_1.listSubjectsWithProperty(RDF.type, res_1.getResource("http://www.w3.org/2000/01/rdf-schema#Class"));

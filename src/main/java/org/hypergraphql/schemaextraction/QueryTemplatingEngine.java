@@ -89,7 +89,7 @@ public class QueryTemplatingEngine {
                 mapping.getEquivalentFieldMapping().stream()
                         .map(t->t.toString())
                         .collect(Collectors.toSet()));
-        //smeAs
+        //sameAs
         one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEAS,mapping.getSameAsMapping().iterator().next().toString());
         all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEASES,
                 mapping.getSameAsMapping().stream()
@@ -136,9 +136,16 @@ public class QueryTemplatingEngine {
      * @param service Service URL
      * @return SPARQL query
      */
-    public String buildQuery(String service){
+    public String buildQuery(String service, String graph){
         ParameterizedSparqlString res = new ParameterizedSparqlString(query_service_template);
         res.setIri("service", service);
+        if(graph != null && !graph.equals("")){
+            String currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"graph"+")+\\b","Graph <" + graph + ">"));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b","FROM <" + graph + ">"));
+        }else{
+            res.setIri("graph", "");
+        }
         System.out.print(res.toString());
         return res.toString();
     }

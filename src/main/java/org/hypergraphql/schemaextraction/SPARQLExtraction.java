@@ -8,8 +8,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.fuseki.main.FusekiServer;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.web.HttpOp;
@@ -42,6 +41,7 @@ public class SPARQLExtraction {
         this.engine = new QueryTemplatingEngine(query_template,mapConfig);
     }
 
+
     /**
      * Extract the RDF schema from a given SPARQL endpoint. If the endpoint needs http authentication then username and
      * password must be given otherwise the can be null.
@@ -51,6 +51,19 @@ public class SPARQLExtraction {
      * @return Returns a Model containing the RDF schema of the given SPARQL endpoint
      */
     public Model extractSchema(String service, String username, String password){
+        return extractSchema(service, username, password, null);
+    }
+
+    /**
+     * Extract the RDF schema from a given SPARQL endpoint. If the endpoint needs http authentication then username and
+     * password must be given otherwise the can be null.
+     * @param service URL of the SPARQL service endpoint
+     * @param username Username to authenticate or null if no authentication needed
+     * @param password Password to authenticate or null if no authentication needed
+     * @param graph Graph were the data is stored, if no graph is defined in the config use null
+     * @return Returns a Model containing the RDF schema of the given SPARQL endpoint
+     */
+    public Model extractSchema(String service, String username, String password, String graph){
         if(username == null){
             username = "";
         }
@@ -70,10 +83,14 @@ public class SPARQLExtraction {
         }else{
             HttpOp.setDefaultHttpClient(HttpOp.initialDefaultHttpClient);
         }
-        UpdateAction.parseExecute(engine.buildQuery(service), upModel);
+        String query = engine.buildQuery(service, graph);
+        UpdateAction.parseExecute(query, upModel);
+//        Query queryFactory = QueryFactory.create(query) ;
+//        QueryExecution qexec = QueryExecutionFactory.createServiceRequest(service, queryFactory) ;
+//        Model resultModel = qexec.execConstruct() ;
+//        qexec.close() ;
         return upModel;
     }
-
 
     /**
      * Extracts the RDF schema from the given RDF dataset file. To run the extraction query against the dataset a fuseki
@@ -84,6 +101,19 @@ public class SPARQLExtraction {
      * @throws FileNotFoundException
      */
     public Model extractSchemaFromLocalRDFFile(String filename, String type) throws FileNotFoundException {
+        return extractSchemaFromLocalRDFFile(filename, type, null);
+    }
+
+    /**
+     * Extracts the RDF schema from the given RDF dataset file. To run the extraction query against the dataset a fuseki
+     * server with the dataset is instantiated.
+     * @param filename Name of the file that contains the rdf data
+     * @param type Type of the file for example "TTL"
+     * @param graph Graph were the data is stored, if no graph is defined in the config use null
+     * @return Returns a Model containing the RDF schema of the given dataset
+     * @throws FileNotFoundException
+     */
+    public Model extractSchemaFromLocalRDFFile(String filename, String type, String graph) throws FileNotFoundException {
         FusekiServer server;
         Model model = ModelFactory.createDefaultModel();
         model.read(new FileInputStream(filename), null, type);
@@ -94,7 +124,7 @@ public class SPARQLExtraction {
         server.start();
         String address = RDF_FILE_ENDPOINT_ADDRESS+server.getPort()+RDF_FILE_ENDPOINT_DATASET;
         System.out.print(address);
-        Model res = extractSchema(address,null, null);
+        Model res = extractSchema(address,null, null, graph);
         server.stop();
         return res;
     }

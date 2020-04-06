@@ -1,0 +1,22 @@
+{
+  "name": "hgql-example-with-sparql",
+  "schema": "gql/schema_extracted.graphql",
+  "extraction": true,
+  "mapping": "mapping.ttl",
+  "query": "extraction_query_3_optimized.sparql",
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dbpedia-sparql",
+      "type": "SPARQLEndpointService",
+      "url": "http://dbpedia.org/sparql/",
+      "graph": "http://dbpedia.org",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

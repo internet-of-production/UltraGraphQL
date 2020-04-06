@@ -50,13 +50,13 @@ public class ExtractionController {
                         conf.getId(),
                         conf.getUser(),
                         conf.getPassword()));
-                Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword());
+                Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword(), conf.getGraph());
                 this.mapper.create(serviceSchema, conf.getId());
             }else if(conf.getType().equals(LOCAL_RDF_MODEL)){
                 Model serviceSchema = null;
                 try{
                     log.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
-                    serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype());
+                    serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype(), conf.getGraph());
                 }catch(Exception e){
                     log.error("File "+ conf.getFilepath() +" not found skip the Service "+ conf.getId());
                     continue;

@@ -34,6 +34,8 @@ The template variable names are based on the Default Mapping Vocabulary because 
 |?equivalentProperties|ALL node that represent if fields share the same output type|
 |?sameAs|ONE node that represents if some fields or types are the same|
 |?sameAses|ALL nodes that represent if some fields or types are the same|
+|?graph| Graph from the configuration file defined for the service WITH the GRAPH keyword |
+|?from| Graph from the configuration file defined for the service WITH the FROM keyword |
 
 >**Note**: The SPARQL Query templating injects the mappings that correspond to the defined variables. This means that the
 >mapping files and services URLs are vulnerable to query injection attacks.

@@ -13,13 +13,13 @@ type __Context{
 interface eg_Person_Interface {
 	eg_lastName: [String] @service(id: "person")
 	rdfs_label: [String] @service(id: ["city", "person"])
-	eg_firstName: [String] @service(id: "person")
-	rdf_type: [String] @service(id: ["address", "city", "person"])
 	eg_address: [eg_Address] @service(id: "person")
+	rdf_type: [String] @service(id: ["address", "city", "person"])
+	eg_firstName: [String] @service(id: "person")
 }
 interface eg_Address_Interface {
-	eg_city: [dbo_City] @service(id: "address")
 	eg_street: [String] @service(id: "address")
+	eg_city: [dbo_City] @service(id: "address")
 	rdf_type: [String] @service(id: ["address", "city", "person"])
 }
 interface dbo_City_Interface {
@@ -30,13 +30,13 @@ interface dbo_City_Interface {
 type eg_Person implements eg_Person_Interface @service(id: "person") {
  	eg_lastName: [String] @service(id: "person")
 	rdfs_label: [String] @service(id: ["city", "person"])
-	eg_firstName: [String] @service(id: "person")
-	rdf_type: [String] @service(id: ["address", "city", "person"])
 	eg_address: [eg_Address] @service(id: "person")
+	rdf_type: [String] @service(id: ["address", "city", "person"])
+	eg_firstName: [String] @service(id: "person")
 }
 type eg_Address implements eg_Address_Interface @service(id: "person") {
- 	eg_city: [dbo_City] @service(id: "address")
-	eg_street: [String] @service(id: "address")
+ 	eg_street: [String] @service(id: "address")
+	eg_city: [dbo_City] @service(id: "address")
 	rdf_type: [String] @service(id: ["address", "city", "person"])
 }
 type dbo_City implements dbo_City_Interface @service(id: "address") {
