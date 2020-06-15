@@ -1,6 +1,5 @@
 {
   "name": "liteal-handling-test",
-  "schema": "schema.graphql",
   "extraction": true,
   "mapping": "mapping.ttl",
   "query": "extraction_query.sparql",

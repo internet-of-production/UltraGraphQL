@@ -9,17 +9,17 @@ type __Context{
 	ex_name:	_@href(iri:"http://example.org/name")
 }
 interface ex_Address_Interface {
-	
-	ex_street_name: [String] @service(id: "dataset")
 	ex_house_number: [String] @service(id: "dataset")
+	ex_street_name: [String] @service(id: "dataset")
+	
 }
 interface hgqls_Literal_Interface {
 	hgqls_string: [String] 
 }
 interface ex_Person_Interface {
 	ex_address: [ex_address_OutputType] @service(id: "dataset")
-	
 	ex_name: [String] @service(id: "dataset")
+	
 }
 interface ex_address_OutputType {
  
@@ -31,7 +31,7 @@ type ex_Person implements ex_Person_Interface @service(id: "dataset") {
  	ex_address: [ex_address_OutputType] @service(id: "dataset")
 	ex_name: [String] @service(id: "dataset")
 }
-type ex_Address implements ex_address_OutputType & ex_Address_Interface @service(id: "dataset") {
- 	ex_street_name: [String] @service(id: "dataset")
-	ex_house_number: [String] @service(id: "dataset")
+type ex_Address implements ex_Address_Interface & ex_address_OutputType @service(id: "dataset") {
+ 	ex_house_number: [String] @service(id: "dataset")
+	ex_street_name: [String] @service(id: "dataset")
 }

@@ -150,13 +150,6 @@ public class HGQLSchemaWiring {
                     if(type.isUnion()){
                         return registerGrapQLUnionType(type);
                     }else if(type.isInterface()){
-//                        //currently treating Interfaces as objects
-//                        /**
-//                         * To support this feature add to each type TypeConfig (OBJECT) the TypeConfigs of the interfaces it implements.
-//                         * This allows to build an type resolver that decides if the requested type implements this interface.
-//                         * Example: Query segment: ... on Dog{}
-//                         * Schema: interface animal{} type Dog implements animal{} type Cat implements animal{}
-//                         */
                         return  registerGraphQLInterfaceType(type);
                     }else{
                         return registerGraphQLObjectType(type);
@@ -219,6 +212,7 @@ public class HGQLSchemaWiring {
         Set<String> fieldNames = fields.keySet();
 
         builtFields = fieldNames.stream()
+                .filter(s -> !s.equals(HGQL_SCALAR_LITERAL_GQL_NAME))   // the literal placeholder object is excluded as it is not allowed to be directly queried
                 .map(fieldName -> registerGraphQLQueryField(type.getField(fieldName)))
                 .collect(Collectors.toList());
 
