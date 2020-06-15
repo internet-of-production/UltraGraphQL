@@ -218,7 +218,7 @@ public class HGQLSchema {
 
             List<Node> typeChildren = type.getChildren();
 
-            for (Node node : typeChildren) {//ToDo: Implement the functionality for the newly defined directives
+            for (Node node : typeChildren) {
                 if (node.getClass().getSimpleName().equals("FieldDefinition")) {
                     FieldDefinition field = (FieldDefinition) node;
                     String fieldURI = schemaNamespace + typeName + "/" + field.getName();
@@ -258,8 +258,7 @@ public class HGQLSchema {
                                         schemaNamespace + typeName + "/" + ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
                             }
                         }
-                        //ToDo: Implement the functionality for the newly defined directives
-                        //ToDo: sameAs
+
                     }
 
                     String outputTypeUri = getOutputType(field.getType());
@@ -289,8 +288,8 @@ public class HGQLSchema {
         for (RDFNode fieldNode : fieldNodes) {
             String name = rdfSchema.getValueOfDataProperty(fieldNode, HGQL_HAS_NAME);
             RDFNode href = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HREF);
-            RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HAS_SERVICE);
-            String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);   // Not used, because it is not supported in FieldConfig
+            //RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HAS_SERVICE);
+            //String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);   // Not used, because it is not supported in FieldConfig
             FieldConfig fieldConfig = new FieldConfig(href.asResource().getURI());
             final List<RDFNode> sameAs_fields = rdfSchema.getValuesOfObjectProperty(fieldNode, HGQLVocabulary.HGQLS_SAME_AS);
             Set<String> sameAs = sameAs_fields.stream()

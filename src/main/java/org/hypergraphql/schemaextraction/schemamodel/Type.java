@@ -139,6 +139,10 @@ public class Type {
      * @param serviceId id of the service
      */
     public void addServiceDirective(String serviceId){
+        if(serviceId == null){
+            // object type with no service is created. Attention only suitable for schema internal objectTypes, pleas use with care.
+            return;
+        }
         Optional<Directive> direc = this.directives.stream()
                 .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
                 .findFirst();
@@ -198,11 +202,12 @@ public class Type {
     private String buildFields(){
         return this.fields.stream()
                 .map(Field::build)
+                .filter(s -> !s.equals(""))
                 .collect(Collectors.joining("\n\t"));
     }
     private String buildImplements(){
         final Set<Interface> interfaceSet = this.interfaces.stream()
-                .filter(anInterface -> (anInterface instanceof  Union)? anInterface.getFields().size() > 1 : true)
+                .filter(anInterface -> (anInterface instanceof  Union)? ((Union) anInterface).getTypes().size() > 1 : true)
                 .collect(Collectors.toSet());
         String interfaces =  interfaceSet.stream()
                 .map(Interface::getId)

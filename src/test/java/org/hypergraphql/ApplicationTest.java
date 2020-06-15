@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -226,6 +228,9 @@ class ApplicationTest {
         }
         Thread.sleep(SOCKET_CLOSING);
         assertTrue(has_type_1 && has_type_2 && has_typeSpecificField_of_type_1);
+    while (true){
+
+        }
     }
 
     @Test
@@ -244,9 +249,19 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/foreignEndpoint/config_extraction.json";
         Application.main(new String[]{"-config", config});
         Thread.sleep(SOCKET_CLOSING);
-//        while(true){
-//
-//        }
+        while(true){
+
+        }
+    }
+
+
+    @Test
+    void literalHandlingTest() throws Exception{
+        String config = "build/resources/test/evaluation/literal_handling/config.json";
+        String query = "{ex_Person{ex_name ex_address{...on " + HGQL_SCALAR_LITERAL_GQL_NAME +
+                "{" + HGQL_SCALAR_LITERAL_VALUE_GQL_NAME + "} ...on ex_Address{ex_house_number}}}}";
+        JSONObject json_response = sendPost(config, query);
+        System.out.print(json_response);
     }
 
 

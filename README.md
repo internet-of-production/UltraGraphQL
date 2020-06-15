@@ -6,6 +6,7 @@
 - [multiple services per schema entity](./docs/multiple_service_feature.md)
 - [Support of Unions](./docs/union.md)
 - [Support of Interfaces](./docs/interface.md)
+- [Placeholder Literal for fields with multiple output types including a String](./docs/Literal_placeholder.md)
 
 ## Process Flow of HyperGraphQL
 ### Bootstrapping and Initialization Phase

@@ -128,4 +128,54 @@ public class SPARQLExtraction {
         server.stop();
         return res;
     }
+
+
+
+    private Model fallbackExtraction(String service, String graph){
+        String predicate_Query = "CONSTRUCT {\n" +
+                "  ?predicate a ?property; ?domain ?pDomain; ?range ?pRange.\n" +
+                "  ?pDomain a ?class.\n" +
+                "  ?pRange a ?class.\n" +
+                "}\n" +
+                "?from\n" +
+                "WHERE {\n" +
+                "  {\n" +
+                "    SELECT DISTINCT ?predicate ?pDomain ?pRange {\n" +
+                "      {\n" +
+                "        SELECT DISTINCT ?x ?pDomain ?pRange {\n" +
+                "          ?s ?x ?o.\n" +
+                "          OPTIONAL { ?s a ?pDomain}\n" +
+                "          OPTIONAL { ?o a ?pRange}\n" +
+                "        }\n" +
+                "      }\n" +
+                "      ?x (?subPropertiesOf|?equivalentProperties|^(?equivalentProperties)|?sameAses|^(?sameAses))* ?predicate\n" +
+                "      FILTER(!isBlank(?predicate))\n" +
+                "    }\n" +
+                "  }"+
+                "}";
+
+        String query = new QueryTemplatingEngine(predicate_Query, this.mapConfig).buildQuery(service, graph);
+        Query queryFactory = QueryFactory.create(query) ;
+        QueryExecution qexec = QueryExecutionFactory.createServiceRequest(service, queryFactory) ;
+        Model resultModel = qexec.execConstruct();
+        qexec.close() ;
+
+        String class_query_direct = "CONSTRUCT {\n" +
+                "  ?y a rdfs:Class\n" +
+                "}\n" +
+                "WHERE {\n" +
+                "  {\n" +
+                "    SELECT DISTINCT ?y {\n" +
+                "       [] a ?y FILTER(!isBlank(?y))\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        query = new QueryTemplatingEngine(predicate_Query, this.mapConfig).buildQuery(service, graph);
+        queryFactory = QueryFactory.create(query) ;
+        qexec = QueryExecutionFactory.createServiceRequest(service, queryFactory) ;
+        resultModel.add(qexec.execConstruct());
+        qexec.close() ;
+
+        return resultModel;
+    }
 }

@@ -310,7 +310,7 @@ The nodeId and parentId define the SPARQL query variable used in the SPARQL quer
    ]
 }
 ```
-### HGQL Query
+### SPARQL Query
 ```SPARQL
 SELECT *
 WHERE {

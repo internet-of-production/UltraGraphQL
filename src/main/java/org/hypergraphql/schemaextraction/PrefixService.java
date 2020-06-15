@@ -31,6 +31,9 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE;
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE_PREFIX;
+
 
 /**
  * This Class serves as a prefix lookup for RDF resources. It first checks if a prefix is user defined if that is not the
@@ -45,6 +48,7 @@ public class PrefixService {
 
 
     public PrefixService(){
+        this.namespaceMapping.put(HGQL_SCHEMA_NAMESPACE, HGQL_SCHEMA_NAMESPACE_PREFIX);
     }
 
     public PrefixService(Map<String,String> namespaceMapping){

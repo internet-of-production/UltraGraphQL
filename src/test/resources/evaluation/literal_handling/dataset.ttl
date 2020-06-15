@@ -1,0 +1,18 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix hgqls: <http://hypergraphql.org/mapping/> .
+@prefix ex: <http://example.org/> .
+
+
+
+ex:Bob a ex:Person;
+    ex:name "Bob";
+    ex:name "Andrews";
+    ex:address "742 Evergreen Terrace";
+    ex:address ex:addr742ET .
+
+ex:addr742ET a ex:Address;
+    ex:street_name "Evergreen Terrace";
+    ex:house_number "742".

@@ -155,6 +155,10 @@ public class Field {
      * @return Returns this field as SDL
      */
     public String build() {
+        if(!isValid()){
+            // No output type is defined for this field -> Do not include the field in the object
+            return "";
+        }
         fetchDirectives();
         return String.format("%s: %s %s", getId(), buildOutputType(), buildDirectives());
     }
@@ -197,5 +201,14 @@ public class Field {
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
         return String.format("%s_%s", prefix, name);
+    }
+
+    /**
+     * A field is valid if it has a defined output type
+     * @return returns true if the field has a defined output type
+     */
+    public boolean isValid() {
+        //Todo: Maybe extend the validation process to more features and requirements to be valid
+        return !outputType.getTypes().isEmpty();
     }
 }

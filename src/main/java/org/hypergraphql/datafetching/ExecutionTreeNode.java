@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
+
 public class ExecutionTreeNode {
 
     private Service service; // getService configuration
@@ -408,8 +410,14 @@ public class ExecutionTreeNode {
      * @return JSON object of the subfields that have the same service or null if no subfield uses this service
      */
     private JsonNode traverse(Field field, String parentId, String parentType, String targetName) {
-
         SelectionSet subFields = field.getSelectionSet();
+        if(targetName.equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+            // The String placeholder object and its field have always the same service there parent field
+            Set<Field> subfields = subFields.getSelections().stream()
+                    .map(selection -> (Field)selection)
+                    .collect(Collectors.toSet());
+            return getFieldsJson(subfields, parentId, targetName);
+        }
         if (subFields != null) {
             Map<Service, Set<Field>> splitFields = getPartitionedFields(targetName, subFields);   // service_1 [field_1, field_3] means service_1 is responsible for field_1 and field_3
 
@@ -516,7 +524,7 @@ public class ExecutionTreeNode {
      * @param selectionSet selectionSet with the given parentType as parent
      * @return Mapping between services and fields which defines which service is responsible for which field
      */
-    private Map<Service, Set<Field>> getPartitionedFields(String parentType, SelectionSet selectionSet) {   //ToDo: correct handling of inline fragments in case od unions as output ---- Maybe not handeled here if previously changed to multiple fields
+    private Map<Service, Set<Field>> getPartitionedFields(String parentType, SelectionSet selectionSet) {   //ToDo: correct handling of inline fragments in case of unions as output ---- Maybe not handeled here if previously changed to multiple fields
 
         Map<Service, Set<Field>> result = new HashMap<>();
 

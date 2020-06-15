@@ -260,7 +260,6 @@ public class HGQLSchemaWiring {
         GraphQLTypeReference[] interfaces_ref = new GraphQLTypeReference[interfaces.size()];
         interfaces_ref = interfaces.toArray(interfaces_ref);
 
-        // ToDo: add Interfaces to the object
         return newObject()
                 .name(typeName)
                 .description(description)
@@ -301,8 +300,12 @@ public class HGQLSchemaWiring {
                 .typeResolver(env -> {
                     ModelContainer resultPool = env.getContext();
                     ResourceImpl resource = env.getObject();
+                    if(resource.isLiteral()){
+                        // Literal in an field with an interface as output means that the placeholder objectType was queryied
+                        return this.schema.getObjectType(HGQL_SCALAR_LITERAL_GQL_NAME);
+                    }
                     final NodeIterator nodeIterator = resultPool.model.listObjectsOfProperty(resource.asResource(), resultPool.model.getProperty(RDF_TYPE));
-                    while (nodeIterator.hasNext()){
+                    while (nodeIterator.hasNext()){   // only handle first found type because currently GraphQL only accepts one type answer
                         final RDFNode targetNode = nodeIterator.next();
                         String targetUri = targetNode.toString();
                         final Optional<String> targetId = type.getInterafaceObjects().stream()
@@ -425,11 +428,21 @@ public class HGQLSchemaWiring {
             }
         }
         //args.add(defaultArguments.get("limit")); // Default Argument for any field.
+        String description = "";
         if(field.getService() == null) {
-            throw new HGQLConfigurationException("Value of 'service' for field '" + field.getName() + "' cannot be null");
-        }
+            if(field.getId().equals(HGQL_SCALAR_LITERAL_VALUE_URI)){
+                // field is the value of the placeholder literal object
+                // As this field has String as standard output the string specific arguments were already added before
+                description = "Placeholder field for the Parent field, because a Scalar is not allowed to implement an" +
+                        " interface. Therefore the handling of multiple output types for one field requires it that for " +
+                        "the Scalar String a placeholder object is created cirrcumventing this limitation.";
+            }else{
+                throw new HGQLConfigurationException("Value of 'service' for field '" + field.getName() + "' cannot be null");
+            }
+        }else{
+            description = field.getId() + " (source: " + field.getService().getId() + ").";
 
-        String description = field.getId() + " (source: " + field.getService().getId() + ").";
+        }
 
         return newFieldDefinition()
                 .name(field.getName())

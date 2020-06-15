@@ -42,59 +42,85 @@ public class QueryTemplatingEngine {
         one_node = new HashMap<>();
         all_nodes = new HashMap<>();
         //class
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASS,mapping.getTypeMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASSES,
-                mapping.getTypeMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getTypeMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASS,mapping.getTypeMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASSES,
+                    mapping.getTypeMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //property
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTY,mapping.getFieldsMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTIES,
-                mapping.getFieldsMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getFieldsMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTY,mapping.getFieldsMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTIES,
+                    mapping.getFieldsMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //domain
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAIN,mapping.getFieldAffiliationMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAINS,
-                mapping.getFieldAffiliationMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getFieldAffiliationMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAIN,mapping.getFieldAffiliationMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAINS,
+                    mapping.getFieldAffiliationMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //range
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGE,mapping.getOutputTypeMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGES,
-                mapping.getOutputTypeMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getOutputTypeMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGE,mapping.getOutputTypeMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGES,
+                    mapping.getOutputTypeMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //subClassOf
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSOF,mapping.getImplementsMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSESOF,
-                mapping.getImplementsMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getImplementsMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSOF,mapping.getImplementsMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSESOF,
+                    mapping.getImplementsMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //subPropertyOf
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTYOF,mapping.getImpliedFieldMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTIESOF,
-                mapping.getImpliedFieldMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getImpliedFieldMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTYOF,mapping.getImpliedFieldMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTIESOF,
+                    mapping.getImpliedFieldMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //equivalentClass
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASS,mapping.getEquivalentTypeMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASSES,
-                mapping.getEquivalentTypeMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getEquivalentTypeMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASS,mapping.getEquivalentTypeMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASSES,
+                    mapping.getEquivalentTypeMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //equivalentProperty
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTY,mapping.getEquivalentFieldMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTIES,
-                mapping.getEquivalentFieldMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getEquivalentFieldMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTY,mapping.getEquivalentFieldMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTIES,
+                    mapping.getEquivalentFieldMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
+
         //sameAs
-        one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEAS,mapping.getSameAsMapping().iterator().next().toString());
-        all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEASES,
-                mapping.getSameAsMapping().stream()
-                        .map(t->t.toString())
-                        .collect(Collectors.toSet()));
+        if(!mapping.getSameAsMapping().isEmpty()){
+            one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEAS,mapping.getSameAsMapping().iterator().next().toString());
+            all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEASES,
+                    mapping.getSameAsMapping().stream()
+                            .map(t->t.toString())
+                            .collect(Collectors.toSet()));
+        }
 
         prebuild();
     }
@@ -142,9 +168,13 @@ public class QueryTemplatingEngine {
         if(graph != null && !graph.equals("")){
             String currQ = res.toString();
             res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"graph"+")+\\b","Graph <" + graph + ">"));
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b","FROM <" + graph + ">"));
+            currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b","FROM NAMED <" + graph + ">"));
         }else{
-            res.setIri("graph", "");
+            String currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"graph"+")+\\b",""));
+            currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b",""));
         }
         System.out.print(res.toString());
         return res.toString();

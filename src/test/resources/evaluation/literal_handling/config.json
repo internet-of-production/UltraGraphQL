@@ -1,22 +1,21 @@
 {
-  "name": "hgql-example-with-sparql",
+  "name": "liteal-handling-test",
   "schema": "schema.graphql",
   "extraction": true,
   "mapping": "mapping.ttl",
   "query": "extraction_query.sparql",
   "server": {
-    "port": 8080,
+    "port": 8098,
     "graphql": "/graphql",
     "graphiql": "/graphiql"
   },
   "services": [
     {
-      "id": "dbpedia-sparql",
+      "id": "dataset",
       "type": "LocalModelSPARQLService",
-      "filepath": "build/resources/test/evaluation/foreignEndpoint/short_abstracts_en_uris_de.ttl",
+      "filepath": "build/resources/test/evaluation/literal_handling/dataset.ttl",
       "filetype": "Turtle",
-      "user": "",
-      "password": ""
+      "graph": ""
     }
   ]
 }

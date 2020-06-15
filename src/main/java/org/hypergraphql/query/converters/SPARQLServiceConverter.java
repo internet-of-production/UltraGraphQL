@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import jdk.internal.jimage.ImageReaderFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.atlas.json.JsonArray;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 
 import org.hypergraphql.datafetching.services.ManifoldService;
@@ -16,6 +17,9 @@ import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
 
 /**
  * The SPARQLServiceConverter provides methods to covert GraphQl queries into SPARQL queries according to the schema this
@@ -119,6 +123,15 @@ public class SPARQLServiceConverter {
         String urisConcat = String.join(" , ", uris);
 
         return "FILTER ( " + var + " IN ( " + urisConcat + " ) )";
+    }
+
+    /**
+     * Filter clause that cheks if the id (sparql variable) is a literal
+     * @param id sparql variable
+     * @return Filter clause ensuring that the given id is a literal
+     */
+    private String isLiteralClause(String id){
+        return String.format("FILTER(isLiteral(%s))", toVar(id));
     }
 
     /**
@@ -409,14 +422,31 @@ public class SPARQLServiceConverter {
             valueSTR = valuesClause(nodeId, uris);
         }
 
+        String fieldPattern = "";
+        String rest = "";
 
-        String typeURI = (schema.getTypes().containsKey(targetName)) ? schema.getTypes().get(targetName).getId() : "";  // If the output type (targetName) is a type of the schema then typeURI is the Id of this type
-
-        String fieldPattern = fieldPattern(parentId, nodeId, fieldURI, typeURI);  // SPARQL query for only the field
-
-        JsonNode subfields = fieldJson.get(FIELDS);
-
-        String rest = getSubQueries(subfields);   // SPARQL query for the SelectionSet of the field (subfields)
+        if(targetName.equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+            // field queries the String placeholder object -> query directly the string/Literal and ignore the subfields and type checking for the object
+            fieldPattern = toTriple(toVar(parentId), fieldURI, toVar(nodeId));
+            rest = isLiteralClause(nodeId);
+            // overwrite the field arguments with the literal value arguments
+            JsonNode literal_value = fieldJson.get(FIELDS);
+            for(int i=0; i<literal_value.size(); i++){
+                JsonNode field = literal_value.get(i);
+                if(field.get(NAME).asText().equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
+                    literal_value = field;
+                    break;
+                }
+            }
+            langFilter =  langFilterClause(literal_value);
+            limitOffsetSTR = limitOffsetClause(literal_value);
+            orderSTR = orderClause(literal_value);
+        }else{
+            String typeURI = (schema.getTypes().containsKey(targetName)) ? schema.getTypes().get(targetName).getId() : "";  // If the output type (targetName) is a type of the schema then typeURI is the Id of this type
+            fieldPattern = fieldPattern(parentId, nodeId, fieldURI, typeURI);  // SPARQL query for only the field
+            JsonNode subfields = fieldJson.get(FIELDS);
+            rest = getSubQueries(subfields);   // SPARQL query for the SelectionSet of the field (subfields)
+        }
 
         String selectField = "";
         if(!limitOffsetSTR.equals("") || !orderSTR.equals("") || !valueSTR.equals("")){   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined

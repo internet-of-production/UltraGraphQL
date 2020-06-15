@@ -26,9 +26,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_NAMESPACE;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_URI;
-import static org.hypergraphql.config.schema.HGQLVocabulary.RDF_TYPE;
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
 public abstract class Service {
 
@@ -77,7 +75,7 @@ public abstract class Service {
             return model;
         }
 
-        if (query.isArray()) {
+        if (query.isArray()) { // selectionSet with multiple fields
 
             Iterator<JsonNode> nodesIterator = query.elements();
 
@@ -117,7 +115,6 @@ public abstract class Service {
 
         FieldConfig propertyString = schema.getFields().get(currentNode.get("name").asText());
         TypeConfig targetTypeString = schema.getTypes().get(currentNode.get("targetName").asText());   // field output type
-
         populateModel(results, currentNode, model, propertyString, targetTypeString);
 
         QueryFieldConfig queryField = schema.getQueryFields().get(currentNode.get("name").asText());
@@ -295,7 +292,7 @@ public abstract class Service {
      * @param results Results of the query
      * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
      * @param model A model to insert the generated triples.
-     * @param propertyString FieldConfig od the field which is the root of the currentNode
+     * @param propertyString FieldConfig of the field which is the root of the currentNode
      * @param targetTypeString TypeConfig of the field of which is the root of the currentNode
      */
     private void populateModel(
@@ -305,6 +302,22 @@ public abstract class Service {
             final FieldConfig propertyString,
             final TypeConfig targetTypeString
     ) {
+        if(currentNode.get("name").asText().equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
+            return;
+        }
+        if(propertyString != null && currentNode.get("targetName").asText().equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+            //ToDo:
+            Resource subject = results.getResource(currentNode.get("parentId").asText());
+            Property predicate = model.createProperty("", propertyString.getId());
+            Resource object = model.getResource(HGQL_QUERY_NAMESPACE + currentNode.get("nodeId").asText());
+            Property literal_value = model.createProperty(HGQL_SCALAR_LITERAL_VALUE_URI);
+            Resource literal = model.getResource(HGQL_SCALAR_LITERAL_URI);
+            RDFNode value = results.get(currentNode.get("nodeId").asText());
+            model.add(subject, predicate, object);
+            model.add(object,literal_value,value);
+            model.add(object, RDF.type, literal);
+            return;
+        }
 
         if (propertyString != null && !(currentNode.get("parentId").asText().equals("null"))) {
             Property predicate = model.createProperty("", propertyString.getId());

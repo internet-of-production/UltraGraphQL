@@ -17,6 +17,7 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_PREFIX = "hgql-schema:";
     public static final String HGQL_NAMESPACE = "http://hypergraphql.org/";
     public static final String HGQL_SCHEMA_NAMESPACE = HGQL_NAMESPACE + "schema/";
+    public static final String HGQL_SCHEMA_NAMESPACE_PREFIX = "hgqls";
     public static final String HGQL_QUERY_URI = HGQL_NAMESPACE + "query";
     public static final String HGQL_QUERY_NAMESPACE = HGQL_QUERY_URI + "/";
     public static final String HGQL_OBJECT_TYPE = HGQL_NAMESPACE + "ObjectType";
@@ -69,8 +70,8 @@ public class HGQLVocabulary {
     }});
 
     // Additions for Automatic Schema Extraction
-
-    public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+    public static final String RDF_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    public static final String RDF_TYPE = RDF_PREFIX + "type";
 
     public static final String HGQLS_MAPPING = HGQL_NAMESPACE + "mapping/";
     public static final String HGQLS_OBJECT = HGQLS_MAPPING + "object";
@@ -117,4 +118,14 @@ public class HGQLVocabulary {
 
     public static final String HGQL_QUERY_TEMPLATE_SAMEAS = "sameAs";
     public static final String HGQL_QUERY_TEMPLATE_SAMEASES = "sameAses";
+
+    // Literal field serves as place holder for scalar string
+    public static final String HGQL_SCALAR_LITERAL = "Literal";
+    public static final String HGQL_SCALAR_LITERAL_URI = HGQL_SCHEMA_NAMESPACE + HGQL_SCALAR_LITERAL;
+    public static final String HGQL_SCALAR_LITERAL_GQL_NAME = HGQL_SCHEMA_NAMESPACE_PREFIX + "_" + HGQL_SCALAR_LITERAL;
+    public static final String HGQL_SCALAR_LITERAL_VALUE = "string";
+    public static final String HGQL_SCALAR_LITERAL_VALUE_URI = HGQL_SCHEMA_NAMESPACE + HGQL_SCALAR_LITERAL_VALUE;
+    public static final String HGQL_SCALAR_LITERAL_VALUE_GQL_NAME = HGQL_SCHEMA_NAMESPACE_PREFIX + "_" + HGQL_SCALAR_LITERAL_VALUE;
 }
+
+

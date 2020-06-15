@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+
 /**
  * RDFtoHGQL obtains a mapping configuration and can then be used to generate HGQL schema from RDF schemata.
  * It is possible to insert multiple RDF schemata into one HGQL schema by calling create() multiple times before the
@@ -42,6 +44,19 @@ public class RDFtoHGQL {
      * @param serviceId
      */
     public void create(Model schema, String serviceId){
+        // add the Literal objectType as place holder for the scalar string and replacement for Literals in multiple output types.
+        Resource literal = schema.getResource(HGQL_SCALAR_LITERAL_URI);
+        buildType(literal,null);
+        Type literal_obj = this.types.get(prefixService.getId(literal));
+        Resource value = schema.getResource(HGQL_SCALAR_LITERAL_VALUE_URI);
+        if(!literal_obj.getFields().contains(prefixService.getId(value))){
+            Interface literal_inter = literal_obj.getBase_interface();
+            Field literal_value = new Field(value, prefixService);
+            literal_value.addOutputType(literal_obj);
+            literal_inter.addField(literal_value);
+            this.fields.put(prefixService.getId(value), literal_value);
+        }
+
         // Type
 
         Set<RDFNode> types = mapConfig.getTypeMapping();   // Get all objects that represent a type in HGQL
@@ -110,10 +125,6 @@ public class RDFtoHGQL {
 
         // sameAS
         buildSameAs(schema, serviceId);
-
-
-        // Context
-        buildContext();
     }
 
 
@@ -144,6 +155,8 @@ public class RDFtoHGQL {
                 this.types.put(id, obj);
                 Interface inter = obj.generateBaseInterface();
                 this.interfaces.put(inter.getId(), inter);
+            }else{   // if the type already exists only add the service id to the directive
+                this.types.get(id).addServiceDirective(serviceId);
             }
         }else{
             //ToDo: Handle this case
@@ -201,11 +214,12 @@ public class RDFtoHGQL {
                         }
                     }
                     if(typeObj.getBase_interface_id() == null){
-                        System.out.print("NULL");
+                        System.out.print("NULL");  //Todo: Properly handle this case
                     }
                     this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);
 
                     if(impliedField != null){
+                    //ToDo: Add the outputtypes of field to the implied field
                         String id_ofImpliedField = this.prefixService.getId(impliedField.asResource());
                         Field impliedFieldObj;
                         if(this.fields.containsKey(id_ofImpliedField)){
@@ -237,6 +251,9 @@ public class RDFtoHGQL {
      */
     private void buildEquivalentTypes(Model schema, String serviceId){
         Set<Property> equivalentTypeMappings = mapConfig.getEquivalentTypeMapping();   // Get all objects that represent a equivalent type in HGQL
+        if(equivalentTypeMappings.isEmpty()){
+            return;
+        }
         String mappings = convertToSPARQLPropertyOr(equivalentTypeMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
@@ -271,6 +288,9 @@ public class RDFtoHGQL {
      */
     private void buildEquivalentFields(Model schema, String serviceId){
         Set<Property> equivalentFieldMappings = mapConfig.getEquivalentFieldMapping();   // Get all objects that represent a equivalent field in HGQL
+        if(equivalentFieldMappings.isEmpty()){
+            return;
+        }
         String mappings = convertToSPARQLPropertyOr(equivalentFieldMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
@@ -303,6 +323,9 @@ public class RDFtoHGQL {
      */
     private void buildSameAs(Model schema, String serviceId){
         Set<Property> sameAsMappingMappings = mapConfig.getSameAsMapping();
+        if(sameAsMappingMappings.isEmpty()){
+            return;
+        }
         String mappings = convertToSPARQLPropertyOr(sameAsMappingMappings.stream()
                 .map(property -> String.format("<%s>", property.toString()))
                 .collect(Collectors.toSet()));
@@ -367,7 +390,9 @@ public class RDFtoHGQL {
      */
     private void buildContext(){
         this.types.values().forEach(value -> this.context.put(value.getId(), value.getUri()));
-        this.fields.values().forEach(value -> this.context.put(value.getId(), value.getUri()));
+        this.fields.values().stream()
+                .filter(field -> field.isValid())
+                .forEach(value -> this.context.put(value.getId(), value.getUri()));
     }
 
     /**
@@ -376,8 +401,10 @@ public class RDFtoHGQL {
      * @return HGQL schema
      */
     public String buildSDL(){
-        String sdl = "";
-        //build context
+        finalRelations();
+
+        // Context
+        buildContext();
         String context_content = this.context.keySet().stream()
                 .map(key -> String.format("\t%s:\t_@href(iri:\"%s\")", key, this.context.get(key)))
                 .collect(Collectors.joining("\n"));
@@ -399,29 +426,39 @@ public class RDFtoHGQL {
         return String.format("%s\n%s\n%s\n%s",context,interfaces,union,types);
     }
 
+    private void finalRelations(){
+        this.fields.values().stream()
+                .forEach(field -> field.getOutputType().addInterfaceToObjects());
+    }
 
 
     //ToDo: parse the queried schema into the corresponding objects
 
     public static void main(String[] args) throws FileNotFoundException {
         // Load mapping configuration
-        Model mapModel = ModelFactory.createDefaultModel();
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
-        String mapInputFileName = "./src/main/resources/mapping.ttl";
-        mapModel.read(new FileInputStream(mapInputFileName),null,"TTL");
-        // Load Test RDF schema
-        Model model = ModelFactory.createDefaultModel();
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
-        String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
-        model.read(new FileInputStream(inputFileName),null,"TTL");
-        // Init Class
-        model.write(System.out);
-        RDFtoHGQL converter = new RDFtoHGQL(new MappingConfig(mapModel));
-        converter.create(model, "TestService");
-        String sdl = converter.buildSDL();
-        System.out.println(sdl);
-
+//        Model mapModel = ModelFactory.createDefaultModel();
+//        System.out.println("Working Directory = " +
+//                System.getProperty("user.dir"));
+//        String mapInputFileName = "./src/main/resources/schema/mapping.ttl";
+//        mapModel.read(new FileInputStream(mapInputFileName),null,"TTL");
+//        // Load Test RDF schema
+//        Model model = ModelFactory.createDefaultModel();
+//        System.out.println("Working Directory = " +
+//                System.getProperty("user.dir"));
+//        String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
+//        model.read(new FileInputStream(inputFileName),null,"TTL");
+//        // Init Class
+//        model.write(System.out);
+//        RDFtoHGQL converter = new RDFtoHGQL(new MappingConfig(mapModel));
+//        converter.create(model, "TestService");
+//        String sdl = converter.buildSDL();
+//        System.out.println(sdl);
+        Model rdfsExample = ModelFactory.createDefaultModel();
+        String inputFileName = "./src/main/resources/schema/test_data_inference.ttl";
+        rdfsExample.read(new FileInputStream(inputFileName),null, "TTL");
+        InfModel inf = ModelFactory.createRDFSModel(rdfsExample);
+        inf.write(System.out);
     }
+
+
 }
