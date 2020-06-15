@@ -13,6 +13,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.update.UpdateAction;
+import org.hypergraphql.services.HGQLConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +27,7 @@ import java.io.FileNotFoundException;
  */
 public class SPARQLExtraction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SPARQLExtraction.class);
     private MappingConfig mapConfig;
     private QueryTemplatingEngine engine;
     private static final String RDF_FILE_ENDPOINT_ADDRESS = "http://localhost:";
@@ -116,6 +120,7 @@ public class SPARQLExtraction {
     public Model extractSchemaFromLocalRDFFile(String filename, String type, String graph) throws FileNotFoundException {
         FusekiServer server;
         Model model = ModelFactory.createDefaultModel();
+        LOGGER.debug("Build up model from file {}", filename);
         model.read(new FileInputStream(filename), null, type);
         Dataset ds = DatasetFactory.create(model);
         server = FusekiServer.create()
@@ -123,7 +128,7 @@ public class SPARQLExtraction {
                 .build();
         server.start();
         String address = RDF_FILE_ENDPOINT_ADDRESS+server.getPort()+RDF_FILE_ENDPOINT_DATASET;
-        System.out.print(address);
+        LOGGER.debug("Start extracting schema from {} dataset", filename);
         Model res = extractSchema(address,null, null, graph);
         server.stop();
         return res;

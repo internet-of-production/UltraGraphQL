@@ -37,7 +37,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
     Set<String> markers;
     SPARQLEndpointService sparqlEndpointService;
     protected HGQLSchema schema ;
-    protected Logger logger = LoggerFactory.getLogger(SPARQLEndpointExecution.class);
+    protected Logger LOGGER = LoggerFactory.getLogger(SPARQLEndpointExecution.class);
     String rootType;
 
     public SPARQLEndpointExecution(JsonNode query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
@@ -59,7 +59,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
 
         SPARQLServiceConverter converter = new SPARQLServiceConverter(schema);
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
-        logger.debug(sparqlQuery);
+        LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}",sparqlEndpointService.getId(),sparqlQuery);
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         Credentials credentials =
@@ -87,7 +87,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         });
 
         SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, unionModel);
-        logger.debug("Result: {}", sparqlExecutionResult);
+        LOGGER.debug("Result: {}", sparqlExecutionResult);
 
         return sparqlExecutionResult;
     }

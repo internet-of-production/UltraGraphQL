@@ -337,7 +337,6 @@ public class RDFtoHGQL {
                 mappings,
                 typeMappings,
                 typeMappings);
-        System.out.print(queryStringType);
         Query queryType = QueryFactory.create(queryStringType);
         try (QueryExecution qexec = QueryExecutionFactory.create(queryType, schema)) {
             ResultSet results = qexec.execSelect() ;

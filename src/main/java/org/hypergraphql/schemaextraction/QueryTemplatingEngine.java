@@ -2,6 +2,9 @@ package org.hypergraphql.schemaextraction;
 
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.hypergraphql.config.schema.HGQLVocabulary;
+import org.hypergraphql.services.HGQLConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -13,6 +16,7 @@ import java.util.stream.Collectors;
  */
 public class QueryTemplatingEngine {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryTemplatingEngine.class);
     private MappingConfig mapping;
     ParameterizedSparqlString template_query;
     private String query_service_template;
@@ -176,7 +180,7 @@ public class QueryTemplatingEngine {
             currQ = res.toString();
             res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b",""));
         }
-        System.out.print(res.toString());
+        LOGGER.debug("Generated Extraction Query: {}", res.toString());
         return res.toString();
     }
 }

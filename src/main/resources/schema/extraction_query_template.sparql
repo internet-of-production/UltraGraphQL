@@ -1,6 +1,7 @@
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX hgqls: <http://hypergraphql.org/schema/>
 
 # Delete any leftovers of previous schemata
 #DROP GRAPH <http://example.org/LOVInferred>;
@@ -10,16 +11,24 @@ INSERT {
   ?predicate a ?property;
     ?domain ?pDomain;
     ?range ?pRange.
+  ?pDomain a ?class.
+  ?pRange a ?class.
 }
 WHERE {
   {
     SERVICE ?service{
-        {SELECT DISTINCT ?x ?pDomain ?pRange {
-          ?s ?x ?o.
-          OPTIONAL { ?s a ?pDomain}
-          OPTIONAL { ?o a ?pRange}
+        {SELECT DISTINCT ?x ?pDomain ?pRange{
+            {SELECT DISTINCT ?x ?pDomain ?ppRange ?pRangeLiteral {
+              ?s ?x ?o.
+
+              OPTIONAL { ?o a ?ppRange }
+              OPTIONAL { ?s a ?pDomain}
+              BIND(IF(isLiteral(?o),hgqls:Literal,"") AS ?pRangeLiteral)
+          }}
+          BIND(IF(?pRangeLiteral = "", ?ppRange, ?pRangeLiteral)AS ?pRange)
         }}
-        ?x (?subPropertiesOf|?equivalentProperties|^(?equivalentProperties)|?sameAses|^(?sameAses))* ?predicate
+        ?x (?subPropertiesOf|?sameAses|^(?sameAses))* ?predicate.
+
     }
     FILTER(!isBlank(?predicate))
   }
@@ -54,7 +63,7 @@ WHERE {
   {
     ?y a ?class
     SERVICE ?service{
-        ?y (?subClassesOf|?sameAses|^(?sameAses)|?equivalentClasses|^(?equivalentClasses))+ ?concept
+        ?y (?subClassesOf|?sameAses|^(?sameAses))+ ?concept
     }
     FILTER(!isBlank(?concept))
   }

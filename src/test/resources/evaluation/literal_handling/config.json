@@ -1,8 +1,7 @@
 {
   "name": "liteal-handling-test",
   "extraction": true,
-  "mapping": "mapping.ttl",
-  "query": "extraction_query.sparql",
+
   "server": {
     "port": 8098,
     "graphql": "/graphql",

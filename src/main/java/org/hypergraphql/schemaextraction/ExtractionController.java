@@ -1,13 +1,9 @@
 package org.hypergraphql.schemaextraction;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.reasoner.*;
-import org.apache.jena.reasoner.rulesys.OWLMicroReasonerFactory;
-import org.apache.jena.reasoner.rulesys.OWLMiniReasoner;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.exception.HGQLConfigurationException;
 
@@ -22,7 +18,7 @@ import java.util.List;
  */
 public class ExtractionController {
 
-    static Logger log = Logger.getLogger(ExtractionController.class.getName());
+    static Logger LOGGER = LoggerFactory.getLogger(ExtractionController.class);
     private static final String SPARQL_ENDPOINT = "SPARQLEndpointService";
     private static final String LOCAL_RDF_MODEL = "LocalModelSPARQLService";
     private List<ServiceConfig>  serviceConfigs;
@@ -31,7 +27,7 @@ public class ExtractionController {
     RDFtoHGQL mapper;
 
     public ExtractionController(List<ServiceConfig> serviceConfigs, Model mapping, String query_template){
-        log.info("Start extracting the schema");
+        LOGGER.info("Start extracting the schema");
         this.serviceConfigs = serviceConfigs;
         this.mapping = new MappingConfig(mapping);
         this.extractor = new SPARQLExtraction(this.mapping,query_template);
@@ -46,7 +42,7 @@ public class ExtractionController {
     private void extractAndMap(){
         for (ServiceConfig conf: serviceConfigs) {
             if(conf.getType().equals(SPARQL_ENDPOINT)){
-                log.debug(String.format("Extract the schema from SPARQL endpoint %s with auth username: %s, password: %s",
+                LOGGER.debug(String.format("Extract the schema from SPARQL endpoint %s with auth username: %s, password: %s",
                         conf.getId(),
                         conf.getUser(),
                         conf.getPassword()));
@@ -55,16 +51,15 @@ public class ExtractionController {
             }else if(conf.getType().equals(LOCAL_RDF_MODEL)){
                 Model serviceSchema = null;
                 try{
-                    log.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
+                    LOGGER.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
                     serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype(), conf.getGraph());
                 }catch(Exception e){
-                    log.error("File "+ conf.getFilepath() +" not found skip the Service "+ conf.getId());
+                    LOGGER.error("File "+ conf.getFilepath() +" not found skip the Service "+ conf.getId());
                     continue;
                 }
-                serviceSchema.write(System.out);
                 this.mapper.create(serviceSchema, conf.getId());
             }else{
-                log.info("The Service type \""+conf.getType()+"\" is NOT supported for the schema extraction. Skip this service type.");
+                LOGGER.info("The Service type \""+conf.getType()+"\" is NOT supported for the schema extraction. Skip this service type.");
             }
 
         }
@@ -76,7 +71,7 @@ public class ExtractionController {
      */
     public String getHGQLSchema(){
         String schema  = this.mapper.buildSDL();
-        log.info(schema);
+        LOGGER.info("Extracted HyperGraphQL schema: \n{}", schema);
         return  schema;
     }
 
@@ -89,7 +84,7 @@ public class ExtractionController {
         try {
             return new InputStreamReader(IOUtils.toInputStream(this.mapper.buildSDL(), "UTF-8"));
         } catch (IOException e) {
-            log.error("Could not convert HGQL schema from String to InputStreamReader");
+            LOGGER.error("Could not convert HGQL schema from String to InputStreamReader");
             throw new HGQLConfigurationException("Error extracting the schema", e);
         }
     }

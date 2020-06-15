@@ -6,7 +6,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
@@ -22,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.stream.Collectors;
 
 /**
  * Provides methods to load the HGQL configuration and based on the configuration to parse the schema to setup the
@@ -32,11 +31,15 @@ import java.util.stream.Collectors;
  */
 public class HGQLConfigService {
 
+    //Default files for bootstrapping
+    private static final String mapping_file_name = "schema/mapping.ttl";
+    private static final String extraction_query_file_name = "schema/extraction_query_template.sparql";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HGQLConfigService.class);
     private static final String S3_REGEX = "(?i)^https?://s3.*\\.amazonaws\\.com/.*";
     private static final String NORMAL_URL_REGEX = "(?i)^https?://.*";
 
-    private S3Service s3Service = new S3Service();
+    private final S3Service s3Service = new S3Service();
 
     /**
      * Initiates the parsing of the schema and sets up the GraphQL wiring (data fetchers). All results are saved in an
@@ -68,26 +71,33 @@ public class HGQLConfigService {
 
             LOGGER.info("Try to map configuration");
             final HGQLConfig config = mapper.readValue(inputStream, HGQLConfig.class);
-            LOGGER.info("Mapping successful");
+            LOGGER.info("Configuration mapping successful");
             final SchemaParser schemaParser = new SchemaParser();
 
 
             Reader reader = null;
-            LOGGER.info(config.getExtraction().toString());
             if(config.getExtraction()){
+                LOGGER.info("Start schema extraction");
                 //Extract schema
                 Model mapping = ModelFactory.createDefaultModel();
-                final String fullMappingPath = extractFullSchemaPath(hgqlConfigPath, config.getMappingFile());
-                final String fullQueryPath = extractFullSchemaPath(hgqlConfigPath, config.getQueryFile());
+                final String fullMappingPath = config.getMappingFile() != null ? extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()) : getFileFromResources(mapping_file_name).getAbsolutePath();
+                LOGGER.info("{}",config.getMappingFile() == null ? "Using default mapping" : "Using provided mapping");
+                final String fullQueryPath = config.getQueryFile() != null ? extractFullSchemaPath(hgqlConfigPath,
+                        config.getQueryFile()) : getFileFromResources(extraction_query_file_name).getAbsolutePath();
+                LOGGER.info("{}",config.getMappingFile() == null ? "Using default extraction query" : "Using provided extraction query");
                 mapping.read(new FileInputStream(fullMappingPath),null,"TTL");
-                ExtractionController exractionController = new ExtractionController(config.getServiceConfigs(),
+                ExtractionController extractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
                         new String ( Files.readAllBytes( Paths.get(fullQueryPath))));
-                reader = exractionController.getHGQLSchemaReader();
+                reader = extractionController.getHGQLSchemaReader();
                 if(config.getSchemaFile() != null){
+                    LOGGER.info("Extracted HyperGraphQL schema will be stored in {}",config.getSchemaFile());
                     BufferedWriter writer = new BufferedWriter(new FileWriter(config.getSchemaFile()));
-                    writer.write(exractionController.getHGQLSchema());
+                    writer.write(extractionController.getHGQLSchema());
                     writer.close();
+                }else{
+                    LOGGER.info("Extracted HyperGraphQL schema will NOT be stored - No file provided");
+                    extractionController.getHGQLSchema();   //only called so that the schema gets printed into the command lines
                 }
             }else{
                 final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
@@ -205,4 +215,18 @@ public class HGQLConfigService {
         LOGGER.debug("For filename: {}", filename);
         return new InputStreamReader(getClass().getClassLoader().getResourceAsStream(filename));
      }
+
+    private File getFileFromResources(String fileName) {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        URL resource = classLoader.getResource(fileName);
+        if (resource == null) {
+            throw new IllegalArgumentException(" default file is not found!");
+        } else {
+            return new File(resource.getFile());
+        }
+
+    }
+
 }
