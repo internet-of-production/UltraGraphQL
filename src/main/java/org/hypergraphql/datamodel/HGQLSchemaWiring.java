@@ -1,21 +1,16 @@
 package org.hypergraphql.datamodel;
 
-import graphql.TypeResolutionEnvironment;
 import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
-import org.apache.jena.vocabulary.RDF;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
-import org.hypergraphql.config.system.FetchParams;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
-import org.hypergraphql.schemaextraction.PrefixService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +22,8 @@ import static graphql.Scalars.GraphQLID;
 import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
+import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
+import static graphql.schema.GraphQLInputObjectType.newInputObject;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static graphql.schema.GraphQLUnionType.newUnionType;
@@ -156,12 +153,171 @@ public class HGQLSchemaWiring {
                     }
                 })   // implicit conversion to GraphQlType for GraphQlSchema
                 .collect(Collectors.toSet());
+        Set<GraphQLType> builtInputTypes= typeNames.stream()
+                .map(typeName -> registerGraphQLInputType(this.hgqlSchema.getTypes().get(typeName)))
+                .filter(graphQLInputType -> graphQLInputType != null)
+                .collect(Collectors.toSet());
+        GraphQLObjectType builtMutationType = registerGraphQLMutationType();
 
         return GraphQLSchema.newSchema()
                 .query(builtQueryType)
+                .mutation(builtMutationType)
                 .additionalTypes(builtTypes)
+                .additionalTypes(builtInputTypes)
                 .build();   // ToDo: build(Set<GraphQLType> additionalTypes) is deprecated change to additionalType method
 
+    }
+
+    private GraphQLInputObjectType registerGraphQLInputType(TypeConfig typeConfig) {
+        if(typeConfig.isInterface()){
+            return null;
+        }
+        if(typeConfig.isUnion()){
+            return null;
+        }
+        String name = String.format("input_%s",typeConfig.getName());
+        String description = "Generated input object to be used in the auto generated mutation functions";
+        List<GraphQLInputObjectField> fields = typeConfig.getFields().values().stream()
+                .flatMap(fieldOfTypeConfig -> registerGraphQLInputField(typeConfig, fieldOfTypeConfig).stream())
+                .collect(Collectors.toList());
+        return newInputObject()
+                .name(name)
+                .description(description)
+                .fields(fields)
+                .build();
+    }
+
+    /**
+     * Generates the input fields for the given field. If the output type of the given field is an interface then for all
+     * objects that implement the interface a input field is generated with the corresponding type as output. If the
+     * output type of the given field is an union then for all member sof the union a field is generated with the
+     * corresponding type as output type of the field. Since the names of the fields must be unique the fields of unions
+     * and interfaces get the type attached so that the user also knows which type is inserted.
+     * @param parentType object that contains the given field - only used for the description of the input field
+     * @param fieldOfTypeConfig field for which a corresponding input field is needed
+     * @return Set containing all generated input fields
+     */
+    private Set<GraphQLInputObjectField> registerGraphQLInputField(TypeConfig parentType, FieldOfTypeConfig fieldOfTypeConfig) {
+        Set<GraphQLInputObjectField> res = new HashSet<>();
+        res.add(newInputObjectField()
+                .name("_id")
+                .type(GraphQLNonNull.nonNull(GraphQLID))
+                .description("IRI of the object. MUST be defined")
+                .build());
+        String description = String.format("Generated input field from field %s in objectType %s", fieldOfTypeConfig.getName(), parentType.getName());
+        String name = fieldOfTypeConfig.getName();
+        if(fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLString) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))){
+            res.add(newInputObjectField()
+                    .name(name)
+                    .description(description)
+                    .type(GraphQLList.list(GraphQLString))
+                    .build());
+        }else{
+            TypeConfig output_type = this.hgqlSchema.getTypes().get(fieldOfTypeConfig.getTargetName());
+            if(output_type.isInterface()){
+                final Set<String> interafaceObjects = output_type.getInterafaceObjects();
+                for(String obj_name : interafaceObjects){
+                    TypeConfig  type = this.hgqlSchema.getTypes().get(obj_name);
+                    if(type.isObject()){
+                        res.add(newInputObjectField()
+                                .name(name + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
+                                .description(description)
+                                .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + obj_name)))
+                                .build());
+                    }
+                }
+            }else if(output_type.isUnion()){
+                final Collection<TypeConfig> typeConfigs = output_type.getUnionMembers().values();
+                for(TypeConfig type : typeConfigs){
+                    if(type.isObject()){
+                        res.add(newInputObjectField()
+                                .name(name + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
+                                .description(description)
+                                .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + type.getName())))
+                                .build());
+                    }
+                }
+            }else{
+                res.add(newInputObjectField()
+                        .name(name)
+                        .description(description)
+                        .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + fieldOfTypeConfig.getTargetName())))
+                        .build());
+            }
+        }
+        return res;
+    }
+
+    private GraphQLObjectType registerGraphQLMutationType() {
+        String typeName = "Mutation";
+        String description = "Mutation functions for all queryable objects.";
+
+        List<GraphQLFieldDefinition> builtFields;
+
+        Set<TypeConfig> fields = this.hgqlSchema.getTypes().values().stream()
+                .filter(typeConfig -> !typeConfig.getName().equals("Query") && !typeConfig.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME))
+                .filter(typeConfig -> typeConfig.isObject())
+                .collect(Collectors.toSet());
+
+        builtFields = fields.stream()
+                .map(field -> registerGraphQLMutationField(field))
+                .collect(Collectors.toList());
+
+        return newObject()
+                .name(typeName)
+                .description(description)
+                .fields(builtFields)
+                .build();
+    }
+
+    private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationfield) {
+
+        String name = String.format("insert_%s",mutationfield.getName());
+        String description = "Autogenerated mutation function for the object " + mutationfield.getName();
+        List<GraphQLArgument> args = new ArrayList<>();
+        //Todo: add all fields of the object as argument
+        Map<String, FieldOfTypeConfig> fields = mutationfield.getFields();
+        for(FieldOfTypeConfig field : fields.values()){
+            if(field.getGraphqlOutputType().equals(GraphQLString) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))){
+                args.add(GraphQLArgument.newArgument()
+                        .name(field.getName())
+                        .type(GraphQLList.list(GraphQLString))
+                        .description(description)
+                        .build());
+            }else{
+                TypeConfig outputType = this.hgqlSchema.getTypes().get(field.getTargetName());
+                if(outputType.isObject()){
+                    args.add(GraphQLArgument.newArgument()
+                            .name(field.getName())
+                            .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + outputType.getName())))
+                            .description(description)
+                            .build());
+                }else{
+                    if(outputType.isInterface()){
+                        Set<String> objects = outputType.getInterafaceObjects();
+                        for(String obj : objects){
+                            TypeConfig type = this.hgqlSchema.getTypes().get(obj);
+                            args.add(GraphQLArgument.newArgument()
+                                    .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX +  type.getName())
+                                    .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + type.getName())))
+                                    .description(description)
+                                    .build());
+                        }
+                    }
+                }
+            }
+
+        }
+        args.add(GraphQLArgument.newArgument()
+                .name("_id")
+                .type(GraphQLNonNull.nonNull(GraphQLID))
+                .build());
+        return newFieldDefinition()
+                .name(name)
+                .description(description)
+                .arguments(args)
+                .type(GraphQLTypeReference.typeRef(mutationfield.getName()))
+                .build();
     }
 
     /**
@@ -480,7 +636,7 @@ public class HGQLSchemaWiring {
 
         return newFieldDefinition()
                 .name(field.getName())
-                .argument(args)
+                .arguments(args)
                 .description(description)
                 .type(field.getGraphqlOutputType())
                 .dataFetcher(fetcher)

@@ -126,6 +126,11 @@ public class HGQLVocabulary {
     public static final String HGQL_SCALAR_LITERAL_VALUE = "string";
     public static final String HGQL_SCALAR_LITERAL_VALUE_URI = HGQL_SCHEMA_NAMESPACE + HGQL_SCALAR_LITERAL_VALUE;
     public static final String HGQL_SCALAR_LITERAL_VALUE_GQL_NAME = HGQL_SCHEMA_NAMESPACE_PREFIX + "_" + HGQL_SCALAR_LITERAL_VALUE;
+
+    // Mutation
+    public static final String HGQL_MUTATION_INPUT = "input";
+    public static final String HGQL_MUTATION_INPUT_PREFIX = HGQL_MUTATION_INPUT + "_";
+    public static final String HGQL_MUTATION_INPUT_FIELD_INFIX = "_as_";
 }
 
 
