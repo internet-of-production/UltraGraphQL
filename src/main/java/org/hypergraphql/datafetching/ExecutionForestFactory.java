@@ -49,7 +49,7 @@ public class ExecutionForestFactory {
      * @param queryDocument valid GraphQL query
      * @return SelectionSet of the given queryDocument
      */
-    private SelectionSet selectionSet(final Document queryDocument) {
+    public static SelectionSet selectionSet(final Document queryDocument) {
 
         final Definition definition = queryDocument.getDefinitions().get(0);
 
@@ -69,7 +69,7 @@ public class ExecutionForestFactory {
      * @param queryDocument GraphQLQuery with fragments
      * @return GraphQLQuery without fragments
      */
-    private SelectionSet getFragmentSelectionSet(final Document queryDocument) {
+    private static SelectionSet getFragmentSelectionSet(final Document queryDocument) {
 
         // NPE
         final FragmentDefinition fragmentDefinition = (FragmentDefinition)queryDocument.getDefinitions().get(0);

@@ -37,7 +37,7 @@ class HGQLQueryServiceTest {
                 "}\n" +
                 "}";
 
-        final Map<String, Object> actual = service.results(query, null);
+        final Map<String, Object> actual = service.results(query, null,null);
 
         assertNotNull(actual);
         assertFalse(actual.isEmpty());

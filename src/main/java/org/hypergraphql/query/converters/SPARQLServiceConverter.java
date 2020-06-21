@@ -193,7 +193,7 @@ public class SPARQLServiceConverter {
      * @param uri
      * @return
      */
-    private String uriToResource(String uri) {
+    public static String uriToResource(String uri) {
         return "<" + uri + ">";
     }
 
@@ -202,7 +202,7 @@ public class SPARQLServiceConverter {
      * @param id
      * @return SPARQL variable
      */
-    private String toVar(String id) {
+    public static String toVar(String id) {
         return "?" + id;
     }
 
@@ -213,7 +213,7 @@ public class SPARQLServiceConverter {
      * @param object
      * @return SPARQL sentence
      */
-    private String toTriple(String subject, String predicate, String object) {
+    public static String toTriple(String subject, String predicate, String object) {
         return subject + " " + predicate + " " + object + " .";
     }
 

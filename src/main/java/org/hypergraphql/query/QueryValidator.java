@@ -11,6 +11,10 @@ import graphql.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * QueryValidator is set up with an GraphQL schema and provides methods to check if a query is valid in the context of
+ * the schema of this class instance.
+ */
 public class QueryValidator {
 
     private GraphQLSchema schema;
@@ -28,6 +32,12 @@ public class QueryValidator {
     }
 
 
+    /**
+     * Validates the given query against the GraphQL schema of this class. Any given GraphQL request is validated
+     * (queries, mutations, subscriptions) as the validator of the graphql library is used.
+     * @param query request in graphql syntax
+     * @return ValidatedQuery object containing validated query document and validity status
+     */
     public ValidatedQuery validateQuery(String query) {
 
         ValidatedQuery result = new ValidatedQuery();

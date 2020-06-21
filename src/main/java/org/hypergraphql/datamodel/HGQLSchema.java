@@ -47,6 +47,26 @@ public class HGQLSchema {
     private Map<String, FieldConfig> fields;
     private Map<String, QueryFieldConfig> queryFields;
 
+    // lookup table to resolve the type name from a given mutation field name
+    private Map<String, String> mutationFields = new HashMap<>();
+    public void addMutationField(String nameMutation, String nameType){ mutationFields.put(nameMutation, nameType);}
+    public Map<String, String> getMutationFields(){ return  mutationFields;}
+
+    // lookup table to resolve the object name from a given input name
+    private Map<String, String> inputObjects = new HashMap<>();
+    public void addInputObject(String nameInput, String nameObject){ inputObjects.put(nameInput, nameObject);}
+    public Map<String, String> getInputObjects(){ return  inputObjects;}
+
+    // lookup table to resolve the field/argument name from a given input name
+    private Map<String, String> inputFields = new HashMap<>();
+    public void addInputField(String nameInput, String nameField){ inputFields.put(nameInput, nameField);}
+    public Map<String, String> getInputFields(){ return  inputFields;}
+
+    // lookup table to resolve the field/argument name from a given input name
+    private Map<String, String> inputFieldsOutput = new HashMap<>();
+    public void addinputFieldsOutput(String nameInput, String nameOutputType){ inputFieldsOutput.put(nameInput, nameOutputType);}
+    public Map<String, String> getinputFieldsOutput(){ return  inputFieldsOutput;}
+
     private ModelContainer rdfSchema = new ModelContainer(ModelFactory.createDefaultModel());
 
     /**

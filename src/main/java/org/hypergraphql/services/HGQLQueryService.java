@@ -4,6 +4,8 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import graphql.language.Definition;
+import graphql.language.OperationDefinition;
 import graphql.schema.GraphQLSchema;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datamodel.HGQLSchema;
@@ -35,8 +37,8 @@ public class HGQLQueryService {
         this.graphql = GraphQL.newGraphQL(config.getSchema()).build();
     }
 
-    public Map<String, Object> results(String query, String acceptType) {
-
+    public Map<String, Object> results(String query, String acceptType, ValidatedQuery validatedQuery) {
+        Boolean isIntrospectionQuery = false;
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
         Map<Object, Object> extensions = new HashMap<>();
@@ -48,14 +50,20 @@ public class HGQLQueryService {
         ExecutionInput executionInput;
         ExecutionResult qlResult = null;
 
-        ValidatedQuery validatedQuery = new QueryValidator(schema).validateQuery(query);
-
         if (!validatedQuery.getValid()) {
             errors.addAll(validatedQuery.getErrors());
             return result;
         }
+        final List<Definition> definitions = validatedQuery.getParsedQuery().getDefinitions();
+        Definition def = definitions.get(0);
+        if(def.getClass().isAssignableFrom(OperationDefinition.class)) {
+            final OperationDefinition operationDefinition = (OperationDefinition)def;
+            if(operationDefinition.getName() != null && operationDefinition.getName().equals("IntrospectionQuery")){
 
-        if (query.contains("IntrospectionQuery")){ //|| query.contains("__")) {   // the filtering for "__" also interferes with the "__typename" field for unions and interfaces
+                isIntrospectionQuery = true;
+            }
+        }
+        if (isIntrospectionQuery){
 
             qlResult = graphql.execute(query);   // data correctly returned
             data.putAll(qlResult.getData());

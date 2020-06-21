@@ -13,6 +13,7 @@ import graphql.GraphQLError;
 import org.apache.commons.lang3.StringUtils;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.services.HGQLQueryService;
+import org.hypergraphql.services.HGQLRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
@@ -103,7 +104,7 @@ public class Controller {
         // post method for accessing the GraphQL getService
         hgqlService.post(config.getGraphqlConfig().graphQLPath(), (req, res) -> {
 
-            HGQLQueryService service = new HGQLQueryService(config);
+            HGQLRequestService service = new HGQLRequestService(config);
 
             final String query = consumeRequest(req);
             String acceptType = req.headers("accept");
