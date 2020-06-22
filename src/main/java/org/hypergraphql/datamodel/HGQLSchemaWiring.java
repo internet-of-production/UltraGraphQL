@@ -1,5 +1,6 @@
 package org.hypergraphql.datamodel;
 
+import graphql.GraphQL;
 import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.NodeIterator;
@@ -275,6 +276,7 @@ public class HGQLSchemaWiring {
     private GraphQLObjectType registerGraphQLMutationType() {
         String typeName = "Mutation";
         String description = "Mutation functions for all queryable objects.";
+        FetcherFactory fetcherFactory = new FetcherFactory(hgqlSchema);
 
         List<GraphQLFieldDefinition> mutationFields = new ArrayList<>();
         List<GraphQLFieldDefinition> builtInsertFields;
@@ -286,11 +288,11 @@ public class HGQLSchemaWiring {
                 .collect(Collectors.toSet());
 
         builtInsertFields = fields.stream()
-                .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.INSERT))
+                .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.INSERT, fetcherFactory))
                 .collect(Collectors.toList());
 
         builtDeleteFields = fields.stream()
-                .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.DELETE))
+                .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.DELETE, fetcherFactory))
                 .collect(Collectors.toList());
 
         mutationFields.addAll(builtInsertFields);
@@ -303,7 +305,7 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
-    private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationfield, MUTATION_ACTION action) {
+    private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationfield, MUTATION_ACTION action, FetcherFactory fetcherFactory) {
 
         String name = "";
         if(action == MUTATION_ACTION.INSERT){
@@ -365,8 +367,8 @@ public class HGQLSchemaWiring {
                 .name(name)
                 .description(description)
                 .arguments(args)
-                .type(GraphQLTypeReference.typeRef(mutationfield.getName()))
-//                .dataFetcher()   //ToDo: Define Mutation Handler for the mutatuon fields
+                .type(GraphQLList.list(GraphQLTypeReference.typeRef(mutationfield.getName())))
+                .dataFetcher(fetcherFactory.instancesOfTypeFetcher())   //ToDo: Define Mutation Handler for the mutatuon fields
                 .build();
     }
 

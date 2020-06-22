@@ -5,7 +5,9 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
 import graphql.language.Definition;
+import graphql.language.Document;
 import graphql.language.OperationDefinition;
+import graphql.language.SelectionSet;
 import graphql.schema.GraphQLSchema;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datamodel.HGQLSchema;
@@ -25,7 +27,7 @@ import java.util.Map;
  */
 public class HGQLQueryService {
 
-    private GraphQL graphql;   // only used for IntrospectionQuery
+    private GraphQL graphql;
     private GraphQLSchema schema;   // only used for IntrospectionQuery
     private HGQLSchema hgqlSchema;
 
@@ -96,4 +98,6 @@ public class HGQLQueryService {
         }
         return result;
     }
+
+
 }

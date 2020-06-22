@@ -58,6 +58,10 @@ public class HGQLRequestService {
             if(operationDefinition.getOperation().name().equals(OperationDefinition.Operation.MUTATION.toString())){
                 System.out.println("Mutation");
                 final Map<String, Object> query_results = mutation_service.results(request, acceptType, validatedQuery);
+                result.put("mutation", query_results.get("mutation"));
+                errors.addAll((List<GraphQLError>)query_results.get("errors"));
+                data.putAll((Map<? extends String, ?>) query_results.get("data"));
+                result.put("data", data);
             }else if(operationDefinition.getOperation().name().equals(OperationDefinition.Operation.QUERY.toString())){
                 final Map<String, Object> query_results = query_service.results(request, acceptType, validatedQuery);
                 errors.addAll((List<GraphQLError>)query_results.get("errors"));
