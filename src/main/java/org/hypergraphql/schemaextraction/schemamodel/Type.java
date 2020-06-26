@@ -18,6 +18,11 @@ public class Type {
     private String id;
     private PrefixService prefixService;
     private Set<Field> fields = new HashSet<>();
+
+    public Set<Directive> getDirectives() {
+        return directives;
+    }
+
     private Set<Directive> directives = new HashSet<>();
     private Set<Interface> interfaces = new HashSet<>();
     private Set<Type> equivalentTypes = new HashSet<>();
@@ -52,10 +57,33 @@ public class Type {
         //ToDo: Add a directive indicating the heritage of the equivalent Type
     }
 
+    /**
+     * Adds the given type to the same as list of this object  and adds all services of the object to the service directive
+     * Also adds the sameAs directive indicating the relation to the given type
+     * @param type
+     */
     public void addSameAsType(Type type){
         this.sameAs.add(type);
         addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, type.id);
-        //ToDo: add the services of the given type to the services of this type ?????????????????
+        Optional<Object> services = type.getDirectives().stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
+                .findFirst()
+                .map(directive -> directive.getParameter().get( HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID));
+        if(services.isPresent()){
+            if(services.get() instanceof Directive.DirectiveParameterList){
+                addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, ((Directive.DirectiveParameterList)services.get()).getValues());
+            }else if (services.get() instanceof  Directive.DirectiveParameter){
+                addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, ((Directive.DirectiveParameter)services.get()).getValue());
+            }
+        }
+    }
+    public void addSameAsTypes(Set<Type> types){
+        types.stream()
+                .forEach(type -> addSameAsType(type));
+    }
+
+    public Set<Type> getSameAsTypes(){
+        return this.sameAs;
     }
 
     /**
@@ -80,7 +108,9 @@ public class Type {
                 .findFirst();
         if(optionalField.isPresent()){
             optionalField.get().mergeDirectives(field.getDirectives());
-            //ToDo merge Outputtypes
+            field.getOutputType().getTypes().stream()
+                    .forEach(type -> optionalField.get().addOutputType(type)); //ToDo merge Outputtypes -> check if functions correctly
+
         }else{
             this.fields.add(field);
         }
@@ -191,7 +221,8 @@ public class Type {
     public String build(){
         fetchInterfaces();
         fetchFields();
-        return String.format("type %s %s %s {\n \t%s\n}", this.id, buildImplements(), buildDirectives(), buildFields());
+        String res =String.format("type %s %s %s {\n \t%s\n}", this.id, buildImplements(), buildDirectives(), buildFields());
+        return res;
     }
 
     private String buildDirectives(){
@@ -207,7 +238,7 @@ public class Type {
     }
     private String buildImplements(){
         final Set<Interface> interfaceSet = this.interfaces.stream()
-                .filter(anInterface -> (anInterface instanceof  Union)? ((Union) anInterface).getTypes().size() > 1 : true)
+                .filter(anInterface -> (anInterface instanceof  Union)? ((Union) anInterface).getTypes().size() > 1 : true)   // Only implement those interfaces which have more han one type
                 .collect(Collectors.toSet());
         String interfaces =  interfaceSet.stream()
                 .map(Interface::getId)
@@ -228,6 +259,7 @@ public class Type {
             if (!inter.getFields().isEmpty()) {
                 Set<Field> fields = inter.getFields();
                 fields.forEach(this::addField);
+                fields.forEach(field -> base_interface.addField(field));   // Add fetched fields to the interface
             }
         }
     }

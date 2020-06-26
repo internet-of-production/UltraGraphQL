@@ -248,7 +248,7 @@ class ApplicationTest {
 //        }
     }
     //ToDo: Finish this test
-    @Test
+    //@Test
     void foreignEndpointTest() throws Exception {
         String config = "build/resources/test/evaluation/foreignEndpoint/config_extraction.json";
         Application.main(new String[]{"-config", config});
@@ -287,9 +287,6 @@ class ApplicationTest {
             }
         }
         assertTrue(hasLiteral && hasObject);
-        while (true) {
-
-        }
     }
 
 

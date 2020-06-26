@@ -1,0 +1,17 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX ex: <http://example.org/>
+PREFIX it: <http://www.influencetracker.com/ontology#>
+  GENERATE {
+     <http://example.org/data/{?brand}> a ex:car;
+    					ex:brand ?brand.
+    GENERATE{
+    <http://example.org/data/{?brand}> ex:model ?model
+    }
+  ITERATOR iter:JSONPath( ?models, "$[*]", "$") AS ?bm1 ?model
+  WHERE{
+    }.
+}
+
+ITERATOR iter:JSONPath( <http://car_company_and_model.json>, "$[*]", "$.brand", "$.models") AS ?bm ?brand ?models

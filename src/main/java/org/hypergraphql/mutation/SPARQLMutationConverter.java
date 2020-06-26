@@ -7,6 +7,7 @@ import org.hypergraphql.datamodel.HGQLSchema;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
@@ -61,22 +62,39 @@ public class SPARQLMutationConverter {
             String result = "";
             result += args.stream()
                     .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject,optionalID.get(),argument))
+                    .map(argument -> translateArgument(rootObject,optionalID.get(),argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
             return addDeleteWrapper(result);
+
         }else if(hasID && !hasOtherFields){
-            String triple = toTriple(uriToResource(optionalID.get()), toVar("p_1"), toVar("o")) + "\n"
-                    + toTriple(toVar("s"), toVar("p_2"), uriToResource(optionalID.get()));
-            return addDeleteWrapper(triple) + "\n" + addWhereWrapper(triple);
+            String id_uri = uriToResource(optionalID.get());
+            String delete_field_type = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId()));
+            AtomicInteger i = new AtomicInteger(1);
+            String delete_all_type_fields =  rootObject.getFields().values().stream()
+                    .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))
+                    .map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
+                    .collect(Collectors.joining("\n"));
+            i.set(1);  // reset SPARQL variable id -> //ToDo: CHECK: separated handling could lead to different sorted lists and therefore incorrect assignment of the variables
+            String delete_all_type_fields_optional =  rootObject.getFields().values().stream()
+                    .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))
+                    .map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
+                    .collect(Collectors.joining("\n"));
+
+            return addDeleteWrapper(delete_all_type_fields + "\n" + delete_field_type) + "\n"
+                    + addWhereWrapper(delete_all_type_fields_optional);
+
         }else if (!hasID && hasOtherFields){
             // ID not defined but other fields
             String var_root = rootObject.getName();
+            String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
+                    + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
             String triple = toTriple(toVar(var_root), rdf_type, uriToResource(rootObject.getId())) + "\n";
             triple += args.stream()
                     .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject,null, argument))
+                    .map(argument -> translateArgument(rootObject,null, argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
-            return addDeleteWrapper(triple)+ "\n" + addWhereWrapper(triple);
+            triple += "\n" + delete_all_with_id;
+            return addDeleteWrapper(delete_all_with_id)+ "\n" + addWhereWrapper(triple);
         }else{
             // No arguments were given only perform the selectionSet
             return null;
@@ -126,7 +144,7 @@ public class SPARQLMutationConverter {
             result = toTriple(uriToResource(id.get()), rdf_type, uriToResource(rootObject.getId())) +"\n";
             result += args.stream()
                     .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject,id.get(),argument))
+                    .map(argument -> translateArgument(rootObject,id.get(),argument, MUTATION_ACTION.INSERT))
                     .collect(Collectors.joining("\n"));
         }else{
             //error id must be defined for insertion
@@ -144,8 +162,8 @@ public class SPARQLMutationConverter {
      * @param arg Argument to be translated
      * @return triples representing the relations between the given id and the values given in the argument.
      */
-    private String translateArgument(TypeConfig root, String id, Argument arg){
-        return translateValue(root, id, arg.getName(), arg.getValue());
+    private String translateArgument(TypeConfig root, String id, Argument arg, MUTATION_ACTION action){
+        return translateValue(root, id, arg.getName(), arg.getValue(), action);
     }
 
     /**
@@ -156,13 +174,13 @@ public class SPARQLMutationConverter {
      * @param value value associated with the given id via the given field
      * @return triples representing the relations between the given parameters
      */
-    private String translateValue(TypeConfig root, String id, String field, Value value){
+    private String translateValue(TypeConfig root, String id, String field, Value value, MUTATION_ACTION action){
         if(value instanceof ArrayValue){
-            return translateArrayValue(root, id, field, (ArrayValue) value);
+            return translateArrayValue(root, id, field, (ArrayValue) value, action);
         }else if(value instanceof ObjectValue){
-            return translateObjectValue(root, id, field, (ObjectValue) value);
+            return translateObjectValue(root, id, field, (ObjectValue) value, action);
         }else if(value instanceof StringValue){
-            return translateStringValue(root, id, field, (StringValue) value);
+            return translateStringValue(root, id, field, (StringValue) value, action);
         }else{
             //ToDo: Check if there are more possible values and handle them
             return "";
@@ -178,9 +196,9 @@ public class SPARQLMutationConverter {
      * @param value array of values associated with the given id via given field
      * @return triples representing the relations between the given parameters
      */
-    private String translateArrayValue(TypeConfig root, String id, String field, ArrayValue value){
+    private String translateArrayValue(TypeConfig root, String id, String field, ArrayValue value, MUTATION_ACTION action){
         return value.getValues().stream()
-                .map(val -> translateValue(root, id, field, val))
+                .map(val -> translateValue(root, id, field, val, action))
                 .collect(Collectors.joining("\n"));
     }
 
@@ -194,7 +212,7 @@ public class SPARQLMutationConverter {
      * @param value ObjectValue linking the given id to another object
      * @return triples representing the relations between the given id and the object given in value as the value it self.
      */
-    private String translateObjectValue(TypeConfig root, String id, String field, ObjectValue value){
+    private String translateObjectValue(TypeConfig root, String id, String field, ObjectValue value, MUTATION_ACTION action){
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         List<ObjectField> valueFields = value.getObjectFields();
         if(this.schema.getinputFieldsOutput().get(field).equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
@@ -203,7 +221,7 @@ public class SPARQLMutationConverter {
                     .filter(objectField -> objectField.getName().equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME))
                     .findFirst()
                     .get().getValue();
-            return translateValue(root, id, field, literal_values);
+            return translateValue(root, id, field, literal_values, action);
         }
         final Optional<ObjectField> optional_id = valueFields.stream()
                 .filter(objectField -> objectField.getName().equals("_id"))
@@ -219,11 +237,12 @@ public class SPARQLMutationConverter {
         }else{
             results += toTriple(uriToResource(id), uriToResource(field_id), uriToResource(sub_id)) + "\n";
         }
-
-        results += toTriple(uriToResource(sub_id), rdf_type, uriToResource(subObject.getId())) + "\n";
+        if(action == MUTATION_ACTION.INSERT){
+            results += toTriple(uriToResource(sub_id), rdf_type, uriToResource(subObject.getId())) + "\n";
+        }
         results += valueFields.stream()
                 .filter(objectField -> !objectField.getName().equals("_id"))
-                .map(objectField -> translateValue(subObject, sub_id, objectField.getName(), objectField.getValue()))
+                .map(objectField -> translateValue(subObject, sub_id, objectField.getName(), objectField.getValue(), action))
                 .collect(Collectors.joining("\n"));
         return results;
     }
@@ -235,7 +254,7 @@ public class SPARQLMutationConverter {
      * @param value String literal
      * @return RDF triple
      */
-    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value){
+    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value, MUTATION_ACTION action){
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if(subject == null){
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");

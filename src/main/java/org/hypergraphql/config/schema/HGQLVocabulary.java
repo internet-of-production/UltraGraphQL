@@ -123,7 +123,7 @@ public class HGQLVocabulary {
     public static final String HGQL_SCALAR_LITERAL = "Literal";
     public static final String HGQL_SCALAR_LITERAL_URI = HGQL_SCHEMA_NAMESPACE + HGQL_SCALAR_LITERAL;
     public static final String HGQL_SCALAR_LITERAL_GQL_NAME = HGQL_SCHEMA_NAMESPACE_PREFIX + "_" + HGQL_SCALAR_LITERAL;
-    public static final String HGQL_SCALAR_LITERAL_VALUE = "string";
+    public static final String HGQL_SCALAR_LITERAL_VALUE = "value";
     public static final String HGQL_SCALAR_LITERAL_VALUE_URI = HGQL_SCHEMA_NAMESPACE + HGQL_SCALAR_LITERAL_VALUE;
     public static final String HGQL_SCALAR_LITERAL_VALUE_GQL_NAME = HGQL_SCHEMA_NAMESPACE_PREFIX + "_" + HGQL_SCALAR_LITERAL_VALUE;
 

@@ -34,7 +34,7 @@ Otherwise a ManifoldService is created containing all service objects that corre
 
 
 ### Usage
-Thanks to the same interface as other services a ManifoldService fits without many modifications in the current workflow of the query resolving.
+Thanks to the same interface as other services a ManifoldService fits without many modifications in the current processflow of the query resolving.
 During the query resolving the ExecutionTreeNode is responsible for querying a given subquery.
 This subquery can be the root Field of a query or a field of a subquery.
 If the parent field of the query has a type as output type the the ExecutionTreeNode object selects all fields of the selection set (subfields) that have the same service and creates ExecutionTreeNodes for all subfields.

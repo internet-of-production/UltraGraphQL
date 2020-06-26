@@ -8,6 +8,14 @@ Name of the schema file. If the extraction property is true then the extracted s
 If NO schema file is provided then the schema extraction still functions but the schema will not be saved in a file.
 > Datatype: String
 
+##mutations
+True if mutations fields SHOULD be generated with corresponding actions, otherwise false to permit mutations on this endpoint.
+> Datatype: Boolean
+
+##mutationService
+Service id of the service on which the mutation actions are executed. The service id MUST corespond to an service that is define din services.
+> Datatype: String
+
 ## extraction
 True if the schema MUST be extracted from the given services otherwise use the provided schema file.
 If this key is missing then it is assumed to be False.

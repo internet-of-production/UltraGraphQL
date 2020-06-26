@@ -7,6 +7,7 @@ import com.mashape.unirest.request.GetRequest;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -76,6 +77,21 @@ public class HGQLConfigService {
 
 
             Reader reader = null;
+            // Check if the mutations are allowed if the muationService is actually given in the services
+            if(BooleanUtils.isTrue(config.getMutations())){
+                LOGGER.info("Mutation generation is active");
+                if(config.getMutationService() == null){
+                    throw new HGQLConfigurationException("Mutation generation is active but no mutationService is defined. Please define a service that is responsible for the execution of the mutation actions");
+                }
+                Boolean isDefined = config.getServiceConfigs().stream()
+                        .anyMatch(serviceConfig -> serviceConfig.getId().equals(config.getMutationService()));
+                if(BooleanUtils.isNotTrue(isDefined)){
+                    throw new HGQLConfigurationException("mutationService is not defined as service in services");
+                }else {
+                    LOGGER.info("mutationService is correctly defined.");
+                }
+            }
+
             if(config.getExtraction()){
                 LOGGER.info("Start schema extraction");
                 //Extract schema
@@ -106,7 +122,7 @@ public class HGQLConfigService {
                 reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
             final TypeDefinitionRegistry registry = schemaParser.parse(reader);
-            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs());
+            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs(), config.getMutations());
             config.setGraphQLSchema(wiring.getSchema());
             config.setHgqlSchema(wiring.getHgqlSchema());
             return config;

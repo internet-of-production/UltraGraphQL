@@ -209,6 +209,6 @@ public class Field {
      */
     public boolean isValid() {
         //Todo: Maybe extend the validation process to more features and requirements to be valid
-        return !outputType.getTypes().isEmpty();
+        return true;
     }
 }

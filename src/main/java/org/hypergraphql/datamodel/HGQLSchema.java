@@ -265,18 +265,21 @@ public class HGQLSchema {
                                 addTypeService(fieldURI, serviceId);
                             }
                         }else if (dir.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA)) {
-                            if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
-                                final List<Value> sameAs_field = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
-                                for(Value sameAs : sameAs_field){
+                            if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS) != null){
+                                if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
+                                    final List<Value> sameAs_field = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
+                                    for(Value sameAs : sameAs_field){
+                                        rdfSchema.insertObjectTriple(fieldURI,
+                                                HGQLVocabulary.HGQLS_SAME_AS,
+                                                schemaNamespace + typeName + "/" + ((StringValue)sameAs).getValue());
+                                    }
+                                }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue) {
                                     rdfSchema.insertObjectTriple(fieldURI,
                                             HGQLVocabulary.HGQLS_SAME_AS,
-                                            schemaNamespace + typeName + "/" + ((StringValue)sameAs).getValue());
+                                            schemaNamespace + typeName + "/" + ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
                                 }
-                            }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue) {
-                                rdfSchema.insertObjectTriple(fieldURI,
-                                        HGQLVocabulary.HGQLS_SAME_AS,
-                                        schemaNamespace + typeName + "/" + ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
                             }
+
                         }
 
                     }

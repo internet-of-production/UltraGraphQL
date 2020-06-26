@@ -24,6 +24,8 @@ public class HGQLConfig {
     private Boolean extraction;
     private  String mappingFile;
     private  String queryFile;
+    private Boolean mutations;
+    private String mutationService;
 
     //Additional attributes
     private GraphQLSchema schema;
@@ -47,7 +49,9 @@ public class HGQLConfig {
             @JsonProperty("services") List<ServiceConfig> services,
             @JsonProperty("extraction") Boolean extraction,
             @JsonProperty("mapping") String mappingFile,
-            @JsonProperty("query") String queryFile
+            @JsonProperty("query") String queryFile,
+            @JsonProperty("mutations") Boolean mutations,
+            @JsonProperty("mutationService") String mutationService
     ) {
         this.name = name;
         this.schemaFile = schemaFile;
@@ -56,6 +60,8 @@ public class HGQLConfig {
         this.extraction = extraction != null? extraction : false;
         this.mappingFile = mappingFile;
         this.queryFile = queryFile;
+        this.mutations = mutations;
+        this.mutationService = mutationService;
     }
 
     /**
@@ -143,7 +149,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the attribute extraction.
-     * @return True if the schema MUST be extracted, FALSE if the schema is provided in the schema file.
+     * @return TRUE if the schema MUST be extracted, FALSE if the schema is provided in the schema file.
      */
     public Boolean getExtraction(){
         return extraction;
@@ -163,6 +169,23 @@ public class HGQLConfig {
      */
     public String getQueryFile(){
         return queryFile;
+    }
+
+    /**
+     * Getter method for the attribute mutations. If true it is expected to generate the mutation fields.
+     * @return TRUE if mutation fields SHOULD be included in the schema, FALSE if mutations are permitted for this service.
+     */
+    public Boolean getMutations(){
+        return mutations;
+    }
+
+    /**
+     * Getter method for the attribute mutationService. Represents the service id of the service on which all mutation
+     * actions are executed.
+     * @return service id of the of the mutation service
+     */
+    public String getMutationService(){
+        return mutationService;
     }
 }
 

@@ -1,7 +1,8 @@
 {
   "name": "liteal-handling-test",
   "extraction": true,
-
+  "mutations": true,
+  "mutationService": "dataset",
   "server": {
     "port": 8098,
     "graphql": "/graphql",

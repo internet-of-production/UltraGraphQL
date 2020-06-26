@@ -56,7 +56,7 @@ public class SPARQLServiceConverter {
      * @param sparqlPattern SPARQL pattern
      * @return SPARQL OPTIONAL clause
      */
-    private String optionalClause(String sparqlPattern) {
+    public static String optionalClause(String sparqlPattern) {
         return " OPTIONAL { " + sparqlPattern + " } ";
     }
 
