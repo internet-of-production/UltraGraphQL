@@ -1,0 +1,32 @@
+{
+  "name": "query-test",
+  "schema": "schema.graphql",
+  "extraction": true,
+  "server": {
+    "port": 8098,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "ex_person",
+      "type": "LocalModelSPARQLService",
+      "url": "http://localhost:3030/dataset",
+      "filepath": "data/raw/persons_and_cars_cross_relations.ttl",
+      "filetype": "Turtle",
+      "graph": "",
+      "user": "",
+      "password": ""
+    },
+    {
+      "id": "foaf_person",
+      "type": "LocalModelSPARQLService",
+      "url": "http://localhost:3030/foaf_person",
+      "filepath": "data/raw/foaf_person_cross_relations.ttl",
+      "filetype": "Turtle",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

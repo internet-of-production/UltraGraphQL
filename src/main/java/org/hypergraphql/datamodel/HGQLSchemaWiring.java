@@ -476,7 +476,7 @@ public class HGQLSchemaWiring {
 
         builtFields.add(getidField());
         builtFields.add(gettypeField());
-
+        //ToDo: Throw error if the object implements interfaces that does not exist
         Set<GraphQLTypeReference> interfaces = this.hgqlSchema.getImplementsInterface(type).stream()
                 .map(GraphQLTypeReference::new)
                 .collect(Collectors.toSet());

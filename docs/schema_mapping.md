@@ -1,4 +1,6 @@
 # RDFS To GraphQl Schema Mapping
+>Attention: Deprecated version of the mapping
+
 |HyperGraphQL Schema Config| Default Mapping Vocabulary|
 | --- | --- |
 | [hgqls:object](#objecttype) | rdfs:Class |
@@ -182,7 +184,7 @@ type ex_AI @service(id:"ex-sparql"){
 #### Multiple Field Output Types
 If a field has multiple output types then a interfaceType is created containing the intersection of the fields of all possible outputtypes.
 The mapping to an interface with an intersection of the fields as minimum set of fields allows to query multiple types at the same time.
-If the types have NO fields in common then it is mappes to an empty interface. 
+If the types have NO fields in common then it is mappes to an empty interface.
 The empty interface becomes from HGQL the standard fields *_id* and *_type* so that this fields can be queried over all types.
 If type specific fields are needed then these can be queried with an InlineFragment linking to the specific type.
 > **Note:** The naming of this union is NOT yet decided. **ToDo**

@@ -1,0 +1,76 @@
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix :        <#> .
+
+
+
+<#service1> rdf:type fuseki:Service ;
+    fuseki:name                       "dataset" ;       # http://host:port/ds
+    fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+    fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+    fuseki:serviceUpdate              "update" ;   # SPARQL update service
+    fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    # A separate read-only graph store endpoint:
+    fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+    fuseki:dataset                   <#dataset> ;
+    .
+
+<#service2> rdf:type fuseki:Service ;
+    fuseki:name                     "foaf_person" ;   # http://host:port/ds-ro
+    fuseki:serviceQuery             "query" ;    # SPARQL query service
+    fuseki:serviceReadGraphStore    "data" ;     # SPARQL Graph store protocol (read only)
+    fuseki:dataset           <#foaf_person> ;
+    .
+
+<#service3> rdf:type fuseki:Service ;
+    fuseki:name                     "foaf_person_res" ;   # http://host:port/ds-ro
+    fuseki:serviceQuery             "query" ;    # SPARQL query service
+    fuseki:serviceReadGraphStore    "data" ;     # SPARQL Graph store protocol (read only)
+    fuseki:dataset           <#personRes> ;
+    .
+  <#service4> rdf:type fuseki:Service ;
+      fuseki:name                       "ex_person" ;       # http://host:port/ds
+      fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+      fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+      fuseki:serviceUpdate              "update" ;   # SPARQL update service
+      fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+      fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+      # A separate read-only graph store endpoint:
+      fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+      fuseki:dataset                   <#dataset> ;
+      .
+
+<#dataset>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/raw/persons_and_cars.ttl> ] ;
+        ] ;
+        .
+
+<#ex_person>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/raw/persons_and_cars_cross_relations.ttl> ] ;
+        ] ;
+        .
+
+<#foaf_person>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/raw/foaf_person_cross_relations.ttl> ] ;
+        ] ;
+        .
+
+
+<#personRes> rdf:type ja:RDFDataset;
+     ja:defaultGraph <#inferenceModel>
+     .
+
+<#inferenceModel> rdf:type      ja:InfModel;
+     ja:reasoner [ ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLMicroFBRuleReasoner> ];
+     ja:content [ja:externalContent <file:data/raw/foaf_person_cross_relations.ttl>] ;
+     .

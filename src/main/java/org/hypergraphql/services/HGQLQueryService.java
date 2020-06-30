@@ -10,12 +10,15 @@ import graphql.language.OperationDefinition;
 import graphql.language.SelectionSet;
 import graphql.schema.GraphQLSchema;
 import org.hypergraphql.config.system.HGQLConfig;
+import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datafetching.ExecutionForest;
 import org.hypergraphql.datafetching.ExecutionForestFactory;
 import org.hypergraphql.datamodel.ModelContainer;
 import org.hypergraphql.query.QueryValidator;
 import org.hypergraphql.query.ValidatedQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +30,7 @@ import java.util.Map;
  */
 public class HGQLQueryService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(HGQLQueryService.class);
     private GraphQL graphql;
     private GraphQLSchema schema;   // only used for IntrospectionQuery
     private HGQLSchema hgqlSchema;
@@ -71,20 +75,23 @@ public class HGQLQueryService {
             data.putAll(qlResult.getData());
 
         } else {
-
+            LOGGER.debug("Start query translation to SPARQL and execution to fill result pool");
+            double startTime = System.nanoTime();
             ExecutionForest queryExecutionForest =
                     new ExecutionForestFactory().getExecutionForest(validatedQuery.getParsedQuery(), hgqlSchema);
-
             ModelContainer client = new ModelContainer(queryExecutionForest.generateModel());
-
+            double endTime = System.nanoTime();
+            LOGGER.info("Time to fill result pool: {}", endTime - startTime);
+            startTime = System.nanoTime();
             if (acceptType == null) {
                 executionInput = ExecutionInput.newExecutionInput()
                         .query(query)
                         .context(client)
                         .build();
-
+                LOGGER.debug("Start GraphQL response extraction from result pool.");
                 qlResult = graphql.execute(executionInput);
-
+                endTime = System.nanoTime();
+                LOGGER.info("Time to query GraphQL response from result pool: {}", endTime - startTime);
                 data.putAll(qlResult.getData());
                 data.put("@context", queryExecutionForest.getFullLdContext());
             } else {

@@ -96,7 +96,6 @@ public class RDFtoHGQL {
                     mappings,
                     typeMappings,
                     typeMappings);
-            System.out.println(queryStringType);
             Query queryType = QueryFactory.create(queryStringType);
             try (QueryExecution qexec = QueryExecutionFactory.create(queryType, this.model)) {
                 ResultSet results = qexec.execSelect();
@@ -378,7 +377,6 @@ public class RDFtoHGQL {
                 mappings,
                 typeMappings,
                 typeMappings);
-        System.out.println(queryStringType);
         Query queryType = QueryFactory.create(queryStringType);
         try (QueryExecution qexec = QueryExecutionFactory.create(queryType, this.model)) {
             ResultSet results = qexec.execSelect() ;
@@ -428,6 +426,9 @@ public class RDFtoHGQL {
                 Field field_o_obj = this.fields.get(id_o);
                 field_o_obj.getOutputType().getTypes().forEach(type -> field_s_obj.addOutputType(type));   // Merge the output types of both fields
                 field_s_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_o_obj.getId());
+                field_o_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_s_obj.getId());
+                field_s_obj.addServiceDirective(field_o_obj.getServices());
+                field_o_obj.addServiceDirective(field_s_obj.getServices());
                 //ToDo: Also add all other same as fields mutually
             }
         }

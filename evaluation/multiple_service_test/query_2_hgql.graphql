@@ -1,0 +1,8 @@
+{
+  foaf_Person{
+    _id
+    ex_drives{
+      ex_model
+    }
+  }
+}

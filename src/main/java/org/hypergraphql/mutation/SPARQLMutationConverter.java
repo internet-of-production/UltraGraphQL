@@ -64,7 +64,7 @@ public class SPARQLMutationConverter {
                     .filter(argument -> !argument.getName().equals("_id"))
                     .map(argument -> translateArgument(rootObject,optionalID.get(),argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
-            return addDeleteWrapper(result);
+            return addDeleteDataWrapper(result);
 
         }else if(hasID && !hasOtherFields){
             String id_uri = uriToResource(optionalID.get());
@@ -117,6 +117,15 @@ public class SPARQLMutationConverter {
      */
     private String addDeleteWrapper(String input){
         return String.format("DELETE{\n%s\n}", input);
+    }
+
+    /**
+     * Add the SPARQL DELETE clause around the given triples
+     * @param input SPARQL term that is suited inside the DELETE clause
+     * @return DELETE clause containing given input
+     */
+    private String addDeleteDataWrapper(String input){
+        return String.format("DELETE DATA{\n%s\n}", input);
     }
 
     private String addSPARQLinsertWrapper(String triples){

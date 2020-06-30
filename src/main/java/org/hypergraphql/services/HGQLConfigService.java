@@ -7,6 +7,7 @@ import com.mashape.unirest.request.GetRequest;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
@@ -95,19 +96,36 @@ public class HGQLConfigService {
             if(config.getExtraction()){
                 LOGGER.info("Start schema extraction");
                 //Extract schema
+
                 Model mapping = ModelFactory.createDefaultModel();
-                final String fullMappingPath = config.getMappingFile() != null ? extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()) : getFileFromResources(mapping_file_name).getAbsolutePath();
+                InputStream mapping_config;
+//                final String fullMappingPath = config.getMappingFile() != null ? extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()) : getFileFromResources(mapping_file_name).getAbsolutePath();
+                if(config.getMappingFile() != null){
+                    mapping_config = new FileInputStream(extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()));
+                }else{
+                    // use default mapping
+                    mapping_config = getClass().getClassLoader().getResourceAsStream(mapping_file_name);
+                }
                 LOGGER.info("{}",config.getMappingFile() == null ? "Using default mapping" : "Using provided mapping");
-                final String fullQueryPath = config.getQueryFile() != null ? extractFullSchemaPath(hgqlConfigPath,
-                        config.getQueryFile()) : getFileFromResources(extraction_query_file_name).getAbsolutePath();
-                LOGGER.info("{}",config.getMappingFile() == null ? "Using default extraction query" : "Using provided extraction query");
-                mapping.read(new FileInputStream(fullMappingPath),null,"TTL");
+
+
+//                final String fullQueryPath = config.getQueryFile() != null ? extractFullSchemaPath(hgqlConfigPath,
+//                        config.getQueryFile()) : getFileFromResources(extraction_query_file_name).getAbsolutePath();
+                String extraction_query;
+                if(config.getQueryFile() != null){
+                    extraction_query = new String ( Files.readAllBytes( Paths.get( extractFullSchemaPath(hgqlConfigPath, config.getQueryFile()))));
+                }else{
+                    extraction_query = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(extraction_query_file_name), StandardCharsets.UTF_8);
+                }
+                LOGGER.info("{}",config.getQueryFile() == null ? "Using default extraction query" : "Using provided extraction query");
+
+                mapping.read(mapping_config, null, "TTL");
                 ExtractionController extractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
-                        new String ( Files.readAllBytes( Paths.get(fullQueryPath))));
+                        extraction_query);
                 reader = extractionController.getHGQLSchemaReader();
                 if(config.getSchemaFile() != null){
-                    LOGGER.info("Extracted HyperGraphQL schema will be stored in {}",config.getSchemaFile());
+                    LOGGER.info("Extracted HyperGraphQL schema will be stored in {}", config.getSchemaFile());
                     BufferedWriter writer = new BufferedWriter(new FileWriter(config.getSchemaFile()));
                     writer.write(extractionController.getHGQLSchema());
                     writer.close();

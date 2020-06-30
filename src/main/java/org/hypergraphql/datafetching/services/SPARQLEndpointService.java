@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class SPARQLEndpointService extends SPARQLService {
 
@@ -58,17 +59,16 @@ public class SPARQLEndpointService extends SPARQLService {
         do {
 
             Set<String> inputSubset = new HashSet<>();
-            int i = 0;
-            while (i < VALUES_SIZE_LIMIT && !inputList.isEmpty()) {
-                inputSubset.add(inputList.get(0));
-                inputList.remove(0);
-                i++;
+            if(!inputList.isEmpty()){
+                int size = inputList.size()<VALUES_SIZE_LIMIT? inputList.size() : VALUES_SIZE_LIMIT;
+                inputSubset = inputList.stream().limit(size).collect(Collectors.toSet());
+                inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
             ExecutorService executor = Executors.newFixedThreadPool(50);
             SPARQLEndpointExecution execution = new SPARQLEndpointExecution(query,inputSubset,markers,this, schema, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
-        } while (inputList.size()>VALUES_SIZE_LIMIT);
+        } while (inputList.size()>0);
 
         iterateFutureResults(futureSPARQLresults, unionModel, resultSet);
 
@@ -89,7 +89,14 @@ public class SPARQLEndpointService extends SPARQLService {
             try {
                 SPARQLExecutionResult result = futureExecutionResult.get();
                 unionModel.add(result.getModel());
-                resultSet.putAll(result.getResultSet());
+                result.getResultSet().forEach((var, uris) ->{
+                    if(resultSet.get(var)== null){
+                        resultSet.put(var, uris);
+                    }else{
+                        resultSet.get(var).addAll(uris);
+                    }
+                } );
+//                resultSet.putAll(result.getResultSet());
             } catch (InterruptedException
                     | ExecutionException e) {
                 e.printStackTrace();

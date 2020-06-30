@@ -1,5 +1,6 @@
 package org.hypergraphql.schemaextraction;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -11,14 +12,19 @@ import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFParser;
+import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.update.UpdateAction;
+import org.hypergraphql.exception.HGQLConfigurationException;
 import org.hypergraphql.services.HGQLConfigService;
+import org.hypergraphql.util.LangUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 /**
  * A SPARQLExtraction  obtains the mapping configuration and the extraction query and is then able to extract the RDF
@@ -68,6 +74,7 @@ public class SPARQLExtraction {
      * @return Returns a Model containing the RDF schema of the given SPARQL endpoint
      */
     public Model extractSchema(String service, String username, String password, String graph){
+        ARQ.init();
         if(username == null){
             username = "";
         }
@@ -118,17 +125,19 @@ public class SPARQLExtraction {
      * @throws FileNotFoundException
      */
     public Model extractSchemaFromLocalRDFFile(String filename, String type, String graph) throws FileNotFoundException {
+        ARQ.init();
         FusekiServer server;
         Model model = ModelFactory.createDefaultModel();
-        LOGGER.debug("Build up model from file {}", filename);
         model.read(new FileInputStream(filename), null, type);
+
+        LOGGER.info("Build up model from file {}", type);
         Dataset ds = DatasetFactory.create(model);
         server = FusekiServer.create()
                 .add(RDF_FILE_ENDPOINT_DATASET, ds)
                 .build();
         server.start();
         String address = RDF_FILE_ENDPOINT_ADDRESS+server.getPort()+RDF_FILE_ENDPOINT_DATASET;
-        LOGGER.debug("Start extracting schema from {} dataset", filename);
+        LOGGER.info("Start extracting schema from {} dataset", type);
         Model res = extractSchema(address,null, null, graph);
         server.stop();
         return res;

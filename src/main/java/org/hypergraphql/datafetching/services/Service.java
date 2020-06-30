@@ -19,12 +19,7 @@ import org.hypergraphql.datafetching.TreeExecutionResult;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.QueryNode;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
@@ -309,7 +304,7 @@ public abstract class Service {
             //ToDo:
             Resource subject = results.getResource(currentNode.get("parentId").asText());
             Property predicate = model.createProperty("", propertyString.getId());
-            Resource object = model.getResource(HGQL_QUERY_NAMESPACE + currentNode.get("nodeId").asText());
+            Resource object = model.getResource(HGQL_QUERY_NAMESPACE + results.get(currentNode.get("nodeId").asText()).hashCode());
             Property literal_value = model.createProperty(HGQL_SCALAR_LITERAL_VALUE_URI);
             Resource literal = model.getResource(HGQL_SCALAR_LITERAL_URI);
             RDFNode value = results.get(currentNode.get("nodeId").asText());

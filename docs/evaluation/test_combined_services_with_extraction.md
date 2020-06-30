@@ -2,7 +2,7 @@
 This test is preformed [here](../../src/test/java/org/hypergraphql/ApplicationTest.java) in the combinedServicesWithExtraction() method.
 ## Test Setup
 The same datasets as in the Test [combined_services](./test_combined_services.md) but with out the provided schema.
-In one dataset is data about persons in another information about addresses and in the last information about cities. 
+In one dataset is data about persons in another information about addresses and in the last information about cities.
 The data is linked as follows: A Person has a address and a address has a city.
 For the mapping and the schema extraction query the default was used.
 
@@ -15,47 +15,55 @@ The [query](#graphql-query) must extract for each person the label of the city o
 ## Extracted HGQL Schema
 ```sparql
 type __Context{
+	hgqls_Literal:	_@href(iri:"http://hypergraphql.org/schema/Literal")
 	rdf_type:	_@href(iri:"http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
 	eg_lastName:	_@href(iri:"http://www.example.org/lastName")
 	eg_Person:	_@href(iri:"http://www.example.org/Person")
 	rdfs_label:	_@href(iri:"http://www.w3.org/2000/01/rdf-schema#label")
 	eg_Address:	_@href(iri:"http://www.example.org/Address")
 	dbo_City:	_@href(iri:"http://dbpedia.org/ontology/City")
+	hgqls_value:	_@href(iri:"http://hypergraphql.org/schema/value")
 	eg_firstName:	_@href(iri:"http://www.example.org/firstName")
 	eg_city:	_@href(iri:"http://www.example.org/city")
 	eg_address:	_@href(iri:"http://www.example.org/address")
 	eg_street:	_@href(iri:"http://www.example.org/street")
 }
 interface eg_Person_Interface {
+	eg_firstName: [String] @service(id: "person")
+	eg_lastName: [String] @service(id: "person")
+	eg_address: [eg_Address] @service(id: "person")
 	rdf_type: [String] @service(id: ["address", "city", "person"])
 	rdfs_label: [String] @service(id: ["city", "person"])
-	eg_firstName: [String] @service(id: "person")
-	eg_address: [eg_Address] @service(id: "person")
-	eg_lastName: [String] @service(id: "person")
 }
 interface eg_Address_Interface {
-	eg_street: [String] @service(id: "address")
 	eg_city: [dbo_City] @service(id: "address")
 	rdf_type: [String] @service(id: ["address", "city", "person"])
+	eg_street: [String] @service(id: "address")
+}
+interface hgqls_Literal_Interface {
+	hgqls_value: [String]
 }
 interface dbo_City_Interface {
 	rdf_type: [String] @service(id: ["address", "city", "person"])
 	rdfs_label: [String] @service(id: ["city", "person"])
 }
 
+type hgqls_Literal implements hgqls_Literal_Interface  {
+ 	hgqls_value: [String]
+}
 type eg_Person implements eg_Person_Interface @service(id: "person") {
- 	rdf_type: [String] @service(id: ["address", "city", "person"])
-	rdfs_label: [String] @service(id: ["city", "person"])
-	eg_firstName: [String] @service(id: "person")
-	eg_address: [eg_Address] @service(id: "person")
+ 	eg_firstName: [String] @service(id: "person")
 	eg_lastName: [String] @service(id: "person")
-}
-type eg_Address implements eg_Address_Interface @service(id: "person") {
- 	eg_street: [String] @service(id: "address")
-	eg_city: [dbo_City] @service(id: "address")
+	eg_address: [eg_Address] @service(id: "person")
 	rdf_type: [String] @service(id: ["address", "city", "person"])
+	rdfs_label: [String] @service(id: ["city", "person"])
 }
-type dbo_City implements dbo_City_Interface @service(id: "address") {
+type eg_Address implements eg_Address_Interface @service(id: ["address", "person"]) {
+ 	eg_city: [dbo_City] @service(id: "address")
+	rdf_type: [String] @service(id: ["address", "city", "person"])
+	eg_street: [String] @service(id: "address")
+}
+type dbo_City implements dbo_City_Interface @service(id: ["address", "city"]) {
  	rdf_type: [String] @service(id: ["address", "city", "person"])
 	rdfs_label: [String] @service(id: ["city", "person"])
 }

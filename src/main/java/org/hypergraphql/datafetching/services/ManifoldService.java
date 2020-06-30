@@ -40,13 +40,13 @@ public class ManifoldService extends Service {
 //        Set<Future<TreeExecutionResult>> futureResults = new HashSet<>();
         for( Service service : services){
               TreeExecutionResult res_part = service.executeQuery(query, input, strings, rootType, schema);
-              res_part.getResultSet().forEach((var, uri) ->
-                      resultSet.merge(var, uri,(strings1, strings2) -> {
-                          HashSet set = new HashSet<String>();
-                          set.addAll(strings1);
-                          set.addAll(strings2);
-                          return set;
-                      }));
+              res_part.getResultSet().forEach((var, uri) ->{
+                  if(resultSet.get(var)== null){
+                      resultSet.put(var, uri);
+                  }else{
+                      resultSet.get(var).addAll(uri);
+                  }
+              });
               model.add(res_part.getModel());
 //            ExecutorService executor = Executors.newFixedThreadPool(5);
 //            CallableService execution = new CallableService(service, query, input, strings,rootType, schema);
@@ -54,7 +54,7 @@ public class ManifoldService extends Service {
         }
         treeExecutionResult.setModel(model);
         treeExecutionResult.setResultSet(resultSet);
-        LOGGER.info(String.format("Merge Service results"));
+        LOGGER.debug(String.format("Merge Service results"));
 //        iterateFutureResultsx(futureResults, treeExecutionResult);
         return treeExecutionResult;
     }
@@ -127,8 +127,8 @@ public class ManifoldService extends Service {
                 e.printStackTrace();
             }
         }
-        LOGGER.info("Result:");
-        LOGGER.info(resultUnion.getResultSet().toString());
+        LOGGER.debug("Result:");
+        LOGGER.debug(resultUnion.getResultSet().toString());
     }
 
     /**

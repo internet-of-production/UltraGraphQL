@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.exception.HGQLConfigurationException;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -50,10 +48,12 @@ public class ExtractionController {
                 this.mapper.create(serviceSchema, conf.getId());
             }else if(conf.getType().equals(LOCAL_RDF_MODEL)){
                 Model serviceSchema = null;
+                LOGGER.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
+                FileInputStream fileStream = null;
                 try{
-                    LOGGER.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
                     serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype(), conf.getGraph());
                 }catch(Exception e){
+                    e.printStackTrace();
                     LOGGER.error("File "+ conf.getFilepath() +" not found skip the Service "+ conf.getId());
                     continue;
                 }

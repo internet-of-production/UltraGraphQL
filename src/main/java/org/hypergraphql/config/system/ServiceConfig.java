@@ -40,6 +40,11 @@ public class ServiceConfig {
     public String getFilepath() {
         return filepath;
     }
+
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+    }
+
     public String getFiletype() {
         return filetype;
     }

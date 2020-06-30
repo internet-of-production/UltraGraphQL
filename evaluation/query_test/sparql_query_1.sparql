@@ -1,0 +1,12 @@
+PREFIX ex: <http://example.org/>
+
+SELECT ?model ?person
+WHERE {
+  ?car a ex:car.
+  OPTIONAL{
+  	?car ex:model ?model.
+  }
+  OPTIONAL{
+  	?car ex:ownedBy ?person.
+  }
+}

@@ -7001,7 +7001,7 @@ ex:person_194  a        ex:Person ;
         ex:surname      "Pike" .
 
 
-ex:car_93  a        ex:car ;
+ex:car_93  a        ex:car .
 
 ex:car_172  a       ex:car ;
     ex:model    "MINI" ;

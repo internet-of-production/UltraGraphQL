@@ -6,9 +6,12 @@ import graphql.GraphQL;
 import graphql.GraphQLError;
 import graphql.language.*;
 import graphql.schema.GraphQLSchema;
+import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.ExecutionForest;
 import org.hypergraphql.datafetching.ExecutionForestFactory;
+import org.hypergraphql.datafetching.services.LocalModelSPARQLService;
+import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.ModelContainer;
 import org.hypergraphql.mutation.SPARQLMutationConverter;
@@ -25,8 +28,10 @@ public class HGQLMutationService {
     private final SPARQLMutationConverter converter;
     private final HGQLQueryService query_handler;
     private GraphQL graphql;
+    private HGQLConfig config;
 
     public HGQLMutationService(HGQLConfig config){
+        this.config = config;
         this.hgqlSchema = config.getHgqlSchema();
         this.schema = config.getSchema();
         this.converter = new SPARQLMutationConverter(this.hgqlSchema);
@@ -44,7 +49,10 @@ public class HGQLMutationService {
         for(Selection selection : selections){
             String mutation = this.converter.translateMutation((Field) selection);
             LOGGER.info(mutation);
-
+            final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
+            if(service instanceof LocalModelSPARQLService){
+                ((LocalModelSPARQLService) service).executeUpdate(mutation);
+            }
             //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
             sparql_translation.addAll(Arrays.asList(mutation.split("\n")));
             mutation_fields.add(Field.newField()

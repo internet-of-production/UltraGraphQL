@@ -26,6 +26,11 @@ public class HGQLSchema {
     private String schemaUri;
     private String schemaNamespace;
 
+    public Map<String, Service> getServiceList() {
+        return serviceList;
+    }
+
+    private Map<String, Service> serviceList;
 
     public Map<String, TypeConfig> getTypes() {
         return types;
@@ -79,7 +84,7 @@ public class HGQLSchema {
      */
     public HGQLSchema(TypeDefinitionRegistry registry, String schemaName, Map<String, Service> services)
             throws HGQLConfigurationException {
-
+        this.serviceList = services;
         schemaUri = HGQL_SCHEMA_NAMESPACE + schemaName;
         schemaNamespace = schemaUri + "/";
 

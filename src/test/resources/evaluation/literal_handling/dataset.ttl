@@ -15,4 +15,4 @@ ex:Bob a ex:Person;
 
 ex:addr742ET a ex:Address;
     ex:street_name "Evergreen Terrace";
-    ex:house_number "742".
+    ex:house_number "742", "42".

@@ -1,0 +1,14 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX ex: <http://example.org/>
+PREFIX fo: <http://www.w3.org/1999/XSL/Format#>
+SELECT ?person ?car
+WHERE {
+  ?person a foaf:Person;
+          ex:drives ?carID.
+  SERVICE <http://localhost:3030/dataset> { 
+      ?carID a ex:car; 
+      		 ex:model ?car. 
+  }
+}
+LIMIT 25

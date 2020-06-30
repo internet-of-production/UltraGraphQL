@@ -1,0 +1,77 @@
+type __Context{
+	hgqls_Literal:	_@href(iri:"http://hypergraphql.org/schema/Literal")
+	foaf_name:	_@href(iri:"http://xmlns.com/foaf/0.1/name")
+	ex_Person:	_@href(iri:"http://example.org/Person")
+	ex_surname:	_@href(iri:"http://example.org/surname")
+	ex_car:	_@href(iri:"http://example.org/car")
+	ex_drives:	_@href(iri:"http://example.org/drives")
+	ex_model:	_@href(iri:"http://example.org/model")
+	ex_ownedBy:	_@href(iri:"http://example.org/ownedBy")
+	rdf_type:	_@href(iri:"http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+	ex_age:	_@href(iri:"http://example.org/age")
+	foaf_Person:	_@href(iri:"http://xmlns.com/foaf/0.1/Person")
+	hgqls_value:	_@href(iri:"http://hypergraphql.org/schema/value")
+	ex_relatedWith:	_@href(iri:"http://example.org/relatedWith")
+	ex_name:	_@href(iri:"http://example.org/name")
+}
+interface foaf_Person_Interface {
+	ex_surname: [String] @service(id: ["foaf_person", "dataset"])
+	ex_name: [String] @schema(sameAs: "foaf_name") @service(id: ["foaf_person", "dataset"])
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: ["foaf_person", "dataset"])
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_drives: [ex_car] @service(id: ["foaf_person", "dataset"])
+	foaf_name: [String] @schema(sameAs: "ex_name") @service(id: ["foaf_person", "dataset"])
+	ex_age: [String] @service(id: ["foaf_person", "dataset"])
+}
+interface hgqls_Literal_Interface {
+	hgqls_value: [String] 
+}
+interface ex_Person_Interface {
+	ex_surname: [String] @service(id: ["foaf_person", "dataset"])
+	ex_name: [String] @schema(sameAs: "foaf_name") @service(id: ["foaf_person", "dataset"])
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: ["foaf_person", "dataset"])
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_drives: [ex_car] @service(id: ["foaf_person", "dataset"])
+	foaf_name: [String] @schema(sameAs: "ex_name") @service(id: ["foaf_person", "dataset"])
+	ex_age: [String] @service(id: ["foaf_person", "dataset"])
+}
+interface ex_car_Interface {
+	ex_ownedBy: [ex_Person] @service(id: "dataset")
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_model: [String] @service(id: "dataset")
+}
+interface ex_relatedWith_OutputType {
+ ex_surname: [String] @service(id: ["foaf_person", "dataset"])
+	ex_name: [String] @schema(sameAs: "foaf_name") @service(id: ["foaf_person", "dataset"])
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: ["foaf_person", "dataset"])
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_drives: [ex_car] @service(id: ["foaf_person", "dataset"])
+	foaf_name: [String] @schema(sameAs: "ex_name") @service(id: ["foaf_person", "dataset"])
+	ex_age: [String] @service(id: ["foaf_person", "dataset"])
+}
+type hgqls_Literal implements hgqls_Literal_Interface @service(id: ["foaf_person", "dataset"]) {
+ 	hgqls_value: [String] 
+}
+type foaf_Person implements foaf_Person_Interface & ex_relatedWith_OutputType & ex_Person_Interface @service(id: ["foaf_person", "dataset"]) @schema(sameAs: ["foaf_Person", "ex_Person"]) {
+ 	ex_surname: [String] @service(id: ["foaf_person", "dataset"])
+	ex_name: [String] @schema(sameAs: "foaf_name") @service(id: ["foaf_person", "dataset"])
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: ["foaf_person", "dataset"])
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_drives: [ex_car] @service(id: ["foaf_person", "dataset"])
+	foaf_name: [String] @schema(sameAs: "ex_name") @service(id: ["foaf_person", "dataset"])
+	ex_age: [String] @service(id: ["foaf_person", "dataset"])
+}
+type ex_Person implements foaf_Person_Interface & ex_relatedWith_OutputType & ex_Person_Interface @service(id: ["foaf_person", "dataset"]) @schema(sameAs: ["foaf_Person", "ex_Person"]) {
+ 	ex_surname: [String] @service(id: ["foaf_person", "dataset"])
+	ex_name: [String] @schema(sameAs: "foaf_name") @service(id: ["foaf_person", "dataset"])
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: ["foaf_person", "dataset"])
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_drives: [ex_car] @service(id: ["foaf_person", "dataset"])
+	foaf_name: [String] @schema(sameAs: "ex_name") @service(id: ["foaf_person", "dataset"])
+	ex_age: [String] @service(id: ["foaf_person", "dataset"])
+}
+type ex_car implements ex_car_Interface @service(id: ["foaf_person", "dataset"]) {
+ 	ex_ownedBy: [ex_Person] @service(id: "dataset")
+	rdf_type: [String] @service(id: ["foaf_person", "dataset"])
+	ex_model: [String] @service(id: "dataset")
+}

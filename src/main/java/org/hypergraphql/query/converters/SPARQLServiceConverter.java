@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.atlas.json.JsonArray;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 
+import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
@@ -241,7 +242,7 @@ public class SPARQLServiceConverter {
      */
     private String fieldPattern(String parentId, String nodeId, String predicateURI, String typeURI) {
         String predicateTriple = (parentId.equals("")) ? "" : toTriple(toVar(parentId), predicateURI, toVar(nodeId));  // parentId == "" : "" | "?parentId <predicateURI> ?nodeId."
-        String typeTriple = (typeURI.equals("")) ? "" : toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(typeURI));   // typeURI == "" : "" | "?nodeId rdf:type <typeURI>."
+        String typeTriple = (typeURI.equals("")) ? "" : toTriple(toVar(nodeId), RDF_TYPE_URI, typeURI);   // typeURI == "" : "" | "?nodeId rdf:type <typeURI>."
         return predicateTriple + typeTriple;
     }
 
@@ -343,8 +344,9 @@ public class SPARQLServiceConverter {
             values = values.stream()
                     .map(s -> schema.getTypes().get(s).getId())
                     .collect(Collectors.toSet());
-            String value = valuesClause(SAMEAS, values);
-            selectTriple = value + toTriple(toVar(nodeId), RDF_TYPE_URI, toVar(SAMEAS));
+            String var_sameas = SAMEAS + "_" + nodeId;
+            String value = valuesClause(var_sameas, values);
+            selectTriple = value + toTriple(toVar(nodeId), RDF_TYPE_URI, toVar(var_sameas));
         }else{
             selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
         }
@@ -443,7 +445,19 @@ public class SPARQLServiceConverter {
             orderSTR = orderClause(literal_value);
         }else{
             String typeURI = (schema.getTypes().containsKey(targetName)) ? schema.getTypes().get(targetName).getId() : "";  // If the output type (targetName) is a type of the schema then typeURI is the Id of this type
-            fieldPattern = fieldPattern(parentId, nodeId, fieldURI, typeURI);  // SPARQL query for only the field
+            if(hasSameAsTypes(targetName)) {
+                Set<String> values = getSameAsTypes(targetName);
+                values.add(targetName);
+                values = values.stream()
+                        .map(s -> schema.getTypes().get(s).getId())
+                        .collect(Collectors.toSet());
+                String var_sameas = SAMEAS + "_" + nodeId;
+                String value = valuesClause(var_sameas, values);
+                fieldPattern = value + fieldPattern(parentId, nodeId, fieldURI, toVar(var_sameas));
+            }else{
+                fieldPattern = fieldPattern(parentId, nodeId, fieldURI, typeURI.equals("")? "" : uriToResource(typeURI));  // SPARQL query for only the field
+            }
+
             JsonNode subfields = fieldJson.get(FIELDS);
             rest = getSubQueries(subfields);   // SPARQL query for the SelectionSet of the field (subfields)
         }

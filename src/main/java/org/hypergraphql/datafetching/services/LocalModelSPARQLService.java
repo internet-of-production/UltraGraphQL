@@ -6,6 +6,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.update.UpdateAction;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.LocalSPARQLExecution;
 import org.hypergraphql.datafetching.SPARQLExecutionResult;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class LocalModelSPARQLService extends SPARQLEndpointService{
 
@@ -49,17 +51,17 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         do {
 
             Set<String> inputSubset = new HashSet<>();
-            int i = 0;
-            while (i < VALUES_SIZE_LIMIT && !inputList.isEmpty()) {
-                inputSubset.add(inputList.get(0));
-                inputList.remove(0);
-                i++;
+            if(!inputList.isEmpty()){
+                int size = inputList.size()<VALUES_SIZE_LIMIT? inputList.size() : VALUES_SIZE_LIMIT;
+                inputSubset = inputList.stream().limit(size).collect(Collectors.toSet());
+                inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
+
             ExecutorService executor = Executors.newFixedThreadPool(50);
             LocalSPARQLExecution execution = new LocalSPARQLExecution(query,inputSubset,markers,this, schema , this.model, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
-        } while (inputList.size()>VALUES_SIZE_LIMIT);
+        } while (inputList.size()>0);
 
         iterateFutureResults(futureSPARQLresults, unionModel, resultSet);
 
@@ -70,6 +72,16 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         return treeExecutionResult;
     }
 
+    public Boolean executeUpdate(String update){
+        try{
+            UpdateAction.parseExecute(update, this.model);
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public void setParameters(ServiceConfig serviceConfig) {
         super.setParameters(serviceConfig);
@@ -78,8 +90,8 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
 
         this.id = serviceConfig.getId();
 
-        LOGGER.debug("Current path: " + new File(".").getAbsolutePath());
-
+        LOGGER.info("Current path: " + new File(".").getAbsolutePath());
+        LOGGER.info(serviceConfig.getFilepath());
         final File cwd = new File(".");
         try(final FileInputStream fis = new FileInputStream(new File(cwd, serviceConfig.getFilepath()));
             final BufferedInputStream in = new BufferedInputStream(fis)) {

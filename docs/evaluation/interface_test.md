@@ -3,7 +3,7 @@ This test is preformed [here](../../src/test/java/org/hypergraphql/ApplicationTe
 Information on how unions were added to HGQL can be found [here](../interface.md)
 
 ## Test Setup
-A HGQL Schema is provided with an interface defined as OutputType. Two types implement this interface and one type has type specific fields that the othert type does NOT have.
+A HGQL Schema is provided with an interface defined as OutputType. Two types implement this interface and one type has type specific fields that the other type does NOT have.
 The [query](#graphql-query) queries fields of the interface and with an InlineFragment also type specific types.
 
 ## Expected Outcome
@@ -50,7 +50,7 @@ type Person implements blank @service(id: "dataset"){
     lastName: [String] @service(id: "dataset")
     pet: [animal] @service(id: "dataset")
 }
-``` 
+```
 
 ### GraphQL Query
 ```GraphQL

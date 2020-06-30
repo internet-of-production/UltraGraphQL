@@ -105,6 +105,42 @@ public class Field {
         }
     }
 
+    /**
+     * Add the given service ids to the service directive. If the service directive is not set add one.
+     * @param serviceIds ids of the services
+     */
+    public void addServiceDirective(Set<String> serviceIds){
+        Optional<Directive> direc = this.directives.stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
+                .findFirst();
+        if(direc.isPresent()){
+            //Add parameter
+            direc.get().addParameter(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceIds);
+        }else{
+            addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceIds);
+        }
+    }
+
+    /**
+     * Returns a list off all current survices of the field
+     * @return Set of service IDs
+     */
+    public Set<String> getServices(){
+        Set<String> result = new HashSet<>();
+        Optional<Directive> direc = this.directives.stream()
+                .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
+                .findFirst();
+        if(direc.isPresent()){
+            final Directive.Parameter parameter = direc.get().getParameter().get(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID);
+            if(parameter instanceof  Directive.DirectiveParameter){
+                result.add(((Directive.DirectiveParameter) parameter).getValue());
+            }else if(parameter instanceof  Directive.DirectiveParameterList){
+                result.addAll(((Directive.DirectiveParameterList) parameter).getValues());
+            }
+        }
+        return result;
+    }
+
     public Set<Directive> getDirectives(){
         return this.directives;
     }

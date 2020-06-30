@@ -2,7 +2,7 @@
 This test is preformed [here](../../src/test/java/org/hypergraphql/ApplicationTest.java) in the combinedServices() method.
 
 ## Test Setup
-Three [datasets](#datasets) with interlinked data which allows nested queries to retrieve data from multiple services. 
+Three [datasets](#datasets) with interlinked data which allows nested queries to retrieve data from multiple services.
 In one dataset is data about persons in another information about addresses and in the last information about cities.
 The data is linked as follows: A Person has a address and a address has a city.
 
@@ -15,10 +15,10 @@ The [nested query](#graphql-query) should extract the data from all services so 
 ![Sequence Diagram](../figures/combined_services.svg)
 
 ## Further Tests
-- [combined services test with schema extraction](test_combined_services_extracted.md): same test setup but without a given schema
+- [combined services test with schema extraction](test_combined_services_with_extraction.md): same test setup but without a given schema
 
 --------
-## GraphQL Query 
+## GraphQL Query
 ```graphql
 {
     Person{
