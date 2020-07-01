@@ -11,6 +11,7 @@ import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.ExecutionForest;
 import org.hypergraphql.datafetching.ExecutionForestFactory;
 import org.hypergraphql.datafetching.services.LocalModelSPARQLService;
+import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.ModelContainer;
@@ -52,6 +53,8 @@ public class HGQLMutationService {
             final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
             if(service instanceof LocalModelSPARQLService){
                 ((LocalModelSPARQLService) service).executeUpdate(mutation);
+            }else if(service instanceof SPARQLEndpointService){
+                ((SPARQLEndpointService) service).executeUpdate(mutation);
             }
             //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
             sparql_translation.addAll(Arrays.asList(mutation.split("\n")));

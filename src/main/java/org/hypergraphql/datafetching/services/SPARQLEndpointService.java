@@ -1,8 +1,20 @@
 package org.hypergraphql.datafetching.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.WebContent;
+import org.apache.jena.riot.web.HttpOp;
+import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
+import org.apache.jena.update.UpdateAction;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.SPARQLEndpointExecution;
@@ -12,6 +24,8 @@ import org.hypergraphql.datamodel.HGQLSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,11 +52,11 @@ public class SPARQLEndpointService extends SPARQLService {
     }
 
     public String getUser() {
-        return user;
+        return user == null? "" : user;
     }
 
     public String getPassword() {
-        return password;
+        return password== null? "" : password;
     }
 
     @Override
@@ -77,6 +91,25 @@ public class SPARQLEndpointService extends SPARQLService {
         treeExecutionResult.setModel(unionModel);
 
         return treeExecutionResult;
+    }
+
+    public Boolean executeUpdate(String update){
+        try{
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            Credentials credentials =
+                    new UsernamePasswordCredentials(this.getUser(), this.getPassword());
+            credsProvider.setCredentials(AuthScope.ANY, credentials);
+            HttpClient httpclient = HttpClients.custom()
+                    .setDefaultCredentialsProvider(credsProvider)
+                    .build();
+            HttpOp.setDefaultHttpClient(httpclient);
+
+            HttpOp.execHttpPost(getUrl() + "/update", WebContent.contentTypeSPARQLUpdate, update, null, null);
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     void iterateFutureResults (

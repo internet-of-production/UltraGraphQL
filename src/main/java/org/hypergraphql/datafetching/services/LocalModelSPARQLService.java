@@ -17,11 +17,7 @@ import org.hypergraphql.util.LangUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +33,8 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalModelSPARQLService.class);
 
     protected Model model;
+    protected String filepath;
+    protected String fileType;
 
     @Override
     public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
@@ -75,6 +73,8 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
     public Boolean executeUpdate(String update){
         try{
             UpdateAction.parseExecute(update, this.model);
+            final File cwd = new File(".");
+            this.model.write( new FileOutputStream(new File(cwd, this.filepath)),this.fileType);
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -89,7 +89,8 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         ARQ.init();
 
         this.id = serviceConfig.getId();
-
+        this.filepath = serviceConfig.getFilepath();
+        this.fileType = serviceConfig.getFiletype();
         LOGGER.info("Current path: " + new File(".").getAbsolutePath());
         LOGGER.info(serviceConfig.getFilepath());
         final File cwd = new File(".");
