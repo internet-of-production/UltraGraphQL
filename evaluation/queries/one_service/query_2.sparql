@@ -1,0 +1,19 @@
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name ?surname ?age
+WHERE {
+  {SELECT ?person
+  WHERE{
+    ?person a ex:Person.
+  }
+    LIMIT 100}
+  OPTIONAL{
+  	?person ex:name ?name.
+  }
+  OPTIONAL{
+  	?person ex:surname ?surname.
+  }
+  OPTIONAL{
+  	?person ex:age ?age.
+  }
+}

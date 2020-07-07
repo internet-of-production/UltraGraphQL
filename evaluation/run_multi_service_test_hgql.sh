@@ -1,4 +1,4 @@
-#!/usr/bin/env bash""
+######!/usr/bin/env bash""
 
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 HOST="http://localhost:8098/graphql"
@@ -54,13 +54,13 @@ Query(){
 
 log "Each query will be queried ${ROUNDS} times to estimate the average query execution time."
 log "Starting Query 1:\n"
-Query "1" "$HGQLQ1"
+#Query "1" "$HGQLQ1"
 
 log "Starting Query 2:"
-Query "2" "$HGQLQ2"
+#Query "2" "$HGQLQ2"
 
 log "Starting Query 3:"
-Query "3" "$HGQLQ3"
+#Query "3" "$HGQLQ3"
 
 
 

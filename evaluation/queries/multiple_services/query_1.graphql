@@ -1,0 +1,5 @@
+{
+  ex_Person(_id:["http://xmlns.com/foaf/0.1/person_253","http://example.org/person_253"]){
+    ex_name
+  }
+}

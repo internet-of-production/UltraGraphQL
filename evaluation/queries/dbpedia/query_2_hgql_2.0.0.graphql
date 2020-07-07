@@ -1,0 +1,6 @@
+{
+   dbo_Game{
+      _id
+      foaf_name
+   }
+}

@@ -41,9 +41,55 @@
       fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
       # A separate read-only graph store endpoint:
       fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
-      fuseki:dataset                   <#dataset> ;
+      fuseki:dataset                   <#ex_person> ;
       .
 
+<#service5> rdf:type fuseki:Service ;
+    fuseki:name                       "dbo_person" ;       # http://host:port/ds
+    fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+    fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+    fuseki:serviceUpdate              "update" ;   # SPARQL update service
+    fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    # A separate read-only graph store endpoint:
+    fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+    fuseki:dataset                   <#dbo_person_dataset> ;
+    .
+
+<#service6> rdf:type fuseki:Service ;
+    fuseki:name                       "mutation" ;       # http://host:port/ds
+    fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+    fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+    fuseki:serviceUpdate              "update" ;   # SPARQL update service
+    fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    # A separate read-only graph store endpoint:
+    fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+    fuseki:dataset                   <#mutation_dataset> ;
+    .
+<#service7> rdf:type fuseki:Service ;
+    fuseki:name                       "mutation2" ;       # http://host:port/ds
+    fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+    fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+    fuseki:serviceUpdate              "update" ;   # SPARQL update service
+    fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    # A separate read-only graph store endpoint:
+    fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+    fuseki:dataset                   <#mutation_dataset2> ;
+    .
+<#mutation_dataset2>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/mutations_dataset.ttl> ] ;
+        ] ;
+        .
+<#mutation_dataset>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/mutations_dataset.ttl> ] ;
+        ] ;
+        .
 <#dataset>    rdf:type ja:RDFDataset ;
     ja:defaultGraph
         [ a ja:MemoryModel ;
@@ -74,3 +120,10 @@
      ja:reasoner [ ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLMicroFBRuleReasoner> ];
      ja:content [ja:externalContent <file:data/raw/foaf_person_cross_relations.ttl>] ;
      .
+
+<#dbo_person_dataset>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/persondata_en_uris_de.ttl> ] ;
+        ] ;
+        .

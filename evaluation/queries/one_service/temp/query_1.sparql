@@ -1,0 +1,6 @@
+SELECT *
+WHERE {
+     ?person a foaf:Person.
+     OPTIONAL{?person foaf:name ?name.}
+     OPTIONAL{?person dbo:birthDate ?birthDate.}           
+}

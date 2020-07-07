@@ -1,0 +1,5 @@
+mutation{
+   insert_ex_Person(_id:"http://example.org/pers_%s", ex_name:["Bob"], ex_surname:["Andrews"], ex_age:["%s"]){
+      _id
+   }
+}

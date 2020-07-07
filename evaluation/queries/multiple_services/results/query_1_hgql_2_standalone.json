@@ -1,0 +1,1 @@
+{"extensions":{},"data":{"ex_Person":[{"ex_name":["Ellen"]},{"ex_name":["Ellen"]}],"@context":{"_type":"@type","_id":"@id","ex_Person":"http://hypergraphql.org/query/ex_Person","ex_name":"http://example.org/name"}},"errors":[]}

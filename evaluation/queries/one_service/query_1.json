@@ -1,0 +1,14 @@
+{
+  "proto": [{
+    "id" : "?id",
+    "ex_model": "$ex:model",
+    "ex_ownedBy": "$ex:ownedBy"
+  }],
+  "$where": [
+    "?id a ex:car"
+  ],
+  "$prefixes":{
+    "ex": "http://example.org/"
+  }
+}
+

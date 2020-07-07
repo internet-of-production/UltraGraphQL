@@ -1,0 +1,15 @@
+{
+  "head": {
+    "vars": [ "en" , "fn" ]
+  } ,
+  "results": {
+    "bindings": [
+      {
+        "fn": { "type": "literal" , "value": "Ellen" }
+      } ,
+      {
+        "en": { "type": "literal" , "value": "Ellen" }
+      }
+    ]
+  }
+}

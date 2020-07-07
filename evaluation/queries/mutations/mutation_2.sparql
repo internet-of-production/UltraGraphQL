@@ -1,0 +1,19 @@
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+DELETE{
+ex:pers_%s ex:age ?o_1 .
+ex:pers_%s foaf:name ?o_2 .
+ex:pers_%s ex:relatedWith ?o_3 .
+ex:pers_%s ex:surname ?o_4 .
+ex:pers_%s ex:drives ?o_5 .
+ex:pers_%s ex:name ?o_6 .
+ex:pers_%s a ex:Person .
+}
+WHERE{
+ OPTIONAL { ex:pers_%s ex:age ?o_1 . } 
+ OPTIONAL { ex:pers_%s foaf:name ?o_2 . } 
+ OPTIONAL { ex:pers_%s ex:relatedWith ?o_3 . } 
+ OPTIONAL { ex:pers_%s ex:surname ?o_4 . } 
+ OPTIONAL { ex:pers_%s ex:drives ?o_5 . } 
+ OPTIONAL { ex:pers_%s ex:name ?o_6 . } 
+}

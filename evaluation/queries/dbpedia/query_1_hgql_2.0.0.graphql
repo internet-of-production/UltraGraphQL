@@ -1,0 +1,7 @@
+{
+   foaf_Person{
+      _id
+      foaf_name 
+      dbo_birthDate 
+   }
+}

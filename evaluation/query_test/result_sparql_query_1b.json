@@ -1,0 +1,1836 @@
+{
+  "head": {
+    "vars": [ "model" , "person" ]
+  } ,
+  "results": {
+    "bindings": [
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_140" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_234" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_204" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_261" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_135" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_39" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_74" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_150" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_63" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_6" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_70" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_161" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_124" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_240" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_90" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_80" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Panoz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_217" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_90" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_96" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_248" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_188" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_250" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_174" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_163" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_296" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_21" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_294" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_92" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_221" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_39" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_296" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_67" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_198" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_253" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_211" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_266" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_261" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_263" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_290" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_247" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_208" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_23" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_129" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_238" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_140" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_71" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_3" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_115" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_114" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_144" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_275" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_106" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_200" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_230" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_279" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_98" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_289" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_280" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_11" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_285" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Fiat" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_202" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Fiat" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_200" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_32" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_43" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Maybach" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_228" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Maybach" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_138" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_96" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_183" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_193" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_236" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_83" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_200" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jaguar" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_74" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jaguar" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_41" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_64" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lamborghini" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_131" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_93" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_253" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_137" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_169" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_177" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_255" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_261" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_178" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_100" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_159" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_1" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Oldsmobile" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_37" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Oldsmobile" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_294" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_4" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_84" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_176" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_139" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_115" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_276" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_228" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_259" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_92" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_110" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_256" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bentley" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_160" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_37" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_230" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_251" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "MINI" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_63" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_4" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_130" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_9" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_240" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_287" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Maserati" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_35" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_55" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_276" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_121" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_279" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_251" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_23" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_180" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_45" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ferrari" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_299" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ferrari" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_4" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bentley" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_93" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bentley" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_261" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_102" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_31" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_215" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_84" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_110" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_274" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_132" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_67" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_145" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_268" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_293" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_128" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_165" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_270" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_24" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_233" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_83" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_282" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_182" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_267" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_222" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_234" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_197" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_143" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_166" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_211" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_19" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_3" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_70" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_22" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_236" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_247" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_145" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_247" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_234" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_47" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_115" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_172" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_139" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_273" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_122" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_27" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_243" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_283" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_75" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_89" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_10" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bugatti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_192" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bugatti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_6" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_285" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_60" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_285" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_133" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Oldsmobile" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_203" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Oldsmobile" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_81" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "MINI" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_114" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "MINI" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_274" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_76" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_70" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_245" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercury" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_225" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercury" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_150" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_274" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_295" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_152" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_134" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_170" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_96" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_184" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_250" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_144" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_230" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_106" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_59" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_283" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_81" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_113" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_186" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_102" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_278" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_218" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_290" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_258" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_158" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_72" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_289" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_257" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Infiniti" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_116" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_171" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_294" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_188" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_192" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_288" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Isuzu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_168" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Isuzu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_180" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_224" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_114" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_160" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_207" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_104" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_240" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Bentley" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_129" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_123" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_98" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_299" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Acura" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Acura" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_146" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_116" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_169" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_57" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_285" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_236" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_75" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_274" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_256" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_293" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_246" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_19" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_188" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_144" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_175" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_60" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_125" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_17" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_206" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_77" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_245" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_188" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_68" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_137" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_107" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_238" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_230" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_298" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_286" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_202" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_77" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_138" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_255" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_225" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_48" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_261" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_174" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Acura" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_55" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_133" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_66" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_92" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_125" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_153" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_10" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_208" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_263" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_180" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_246" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_234" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_51" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_85" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_1" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_24" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_161" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_229" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_173" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Daihatsu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_100" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Daihatsu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_28" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_110" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_271" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_35" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Eagle" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_222" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_43" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_146" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_255" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_152" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_285" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_14" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_76" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_103" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lamborghini" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_260" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_140" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_97" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_127" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_229" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_237" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_209" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_11" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_194" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volkswagen" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_256" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_56" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_152" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_270" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_256" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_27" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "BMW" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_204" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_55" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_124" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_245" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lexus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_193" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_208" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_147" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_41" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_24" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_53" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lotus" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_32" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_223" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Subaru" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_70" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_264" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_214" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_159" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_243" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_138" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Isuzu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_28" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Isuzu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_48" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_106" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jaguar" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_147" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jaguar" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_145" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Maserati" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_260" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Maserati" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_237" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_83" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_121" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_269" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_42" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_21" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_265" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Land Rover" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_59" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Rambler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_23" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_159" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_157" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_47" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_189" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_245" }
+      } ,
+      {
+        
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_74" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_235" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_194" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_36" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Audi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_268" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_272" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_113" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_163" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Hyundai" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_126" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_36" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_20" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_113" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_27" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Ford" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_177" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Kia" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_73" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_251" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_22" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_174" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_47" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_222" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_226" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Plymouth" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_284" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Plymouth" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_298" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mazda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_4" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Jeep" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_156" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_7" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Porsche" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_138" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_210" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mitsubishi" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_51" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_10" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_91" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_194" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_213" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_135" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_80" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Acura" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_277" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Acura" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_89" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_1" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_207" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_40" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lamborghini" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_126" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lamborghini" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_68" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_120" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_151" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_18" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "GMC" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_185" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_134" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_39" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_255" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_264" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Toyota" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_176" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercedes-Benz" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_9" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_262" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_45" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_31" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Lincoln" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_236" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_192" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Cadillac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Oldsmobile" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_61" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_264" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Nissan" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_197" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Pontiac" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_212" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Isuzu" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_5" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_52" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Mercury" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_257" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Volvo" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_58" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Suzuki" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_170" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Buick" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_142" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_199" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chevrolet" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_269" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Dodge" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_151" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_207" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Honda" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_143" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_248" }
+      } ,
+      {
+        "model": { "type": "literal" , "value": "Chrysler" } ,
+        "person": { "type": "uri" , "value": "http://example.org/person_65" }
+      }
+    ]
+  }
+}

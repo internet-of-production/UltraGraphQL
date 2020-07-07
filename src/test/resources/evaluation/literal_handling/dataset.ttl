@@ -11,6 +11,7 @@ ex:Bob a ex:Person;
     ex:name "Bob";
     ex:name "Andrews";
     ex:address "742 Evergreen Terrace";
+    ex:relatedWith ex:Bob;
     ex:address ex:addr742ET .
 
 ex:addr742ET a ex:Address;

@@ -1,0 +1,21 @@
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX l: <http://localhost:3030/>
+SELECT  ?f1 ?f2 ?f3 ?f4
+WHERE{ 
+  ex:person_934 ex:relatedWith ?f1.
+  OPTIONAL{
+    SERVICE l:foaf_person{
+    	?f1 ex:relatedWith ?f2.
+    }
+    OPTIONAL{
+     ?f2 ex:relatedWith ?f3. 
+      OPTIONAL{
+        SERVICE l:foaf_person{
+    	?f3 ex:relatedWith ?f4.
+        }
+      }
+    }
+  }  
+} 
+

@@ -3,6 +3,7 @@ package org.hypergraphql.schemaextraction.schemamodel;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.schemaextraction.PrefixService;
 import org.apache.jena.rdf.model.Resource;
+import org.hypergraphql.schemaextraction.RDFtoHGQL;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -211,7 +212,7 @@ public class Type {
     private String generateName(){
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
-        return String.format("%s_%s", prefix, name);
+        return RDFtoHGQL.graphqlNameSanitation(String.format("%s_%s", prefix, name));
     }
 
     /**

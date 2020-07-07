@@ -1,0 +1,16 @@
+{
+ex_Person(_id:["http://example.org/person_934"]){
+    ex_relatedWith{
+      _id
+      ex_relatedWith{
+        _id
+        ex_relatedWith{
+          _id
+          ex_relatedWith{
+             _id
+          }
+        }
+      }
+    }
+  }
+}

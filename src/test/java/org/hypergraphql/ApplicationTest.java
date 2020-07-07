@@ -287,9 +287,9 @@ class ApplicationTest {
             }
         }
         assertTrue(hasLiteral && hasObject);
-//        while(true){
-//
-//        }
+        while(true){
+
+        }
     }
 
 

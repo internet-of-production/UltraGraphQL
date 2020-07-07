@@ -1,0 +1,15 @@
+PREFIX ex: <http://example.org/>
+
+SELECT ?rel1 ?rel2 ?rel3 ?rel4
+WHERE {
+  ?rel1 a ex:Person.
+  OPTIONAL{
+    ?rel1 ex:relatedWith ?rel2.
+    OPTIONAL{
+      ?rel2 ex:relatedWith ?rel3.
+      OPTIONAL{
+        ?rel3 ex:relatedWith ?rel4.
+      }
+    }
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "head": {
+    "vars": [ "f1" , "f2" , "f3" , "f4" ]
+  } ,
+  "results": {
+    "bindings": [
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_629" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_248" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_361" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_629" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_248" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_51" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_629" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_248" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_5" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_915" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_451" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_915" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_740" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_915" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_471" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_630" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_988" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_630" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_137" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_630" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_485" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_777" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_946" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_910" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_255" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_665" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_233" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_703" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_250" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_267" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_851" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_912" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_267" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_851" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_167" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_267" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_851" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_456" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_267" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_489" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_559" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_495" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_267" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_489" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_927" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_135" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_674" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_239" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_45" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_232" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_45" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_319" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_522" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_680" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_522" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_406" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_522" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_398" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_522" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_145" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_522" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_544" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_213" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_188" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_82" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_200" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_82" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_951" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_599" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_790" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_599" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_79" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_599" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_4" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_192" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_469" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_600" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_50" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_791" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_734" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_560" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_317" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_12" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_100" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_674" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_239" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_80" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_190" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_525" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_463" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_710" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_463" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_382" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_726" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_449" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_84" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_314" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_973" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_909" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_210" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_410" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_80" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_410" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_617" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_282" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_260" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_876" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_556" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_29" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_648" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_588" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_690" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_329" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_690" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_298" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_690" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_585" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_690" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_682" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_690" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_933" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_218" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_876" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_218" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_327" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_218" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_104" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_32" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_669" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_284" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_824" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_284" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_248" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_585" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_641" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_59" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_523" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_986" }
+      } ,
+      {
+        "f1": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_711" } ,
+        "f2": { "type": "uri" , "value": "http://example.org/person_530" } ,
+        "f3": { "type": "uri" , "value": "http://xmlns.com/foaf/0.1/person_513" } ,
+        "f4": { "type": "uri" , "value": "http://example.org/person_490" }
+      }
+    ]
+  }
+}

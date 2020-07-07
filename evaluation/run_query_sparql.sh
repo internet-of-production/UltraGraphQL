@@ -20,10 +20,9 @@ rlog() {
   echo -e "${RED}${1}${NC}"
 }
 
-query1=$(cat query_test/sparql_query_1.sparql)
-query2=$(cat query_test/sparql_query_2.sparql)
-query3=$(cat query_test/sparql_query_3.sparql)
-
+query1="query=PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Fmodel+%3Fperson%0AWHERE+%7B%0A++%3Fcar+a+ex%3Acar.%0A++OPTIONAL%7B%0A++%09%3Fcar+ex%3Amodel+%3Fmodel.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fcar+ex%3AownedBy+%3Fperson.%0A++%7D%0A%7D"
+query2=query="PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Fperson+%3Fname+%3Fsurname+%3Fage%0AWHERE+%7B%0A++%7BSELECT+%3Fperson%0A++WHERE%7B%0A++++%3Fperson+a+ex%3APerson.%0A++%7D%0A++++LIMIT+100%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Aname+%3Fname.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Asurname+%3Fsurname.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Aage+%3Fage.%0A++%7D%0A%7D"
+query3="query=PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Frel1+%3Frel2+%3Frel3%0AWHERE+%7B%0A++ex%3Aperson_999+a+ex%3APerson.%0A++OPTIONAL%7B%0A++%09ex%3Aperson_999+ex%3ArelatedWith+%3Frel1.%0A++++OPTIONAL%7B%0A++%09%09%3Frel1+ex%3ArelatedWith+%3Frel2.%0A++++++%09OPTIONAL%7B%0A++%09%09%09%3Frel2+ex%3ArelatedWith+%3Frel3.%0A++%09%09%7D%0A++%09%7D%0A++%7D%0A%7D"
 
 ROUNDS=1000
 Query(){
@@ -32,7 +31,10 @@ Query(){
     START=$(date +%s.%N)
     for (( i = 0; i <= $ROUNDS; i++ )) 
     do
-    (${FBIN}/s-query --service ${HOST}/dataset --output=csv "$QUERY") > query_test/result_sparql_query_${NR}.log
+    curl -s --location --request POST 'localhost:3030/dataset' \
+    --header 'Accept: text/csv' \
+    --header 'Content-Type:  application/x-www-form-urlencoded; charset=UTF-8' \
+    --data-raw ${QUERY} > query_test/result_sparql_query_${NR}.csv
     done
     DIFF=$(echo "$(date +%s.%N) - $START" | bc)
     AVG=$(echo "scale=4; $DIFF/$ROUNDS" | bc)
@@ -50,10 +52,6 @@ Query "2" "$query2"
 log "Starting Query 3a"
 Query "3" "$query3"
 
-query1b="query=PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Fmodel+%3Fperson%0AWHERE+%7B%0A++%3Fcar+a+ex%3Acar.%0A++OPTIONAL%7B%0A++%09%3Fcar+ex%3Amodel+%3Fmodel.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fcar+ex%3AownedBy+%3Fperson.%0A++%7D%0A%7D"
-query2b=query="PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Fperson+%3Fname+%3Fsurname+%3Fage%0AWHERE+%7B%0A++%7BSELECT+%3Fperson%0A++WHERE%7B%0A++++%3Fperson+a+ex%3APerson.%0A++%7D%0A++++LIMIT+100%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Aname+%3Fname.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Asurname+%3Fsurname.%0A++%7D%0A++OPTIONAL%7B%0A++%09%3Fperson+ex%3Aage+%3Fage.%0A++%7D%0A%7D"
-query3b="query=PREFIX+ex%3A+%3Chttp%3A%2F%2Fexample.org%2F%3E%0A%0ASELECT+%3Frel1+%3Frel2+%3Frel3%0AWHERE+%7B%0A++ex%3Aperson_999+a+ex%3APerson.%0A++OPTIONAL%7B%0A++%09ex%3Aperson_999+ex%3ArelatedWith+%3Frel1.%0A++++OPTIONAL%7B%0A++%09%09%3Frel1+ex%3ArelatedWith+%3Frel2.%0A++++++%09OPTIONAL%7B%0A++%09%09%09%3Frel2+ex%3ArelatedWith+%3Frel3.%0A++%09%09%7D%0A++%09%7D%0A++%7D%0A%7D"
-
 
 Query2(){
     NR=$1
@@ -63,7 +61,7 @@ Query2(){
     do
     curl -s --location --request POST 'http://localhost:3030/dataset/query' \
     --header 'Content-Type: application/x-www-form-urlencoded' \
-    --data-raw ${QUERY} > query_test/result_sparql_query_${NR}.log
+    --data-raw ${QUERY} > query_test/result_sparql_query_${NR}.json
     done
     DIFF=$(echo "$(date +%s.%N) - $START" | bc)
     AVG=$(echo "scale=4; $DIFF/$ROUNDS" | bc)
@@ -71,10 +69,10 @@ Query2(){
     log "Execution time AVG: ${AVG} seconds\n\n"
 }
 log "Starting Query 1b:\n"
-Query2 "1b" "$query1b"
+#Query2 "1b" "$query1"
 
 log "Starting Query 2b"
-Query2 "2b" "$query2b"
+#Query2 "2b" "$query2"
 
 log "Starting Query 3b"
-Query2 "3b" "$query3b"
+#Query2 "3b" "$query3"

@@ -1,0 +1,10 @@
+{
+  "proto": [{
+    "id" : "?id",
+    "foaf_name": "$foaf:name",
+    "dbo_birthDate": "$dbo:birthDate"
+  }],
+  "$where": [
+    "?id a foaf:Person"
+  ]
+}

@@ -1,0 +1,4 @@
+SELECT ?game ?title WHERE {
+     ?game a dbo:Game  .
+     OPTIONAL{?game foaf:name ?title .}
+} 

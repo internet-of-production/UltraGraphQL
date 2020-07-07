@@ -1,0 +1,13 @@
+{
+  ex_Person_GET_BY_ID(uris:["http://example.org/person_999"]){
+    ex_relatedWith{
+      _id\n
+      ex_relatedWith{
+        _id\n
+        ex_relatedWith{
+          _id
+        } 
+      }
+    }
+  }
+}

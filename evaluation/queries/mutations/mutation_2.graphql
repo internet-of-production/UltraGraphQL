@@ -1,0 +1,5 @@
+mutation{
+   delete_ex_Person(_id:"http://example.org/pers_%s"){
+      _id
+   }
+}

@@ -1,0 +1,16 @@
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT  ?en ?fn
+WHERE{ 
+  VALUES ?person {foaf:Person ex:Person}
+  {ex:person_253 a ?person;
+                 ex:name|foaf:name ?en.}
+  UNION{
+	SERVICE <http://localhost:3030/foaf_person>{
+ 		foaf:person_253 a ?person;
+  						foaf:name|ex:name ?fn
+	}
+  }
+}
+
+

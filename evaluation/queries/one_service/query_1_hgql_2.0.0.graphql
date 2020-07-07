@@ -1,0 +1,8 @@
+{
+  ex_car{
+    ex_model
+    ex_ownedBy {
+      _id
+    }
+  }
+}

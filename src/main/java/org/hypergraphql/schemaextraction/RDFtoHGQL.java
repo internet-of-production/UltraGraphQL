@@ -52,14 +52,14 @@ public class RDFtoHGQL {
         // add the Literal objectType as place holder for the scalar string and replacement for Literals in multiple output types.
         Resource literal = schema.getResource(HGQL_SCALAR_LITERAL_URI);
         buildType(literal,null);
-        Type literal_obj = this.types.get(prefixService.getId(literal));
+        Type literal_obj = this.types.get(graphqlNameSanitation(this.prefixService.getId(literal)));
         Resource value = schema.getResource(HGQL_SCALAR_LITERAL_VALUE_URI);
-        if(!literal_obj.getFields().contains(prefixService.getId(value))){
+        if(!literal_obj.getFields().contains(graphqlNameSanitation(this.prefixService.getId(value)))){
             Interface literal_inter = literal_obj.getBase_interface();
             Field literal_value = new Field(value, prefixService);
             literal_value.addOutputType(literal_obj);
             literal_inter.addField(literal_value);
-            this.fields.put(prefixService.getId(value), literal_value);
+            this.fields.put(graphqlNameSanitation(this.prefixService.getId(value)), literal_value);
         }
 
         // Type
@@ -105,8 +105,8 @@ public class RDFtoHGQL {
                     RDFNode type_b = soln.get("o");
                     Type type_a_obj;   //subclass
                     Type type_b_obj;   //superclass
-                    String id_a = this.prefixService.getId(type_a.asResource());
-                    String id_b = this.prefixService.getId(type_b.asResource());
+                    String id_a = graphqlNameSanitation(this.prefixService.getId(type_a.asResource()));
+                    String id_b = graphqlNameSanitation(this.prefixService.getId(type_b.asResource()));
                     buildType(type_a, serviceId); // only builds type_a if it NOT exists already
                     type_a_obj = this.types.get(id_a);
                     buildType(type_b, serviceId); // only builds type_a if it NOT exists already
@@ -185,7 +185,7 @@ public class RDFtoHGQL {
      */
     private void buildType(RDFNode type, String serviceId){
         if(type.isResource()){
-            String id = prefixService.getId(type.asResource());
+            String id = graphqlNameSanitation(prefixService.getId(type.asResource()));
             if(!this.types.containsKey(id)){
                 // create new type and (base-)interface
                 Type obj = new Type(type.asResource(), this.prefixService);
@@ -223,14 +223,14 @@ public class RDFtoHGQL {
      */
     private void buildField(Model schema, RDFNode field, RDFNode impliedField, String serviceId){
         if(field.isResource()){
-            String id = prefixService.getId(field.asResource());
+            String id = graphqlNameSanitation(prefixService.getId(field.asResource()));
             Set<Property> fieldAffiliationMappings = mapConfig.getFieldAffiliationMapping();
             for(Property fieldAffiliationMapping : fieldAffiliationMappings){   //iterate over all field affiliation mappings
                 NodeIterator fieldAffiliations = schema.listObjectsOfProperty(field.asResource(), fieldAffiliationMapping);
                 while (fieldAffiliations.hasNext()) {   //iterate over all field affiliations defined for the current field in the schema
                     RDFNode fieldAffiliation = fieldAffiliations.next();
                     Set<Property> outputTypeMappings = mapConfig.getOutputTypeMapping();
-                    Type typeObj = this.types.get(this.prefixService.getId(fieldAffiliation.asResource())); // vor die for schleife legen ???
+                    Type typeObj = this.types.get(graphqlNameSanitation(this.prefixService.getId(fieldAffiliation.asResource()))); // vor die for schleife legen ???
                     if(typeObj == null){
                         System.out.print("NULL");
                     }
@@ -247,7 +247,7 @@ public class RDFtoHGQL {
                     for(Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                         NodeIterator outputTypes = schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
                         while(outputTypes.hasNext()){
-                            Type outputType = this.types.get(this.prefixService.getId(outputTypes.next().asResource()));
+                            Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(outputTypes.next().asResource())));
                             fieldObj.addOutputType(outputType);
                         }
                     }
@@ -257,7 +257,7 @@ public class RDFtoHGQL {
                     this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);
 
                     if(impliedField != null){
-                        String id_ofImpliedField = this.prefixService.getId(impliedField.asResource());
+                        String id_ofImpliedField = graphqlNameSanitation(this.prefixService.getId(impliedField.asResource()));
                         Field impliedFieldObj;
                         if(this.fields.containsKey(id_ofImpliedField)){
                             // Field already exist create clone to separate object specific directives
@@ -309,8 +309,8 @@ public class RDFtoHGQL {
                 RDFNode type_b = soln.get("o") ;
                 Type type_a_obj;
                 Type type_b_obj;
-                String id_a = this.prefixService.getId(type_a.asResource());
-                String id_b = this.prefixService.getId(type_b.asResource());
+                String id_a = graphqlNameSanitation(this.prefixService.getId(type_a.asResource()));
+                String id_b = graphqlNameSanitation(this.prefixService.getId(type_b.asResource()));
                 buildType(type_a, serviceId); // only builds type_a if it NOT exists already
                 type_a_obj = this.types.get(id_a);
                 buildType(type_b, serviceId); // only builds type_a if it NOT exists already
@@ -343,8 +343,8 @@ public class RDFtoHGQL {
                 QuerySolution soln = results.nextSolution();
                 RDFNode field_s = soln.get("s");  //subject
                 RDFNode field_o = soln.get("o");  //object
-                String id_s = this.prefixService.getId(field_s.asResource());
-                String id_o = this.prefixService.getId(field_o.asResource());
+                String id_s = graphqlNameSanitation(this.prefixService.getId(field_s.asResource()));
+                String id_o = graphqlNameSanitation(this.prefixService.getId(field_o.asResource()));
                 buildField(schema, field_s, serviceId);
                 buildField(schema, field_o, serviceId);
                 Field field_s_obj = this.fields.get(id_s);
@@ -387,8 +387,8 @@ public class RDFtoHGQL {
                 RDFNode type_b = soln.get("o") ;
                 Type type_a_obj;
                 Type type_b_obj;
-                String id_a = this.prefixService.getId(type_a.asResource());
-                String id_b = this.prefixService.getId(type_b.asResource());
+                String id_a = graphqlNameSanitation(this.prefixService.getId(type_a.asResource()));
+                String id_b = graphqlNameSanitation(this.prefixService.getId(type_b.asResource()));
 //                buildType(type_a, serviceId); // only builds type_a if it NOT exists already  -> Maybe problem with service id
                 type_a_obj = this.types.get(id_a);
 //                buildType(type_b, serviceId); // only builds type_a if it NOT exists already
@@ -418,13 +418,20 @@ public class RDFtoHGQL {
                 QuerySolution soln = results.nextSolution();
                 RDFNode field_s = soln.get("s");  //subject
                 RDFNode field_o = soln.get("o");  //object
-                String id_s = this.prefixService.getId(field_s.asResource());
-                String id_o = this.prefixService.getId(field_o.asResource());
+                String id_s = graphqlNameSanitation(this.prefixService.getId(field_s.asResource()));
+                String id_o = graphqlNameSanitation(this.prefixService.getId(field_o.asResource()));
                 buildField(schema, field_s, serviceId);
                 buildField(schema, field_o, serviceId);
                 Field field_s_obj = this.fields.get(id_s);
                 Field field_o_obj = this.fields.get(id_o);
-                field_o_obj.getOutputType().getTypes().forEach(type -> field_s_obj.addOutputType(type));   // Merge the output types of both fields
+                if(field_o_obj == null  || field_s_obj == null){
+                    System.out.println("It is NULL");
+                    continue;
+                }else if(!field_o_obj.getOutputType().getTypes().isEmpty()){
+                    field_o_obj.getOutputType().getTypes().forEach(type -> field_s_obj.addOutputType(type));   // Merge the output types of both fields
+                }else{
+                    System.out.println("It is Empty");
+                }
                 field_s_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_o_obj.getId());
                 field_o_obj.addSchemaDirective(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS, field_s_obj.getId());
                 field_s_obj.addServiceDirective(field_o_obj.getServices());
@@ -481,6 +488,19 @@ public class RDFtoHGQL {
     }
 
 
+    public static String graphqlNameSanitation(String name){
+        name = name.replace("ü","ue");
+        name = name.replace("Ü","Ue");
+        name = name.replace("ö","oe");
+        name = name.replace("Ö","Oe");
+        name = name.replace("ä","ae");
+        name = name.replace("Ä","Ae");
+        name = name.replace("ß","ss");
+        name = name.replace("@","at");
+        return name.replaceAll("[^a-zA-Z0-9_]","");
+    }
+
+
     //ToDo: parse the queried schema into the corresponding objects
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -502,11 +522,14 @@ public class RDFtoHGQL {
 //        converter.create(model, "TestService");
 //        String sdl = converter.buildSDL();
 //        System.out.println(sdl);
-        Model rdfsExample = ModelFactory.createDefaultModel();
-        String inputFileName = "./src/main/resources/schema/test_data_inference.ttl";
-        rdfsExample.read(new FileInputStream(inputFileName),null, "TTL");
-        InfModel inf = ModelFactory.createRDFSModel(rdfsExample);
-        inf.write(System.out);
+
+//        Model rdfsExample = ModelFactory.createDefaultModel();
+//        String inputFileName = "./src/main/resources/schema/test_data_inference.ttl";
+//        rdfsExample.read(new FileInputStream(inputFileName),null, "TTL");
+//        InfModel inf = ModelFactory.createRDFSModel(rdfsExample);
+//        inf.write(System.out);
+
+        System.out.print(RDFtoHGQL.graphqlNameSanitation("ex_Data-Test?dsw48üü48"));
     }
 
 

@@ -2,6 +2,7 @@ package org.hypergraphql.schemaextraction.schemamodel;
 
 import org.apache.jena.rdf.model.Resource;
 import org.hypergraphql.schemaextraction.PrefixService;
+import org.hypergraphql.schemaextraction.RDFtoHGQL;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -66,6 +67,6 @@ public class Interface {
     private String generateName(){
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
-        return String.format("%s_%s_Interface", prefix, name);
+        return RDFtoHGQL.graphqlNameSanitation(String.format("%s_%s_Interface", prefix, name));
     }
 }

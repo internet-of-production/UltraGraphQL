@@ -1,0 +1,16 @@
+{
+  "proto": [{
+    "id" : "?id",
+    "ex_model": "$ex:model",
+    "ex_name": "$ex:name",
+    "ex_surname": "$ex:surname$",
+    "ex_age": "$ex:age"
+  }],
+  "$where": [
+    "?id a ex:Person"
+  ],
+  "$prefixes":{
+    "ex": "http://example.org/"
+  },
+  "$limit": 100
+}

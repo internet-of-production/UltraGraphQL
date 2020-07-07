@@ -38,12 +38,19 @@ ROUNDS=1000
 Query(){
     NR=$1
     QUERY=$2
+    #Warmup
+    for (( i = 0; i <= 100; i++ )) 
+    do
+    curl -s --location --request POST 'localhost:8098/graphql' \
+    --header 'Content-Type: application/json' \
+    --data-raw "${QUERY}" > query_test/result_hgql_2.0.0_query_${NR}.json
+    done
     START=$(date +%s.%N)
     for (( i = 0; i <= $ROUNDS; i++ )) 
     do
     curl -s --location --request POST 'localhost:8098/graphql' \
     --header 'Content-Type: application/json' \
-    --data-raw "${QUERY}" > query_test/result_hgql_2.0.0_query_${NR}.log
+    --data-raw "${QUERY}" > query_test/result_hgql_2.0.0_query_${NR}.json
     done
     DIFF=$(echo "$(date +%s.%N) - $START" | bc)
     AVG=$(echo "scale=4; $DIFF/$ROUNDS" | bc)
@@ -55,13 +62,13 @@ Query(){
 
 log "Each query will be queried ${ROUNDS} times to estimate the average query execution time."
 log "Starting Query 1:\n"
-Query "1" "$HGQLQ1"
+#Query "1" "$HGQLQ1"
 
 log "Starting Query 2"
-Query "2" "$HGQLQ2"
+#Query "2" "$HGQLQ2"
 
 log "Starting Query 3"
-Query "3" "$HGQLQ3"
+#Query "3" "$HGQLQ3"
 
 
 
