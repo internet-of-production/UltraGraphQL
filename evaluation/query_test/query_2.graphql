@@ -1,0 +1,8 @@
+{
+  ex_Person(limit:100){
+    _id
+    ex_name
+    ex_surname
+    ex_age
+  }
+}

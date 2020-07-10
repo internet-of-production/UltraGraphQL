@@ -1,5 +1,6 @@
 package org.hypergraphql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,8 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
+import com.sun.net.httpserver.HttpServer;
 import graphql.GraphQLError;
+import jdk.jfr.ContentType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.fuseki.main.JettyServer;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.services.HGQLQueryService;
 import org.hypergraphql.services.HGQLRequestService;
@@ -21,6 +29,10 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 import spark.template.velocity.VelocityTemplateEngine;
+
+import javax.swing.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 import static spark.Spark.before;
 
@@ -35,9 +47,21 @@ public class Controller {
     private final static Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
     private Service hgqlService;
+    private HGQLConfig config;
 
+    private static final String SERVER_FRAMEWORK_SPARK = "spark";
+    private static final String SERVER_FRAMEWORK_JAXRS = "jaxrs";
     private static final String DEFAULT_MIME_TYPE = "RDF/XML";
     private static final String DEFAULT_ACCEPT_TYPE = "application/rdf+xml";
+
+    final List<String> headersList = Arrays.asList(
+            "Origin",
+            "X-Requested-With",
+            "Content-Type",
+            "Accept",
+            "authorization",
+            "x-auth-token"
+    );
 
     private static final Map<String, String> MIME_MAP = new HashMap<String, String>() {{
         put("application/json+rdf+xml", "RDF/XML");
@@ -67,14 +91,30 @@ public class Controller {
         put("text/n3", false);
     }};
 
-    public void start(HGQLConfig config) {
-
+    /**
+     * Starts the HGQL REST API.
+     * If no framework is defined in the configuration then the API is started over spark.
+     * @param config HGQL configuration
+     */
+    public void start(HGQLConfig config){
         System.out.println("HGQL service name: " + config.getName());
         System.out.println("GraphQL server started at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphQLPath());
         System.out.println("GraphiQL UI available at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphiQLPath());
+        this.config = config;
+        if(config.getGraphqlConfig().serverFramwork() != null && config.getGraphqlConfig().serverFramwork().equals(SERVER_FRAMEWORK_JAXRS)){
+            startCXF();
+        }
+        else {
+            startSpark();
+        }
+    }
+
+    /**
+     * Starts the HGQL REST api over the spark framework.
+     */
+    private void startSpark() {
 
         hgqlService = Service.ignite().port(config.getGraphqlConfig().port());
-
         // CORS
         before((request, response) -> {
             response.header("Access-Control-Allow-Methods", "OPTIONS,GET,POST");
@@ -195,15 +235,6 @@ public class Controller {
 
     private void setResponseHeaders(final Request request, final Response response) {
 
-        final List<String> headersList = Arrays.asList(
-                "Origin",
-                "X-Requested-With",
-                "Content-Type",
-                "Accept",
-                "authorization",
-                "x-auth-token"
-        );
-
         final String origin = request.headers("Origin") == null ? "*" : request.headers("Origin");
         response.header("Access-Control-Allow-Origin", origin);
         if(!origin.equals("*")) {
@@ -213,4 +244,144 @@ public class Controller {
 
         response.header("Access-Control-Allow-Credentials", "true");
     }
+
+    /**
+     * Starts the HGQL REST api over the apache cxf framework.
+     */
+    private void startCXF() {
+        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
+        sf.setResourceClasses(Controller.class);
+        sf.setResourceProvider(Controller.class,
+                new SingletonResourceProvider(this));
+        sf.setAddress(String.format("http://localhost:%s/",config.getGraphqlConfig().port()));
+
+        sf.create();
+    }
+
+    /**
+     * Servces GraphQL queries
+     * @param acceptType accepted type of the client
+     * @param contentType format type of the query
+     * @param req GraphQL query
+     * @return JSON-LD response for the given query
+     */
+    @POST
+    @Path( "graphql" )
+    public javax.ws.rs.core.Response query(@HeaderParam("accept")String acceptType,@HeaderParam("content-type") String contentType,String req){
+
+        HGQLRequestService service = new HGQLRequestService(config);
+
+        String query = "";
+        try {
+            query = contentType.equals("application-x/graphql")? consumeGraphQLBody(req) : consumeJSONBody(req);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String mime = MIME_MAP.getOrDefault(acceptType, null);
+        contentType = MIME_MAP.containsKey(acceptType) ? acceptType : "application/json";
+        Boolean graphQLCompatible = GRAPHQL_COMPATIBLE_TYPE.getOrDefault(acceptType, true);
+
+        String type = contentType;
+        int status = 200;
+
+        Map<String, Object> result = service.results(query, mime);
+
+        List<GraphQLError> errors = (List<GraphQLError>) result.get("errors");
+        if (!errors.isEmpty()) {
+            status = 400;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        if (graphQLCompatible) {
+            JsonNode data = null;
+            try {
+                data = mapper.readTree(new ObjectMapper().writeValueAsString(result));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return javax.ws.rs.core.Response
+                    .status(status)
+                    .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
+                    .header("Access-Control-Allow-Credentials", "true")
+                    .header("Content-Type", type)
+                    .entity(data.toString())
+                    .build();
+        } else {
+            if (result.containsKey("data")) {
+                return javax.ws.rs.core.Response
+                        .status(status)
+                        .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
+                        .header("Access-Control-Allow-Credentials", "true")
+                        .header("Content-Type", type)
+                        .entity(result.get("data").toString())
+                        .build();
+            } else {
+                JsonNode errorsJson = null;
+                try {
+                    errorsJson = mapper.readTree(new ObjectMapper().writeValueAsString(errors));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                return javax.ws.rs.core.Response
+                        .serverError()
+                        .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
+                        .header("Access-Control-Allow-Credentials", "true")
+                        .header("Content-Type", type)
+                        .entity(errorsJson.toString())
+                        .build();
+            }
+        }
+    }
+
+    /**
+     * Serves schema introspection queries.
+     * @param acceptType accepted type of the client
+     * @param req GraphQL query
+     * @return GraphQL schema of the HGQL instance
+     */
+    @GET
+    @Path("graphql")
+    public javax.ws.rs.core.Response introspectionQuery(@HeaderParam("accept")String acceptType,String req){
+        Boolean isRdfContentType =
+                (MIME_MAP.containsKey(acceptType)
+                        && GRAPHQL_COMPATIBLE_TYPE.containsKey(acceptType)
+                        && !GRAPHQL_COMPATIBLE_TYPE.get(acceptType));
+        String mime = isRdfContentType ? MIME_MAP.get(acceptType) : DEFAULT_MIME_TYPE;
+        String contentType = isRdfContentType ? acceptType : DEFAULT_ACCEPT_TYPE;
+
+        String type = contentType;
+
+        final String rdfSchemaOutput = config.getHgqlSchema().getRdfSchemaOutput(mime);
+        return javax.ws.rs.core.Response
+                .ok()
+                .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
+                .header("Access-Control-Allow-Credentials", "true")
+                .header("Content-Type", type)
+                .entity(rdfSchemaOutput)
+                .build();
+    }
+
+    /**
+     * Serves the GraphiQL interface of the HGQL instance if requested with GET.
+     * @return HTML page of GraphiQL of this service
+     */
+    @GET
+    @Path("graphiql")
+    public javax.ws.rs.core.Response graphiql(){
+        Map<String, String> model = new HashMap<>();
+
+        model.put("template", String.valueOf(config.getGraphqlConfig().graphQLPath()));
+
+        final String graphiql_render = new VelocityTemplateEngine().render(new ModelAndView(model, "graphiql.vtl"));
+        return javax.ws.rs.core.Response
+                .ok()
+                .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
+                .header("Access-Control-Allow-Credentials", "true")
+                .entity(graphiql_render)
+                .build();
+    }
+
 }
+
+

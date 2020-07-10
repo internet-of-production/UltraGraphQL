@@ -4,6 +4,7 @@ queryTranslation\.txt
 *.out
 *.log
 *.log.*
+evaluation/graphql.*
 \.idea/
 =======
 .idea/

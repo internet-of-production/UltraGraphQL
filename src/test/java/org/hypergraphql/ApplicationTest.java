@@ -243,9 +243,9 @@ class ApplicationTest {
 
         Thread.sleep(SOCKET_CLOSING);
         //ToDo: Write test cases -> while true loop only for live testing
-//        while (true){
-//
-//        }
+        while (true){
+
+        }
     }
     //ToDo: Finish this test
     //@Test
@@ -266,27 +266,27 @@ class ApplicationTest {
         String query = "{ex_Person{ex_name ex_address{...on " + HGQL_SCALAR_LITERAL_GQL_NAME +
                 "{" + HGQL_SCALAR_LITERAL_VALUE_GQL_NAME + "} ...on ex_Address{ex_house_number}}}}";
         JSONObject json_response = sendPost(config, query);
-        JSONObject data = (JSONObject) json_response.get("data");
-        Boolean hasLiteral = false;
-        Boolean hasObject = false;
-        if(data != null){
-            JSONObject person = (JSONObject) data.getJSONArray("ex_Person").get(0);
-            if(person != null){
-                JSONArray addr = person.getJSONArray("ex_address");
-                for(int i = 0; i< addr.length(); i++){
-                    JSONObject obj = (JSONObject) addr.get(i);
-                    if(obj.has(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
-                        assertTrue(obj.getJSONArray(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME).get(0).equals("742 Evergreen Terrace"));
-                        hasLiteral = true;
-                    }
-                    if(obj.has("ex_house_number")){
-                        assertTrue(obj.getJSONArray("ex_house_number").get(0).equals("742"));
-                        hasObject = true;
-                    }
-                };
-            }
-        }
-        assertTrue(hasLiteral && hasObject);
+//        JSONObject data = (JSONObject) json_response.get("data");
+//        Boolean hasLiteral = false;
+//        Boolean hasObject = false;
+//        if(data != null){
+//            JSONObject person = (JSONObject) data.getJSONArray("ex_Person").get(0);
+//            if(person != null){
+//                JSONArray addr = person.getJSONArray("ex_address");
+//                for(int i = 0; i< addr.length(); i++){
+//                    JSONObject obj = (JSONObject) addr.get(i);
+//                    if(obj.has(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
+//                        assertTrue(obj.getJSONArray(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME).get(0).equals("742 Evergreen Terrace"));
+//                        hasLiteral = true;
+//                    }
+//                    if(obj.has("ex_house_number")){
+//                        assertTrue(obj.getJSONArray("ex_house_number").get(0).equals("742"));
+//                        hasObject = true;
+//                    }
+//                };
+//            }
+//        }
+//        assertTrue(hasLiteral && hasObject);
         while(true){
 
         }

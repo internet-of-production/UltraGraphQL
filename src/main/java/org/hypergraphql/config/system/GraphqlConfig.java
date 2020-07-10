@@ -11,11 +11,13 @@ public class GraphqlConfig {
     private Integer port;
     private String graphqlPath;
     private String graphiqlPath;
+    private String serverFramework;
 
     @JsonCreator
     public GraphqlConfig(@JsonProperty("port") Integer port,
                          @JsonProperty("graphql") String graphqlPath,
-                         @JsonProperty("graphiql") String graphiqlPath
+                         @JsonProperty("graphiql") String graphiqlPath,
+                         @JsonProperty("framework") String serverFramework
     ) {
         if(port == null) {
             this.port = generateRandomPort();
@@ -24,22 +26,17 @@ public class GraphqlConfig {
         }
         this.graphqlPath = graphqlPath;
         this.graphiqlPath = graphiqlPath;
+        this.serverFramework = serverFramework;
     }
 
     public Integer port() {
         return port;
     }
-    @Deprecated
-    public String graphqlPath() {
-        return graphQLPath();
-    }
+
     public String graphQLPath() {
         return graphqlPath;
     }
-    @Deprecated
-    public String graphiqlPath() {
-        return graphiQLPath();
-    }
+
     public String graphiQLPath() {
         return graphiqlPath;
     }
@@ -49,5 +46,9 @@ public class GraphqlConfig {
         int min = 1024;
         int max = 65536;
         return ThreadLocalRandom.current().nextInt(min, max);
+    }
+
+    public String serverFramwork(){
+        return  serverFramework;
     }
 }

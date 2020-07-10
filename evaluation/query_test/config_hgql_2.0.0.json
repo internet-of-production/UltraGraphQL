@@ -2,7 +2,7 @@
   "name": "query-test",
   "schema": "schema.graphql",
   "server": {
-    "port": 8098,
+    "port": 8099,
     "graphql": "/graphql",
     "graphiql": "/graphiql"
   },

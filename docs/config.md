@@ -25,12 +25,13 @@ If this key is missing then it is assumed to be False.
 Name of the mapping file. The Mapping defines how the RDF Schema is mapped to the GraphQL schema.
 The syntax of the mapping file is described [here](./schema_mapping.md).
 >Datatype: String
+
 >File datatype: Turtle
 
 ## query
 Name of the schema extraction query file. How the query must be written is defined [here](./schema_extraction_query.md)
 >Datatype: String
-
+-------
 ## server
 The server object holds information about the HGQL server endpoint like port and URL paths.
 ### port
@@ -45,12 +46,21 @@ URL path to reach the GraphQL service.
 URL path to reach the [GraphiQL](https://github.com/graphql/graphiql) service.
 > Datatype: String (URL path)
 
+### framework
+Defines with which server frame work the HGQL endpoint is started. The following options are provided:
+- spark: HGQL is provided over an SPARK server. Current findings indicate that this framework does not allow to run multiple HGQL instances on one system.
+- jaxrs: HGQL is provided over the Apache CXF framework.
+
+> Default: If the framework is not specified spark is chosen
+> Datatype: String
+
+-----------------------
 ## services
 Contains a list of individual services.
 
 >Datatype: JSON-list
 
------------------------
+
 ### Service
 A Service object consists of the id, type and URL of the service.
 Additionally the graph in which the data is stored is given and authentication information to access this service are given.
