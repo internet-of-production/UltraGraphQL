@@ -233,9 +233,10 @@ public class ModelContainer {
         if(args.containsKey("limit")){
             builder.setLimit((Integer) args.get("limit"));
         }
-        if(args.containsKey("offset")){
-            builder.setOffset((Integer) args.get("offset"));
-        }
+        // offset interferes with multiple services limiter are applied to fill the result pool and applied by extracting from the result pool. offset is therefore only applied during result pool fillup.
+//        if(args.containsKey("offset")){
+//            builder.setOffset((Integer) args.get("offset"));
+//        }
         if(args.containsKey("_id")){
             final Object idValue = args.get("_id");
             if(idValue instanceof List){

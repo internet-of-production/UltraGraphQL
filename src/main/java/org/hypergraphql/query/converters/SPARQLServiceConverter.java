@@ -1,22 +1,19 @@
 package org.hypergraphql.query.converters;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import jdk.internal.jimage.ImageReaderFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.atlas.json.JsonArray;
+import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.schema.QueryFieldConfig;
-
-import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.services.ManifoldService;
+import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 
-import org.hypergraphql.config.schema.HGQLVocabulary;
-import org.hypergraphql.datafetching.services.SPARQLEndpointService;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
@@ -464,7 +461,7 @@ public class SPARQLServiceConverter {
 
         String selectField = "";
         if(!limitOffsetSTR.equals("") || !orderSTR.equals("") || !valueSTR.equals("")){   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
-            selectField = "{ "+ selectQueryClause(valueSTR + fieldPattern + langFilter + rest, "") + orderSTR + limitOffsetSTR + " }";
+            selectField = "{ "+ selectQueryClause(valueSTR + fieldPattern + langFilter , "") + orderSTR + limitOffsetSTR + " }" + rest;
         }else{
             selectField = fieldPattern + langFilter + rest;
         }

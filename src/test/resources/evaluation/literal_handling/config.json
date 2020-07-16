@@ -6,7 +6,8 @@
   "server": {
     "port": 8098,
     "graphql": "/graphql",
-    "graphiql": "/graphiql"
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
   },
   "services": [
     {

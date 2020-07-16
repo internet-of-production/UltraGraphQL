@@ -4,7 +4,8 @@
   "server": {
     "port": 8094,
     "graphql": "/graphql",
-    "graphiql": "/graphiql"
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
   },
   "services": [
     {
