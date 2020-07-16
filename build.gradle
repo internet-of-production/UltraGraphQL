@@ -20,6 +20,8 @@ version = '2.0.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -28,34 +30,42 @@ repositories {
 
 ext {
     jenaVersion = '3.14.0' //'3.8.0'
+    cxfVersion = "3.3.7"
+    cxfArtifacts = [
+            'cxf-rt-frontend-jaxrs',
+            'cxf-rt-transports-http',
+            'cxf-rt-transports-http-jetty',
+    ]
 }
 dependencies {
-    compile group: 'com.graphql-java', name: 'graphql-java', version: '2020-02-29T01-57-30-987fd78'
+//    compile group: 'org.apache.openwebbeans', name: 'openwebbeans-gradle', version: '1.7.0'
+    implementation 'com.graphql-java:graphql-java:2020-02-29T01-57-30-987fd78'
 
-    compile group: 'org.apache.jena', name: 'jena-arq', version: jenaVersion
-    compile group: 'org.apache.jena', name: 'jena', version: jenaVersion
-    compile group: 'org.apache.jena', name: 'jena-core', version: jenaVersion
-    compile group: 'org.apache.jena', name: 'jena-fuseki-main', version: jenaVersion
-    compile group: 'org.apache.jena', name: 'jena-querybuilder', version: jenaVersion
+    implementation "org.apache.jena:jena-arq:$jenaVersion"
+    implementation "org.apache.jena:jena:$jenaVersion"
+    implementation "org.apache.jena:jena-core:$jenaVersion"
+    implementation "org.apache.jena:jena-fuseki-main:$jenaVersion"
+    implementation "org.apache.jena:jena-querybuilder:$jenaVersion"
 
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    implementation "log4j:log4j:1.2.17"
+    implementation "org.slf4j:slf4j-api:1.7.25"
+    implementation "org.slf4j:slf4j-log4j12:1.7.25"
 
-    compile group: 'com.sparkjava', name: 'spark-core', version: '2.9.1'
-    compile group: 'com.sparkjava', name: 'spark-template-velocity', version: '2.5.5'
+    implementation "com.sparkjava:spark-core:2.9.1"
+    implementation "com.sparkjava:spark-template-velocity:2.5.5"
 
-    compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0'
-    compile group: 'org.apache.cxf', name: 'cxf-rt-frontend-jaxrs', version: '3.3.7'
-    compile group: 'org.apache.cxf', name: 'cxf-rt-transports-http-jetty', version: '3.3.7'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+    implementation "javax.ws.rs:javax.ws.rs-api:2.0"
+    cxfArtifacts.each { artifact ->
+        implementation "org.apache.cxf:$artifact:$cxfVersion"
+    }
+    implementation "org.apache.httpcomponents:httpclient:4.5.2"
 
-    compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
-    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.327'
+    implementation "com.mashape.unirest:unirest-java:1.4.9"
+    implementation "com.amazonaws:aws-java-sdk-s3:1.11.327"
 
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
+    testImplementation "org.mockito:mockito-core:2.11.0"
 
-    testCompile group: 'org.junit.platform', name: 'junit-platform-gradle-plugin', version: '1.2.0'
+    testImplementation "org.junit.platform:junit-platform-gradle-plugin:1.2.0"
 
     testCompileOnly('org.apiguardian:apiguardian-api:1.0.0')
 
@@ -69,7 +79,7 @@ dependencies {
 
 test {
     systemProperty 'hgql_version', project.version
-    useJUnitPlatform()
+//    useJUnitPlatform()
     testLogging {
         events 'PASSED', 'FAILED', 'SKIPPED'
     }
@@ -81,7 +91,7 @@ task execute(type:JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 
     if(project.hasProperty('a')){
-        args(a.split(','))
+        args(a.split(',' as Closure))
     }
 }
 
@@ -92,13 +102,43 @@ sourceSets {
         }
     }
 }
+import com.github.jengelman.gradle.plugins.shadow.transformers.XmlAppendingTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
 
 shadowJar {
+    // merge SPI descriptors
+    transform(AppendingTransformer) {
+        resource='META-INF/cxf/bus-extensions.txt'
+    }
+    transform(XmlAppendingTransformer) {
+        resource = 'META-INF/cxf/cxf-extension-http-jetty.xml'
+    }
+    transform(XmlAppendingTransformer) {
+        resource = 'META-INF/cxf/cxf-extension-http.xml'
+    }
+    transform(XmlAppendingTransformer) {
+        resource = 'META-INF/cxf/cxf-servlet.xml'
+    }
+    transform(XmlAppendingTransformer) {
+        resource = 'META-INF/cxf/cxf.xml'
+    }
+    transform(XmlAppendingTransformer) {
+        resource = 'META-INF/cxf/cxf-extension-xml.xml'
+    }
+//    append 'META-INF/cxf/bus-extensions.txt'
+//    transform(AppendingTransformer) {
+//        resource = 'META-INF/cxf/bus-extensions.txt'
+//    }
+
     zip64 = true
-    exclude 'META-INF/*', 'META-INF/**', 'LICENSE', 'LICENSE/**', 'license', 'license/**'
+
+    exclude  'LICENSE', 'LICENSE/**', 'license', 'license/**'
     classifier = 'exe'
 
     manifest {
+        attributes 'Class-Path': 'org.apache.cxf.transport.http'
         attributes("Main-Class": "org.hypergraphql.Application")
     }
 }

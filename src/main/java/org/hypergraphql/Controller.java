@@ -100,6 +100,7 @@ public class Controller {
         System.out.println("HGQL service name: " + config.getName());
         System.out.println("GraphQL server started at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphQLPath());
         System.out.println("GraphiQL UI available at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphiQLPath());
+
         this.config = config;
         if(config.getGraphqlConfig().serverFramwork() != null && config.getGraphqlConfig().serverFramwork().equals(SERVER_FRAMEWORK_JAXRS)){
             startCXF();
@@ -183,7 +184,7 @@ public class Controller {
 
             String acceptType = req.headers("accept");
 
-            Boolean isRdfContentType =
+            boolean isRdfContentType =
                     (MIME_MAP.containsKey(acceptType)
                             && GRAPHQL_COMPATIBLE_TYPE.containsKey(acceptType)
                             && !GRAPHQL_COMPATIBLE_TYPE.get(acceptType));
@@ -343,14 +344,13 @@ public class Controller {
     @GET
     @Path("graphql")
     public javax.ws.rs.core.Response introspectionQuery(@HeaderParam("accept")String acceptType,String req){
-        Boolean isRdfContentType =
+        boolean isRdfContentType =
                 (MIME_MAP.containsKey(acceptType)
                         && GRAPHQL_COMPATIBLE_TYPE.containsKey(acceptType)
                         && !GRAPHQL_COMPATIBLE_TYPE.get(acceptType));
         String mime = isRdfContentType ? MIME_MAP.get(acceptType) : DEFAULT_MIME_TYPE;
-        String contentType = isRdfContentType ? acceptType : DEFAULT_ACCEPT_TYPE;
 
-        String type = contentType;
+        String type = isRdfContentType ? acceptType : DEFAULT_ACCEPT_TYPE;
 
         final String rdfSchemaOutput = config.getHgqlSchema().getRdfSchemaOutput(mime);
         return javax.ws.rs.core.Response
