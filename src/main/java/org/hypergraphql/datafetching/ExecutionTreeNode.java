@@ -617,6 +617,7 @@ public class ExecutionTreeNode {
             }
         });
         computedModels.forEach(model::add);
+        executor.shutdown();
         return model;
     }
 }

@@ -39,6 +39,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
     protected HGQLSchema schema ;
     protected Logger LOGGER = LoggerFactory.getLogger(SPARQLEndpointExecution.class);
     String rootType;
+    SPARQLServiceConverter converter;
 
     public SPARQLEndpointExecution(JsonNode query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
         this.query = query;
@@ -47,6 +48,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         this.sparqlEndpointService = sparqlEndpointService;
         this.schema = schema;
         this.rootType=rootType;
+        this.converter = new SPARQLServiceConverter(schema);
     }
 
     @Override
@@ -57,7 +59,6 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
 
         Model unionModel = ModelFactory.createDefaultModel();
 
-        SPARQLServiceConverter converter = new SPARQLServiceConverter(schema);
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
         LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}",sparqlEndpointService.getId(),sparqlQuery);
 
@@ -78,7 +79,6 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         //qEngine.setSelectContentType(ResultsFormat.FMT_RS_XML.getSymbol());
 
         ResultSet results = qEngine.execSelect();
-
         results.forEachRemaining(solution -> {
             markers.stream().filter(solution::contains).forEach(marker ->
                     resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
@@ -88,7 +88,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
 
         SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, unionModel);
         LOGGER.debug("Result: {}", sparqlExecutionResult);
-
+        qEngine.close();
         return sparqlExecutionResult;
     }
 

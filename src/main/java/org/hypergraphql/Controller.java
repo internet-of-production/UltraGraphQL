@@ -3,24 +3,13 @@ package org.hypergraphql;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.cxf.jaxrs.JAXRSBindingFactory;
-import com.sun.net.httpserver.HttpServer;
 import graphql.GraphQLError;
-import jdk.jfr.ContentType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.jena.atlas.json.JSON;
-import org.apache.jena.fuseki.main.JettyServer;
+import org.eclipse.jetty.util.Jetty;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.hypergraphql.config.system.HGQLConfig;
-import org.hypergraphql.services.HGQLQueryService;
 import org.hypergraphql.services.HGQLRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +19,19 @@ import spark.Response;
 import spark.Service;
 import spark.template.velocity.VelocityTemplateEngine;
 
-import javax.swing.*;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.before;
+
+//import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 
 /**
  * Created by szymon on 05/09/2017.
@@ -115,7 +112,10 @@ public class Controller {
      */
     private void startSpark() {
 
-        hgqlService = Service.ignite().port(config.getGraphqlConfig().port());
+        hgqlService = Service
+                .ignite()
+                .port(config.getGraphqlConfig().port())
+                .threadPool(50,10,1000);
         // CORS
         before((request, response) -> {
             response.header("Access-Control-Allow-Methods", "OPTIONS,GET,POST");
@@ -251,13 +251,15 @@ public class Controller {
      */
     private void startCXF() {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setResourceClasses(Controller.class);
-        sf.setResourceProvider(Controller.class,
-                new SingletonResourceProvider(this));
+        sf.setServiceBean(this);
+        //sf.setResourceClasses(Controller.class);
+        //sf.setResourceProvider(Controller.class,
+        //        new SingletonResourceProvider(this));
         sf.setAddress(String.format("http://localhost:%s/",config.getGraphqlConfig().port()));
 
         sf.create();
     }
+
 
     /**
      * Servces GraphQL queries
@@ -287,7 +289,6 @@ public class Controller {
         int status = 200;
 
         Map<String, Object> result = service.results(query, mime);
-
         List<GraphQLError> errors = (List<GraphQLError>) result.get("errors");
         if (!errors.isEmpty()) {
             status = 400;

@@ -70,6 +70,7 @@ public class SPARQLEndpointService extends SPARQLService {
         List<String> inputList = getStrings(query, input, markers, rootType, schema, resultSet);
 
         // run the query but if the id restriction form _GET_BY_ID has more then VALUES_SIZE_LIMIT URIS then run multiple queries with each query having maximum of VALUES_SIZE_LIMIT IDds
+        List<ExecutorService> executors = new ArrayList<>();
         do {
 
             Set<String> inputSubset = new HashSet<>();
@@ -79,6 +80,7 @@ public class SPARQLEndpointService extends SPARQLService {
                 inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
             ExecutorService executor = Executors.newFixedThreadPool(50);
+            executors.add(executor);
             SPARQLEndpointExecution execution = new SPARQLEndpointExecution(query,inputSubset,markers,this, schema, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
@@ -89,7 +91,7 @@ public class SPARQLEndpointService extends SPARQLService {
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         treeExecutionResult.setResultSet(resultSet);
         treeExecutionResult.setModel(unionModel);
-
+        executors.forEach(executorService -> executorService.shutdown());
         return treeExecutionResult;
     }
 
@@ -129,6 +131,7 @@ public class SPARQLEndpointService extends SPARQLService {
                         resultSet.get(var).addAll(uris);
                     }
                 } );
+                result.close();
 //                resultSet.putAll(result.getResultSet());
             } catch (InterruptedException
                     | ExecutionException e) {

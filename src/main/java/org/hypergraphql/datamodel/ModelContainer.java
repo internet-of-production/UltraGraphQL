@@ -35,6 +35,10 @@ public class ModelContainer {
         this.model = model;
     }
 
+    public void close(){
+        this.model.close();
+    }
+
     /**
      * Return a Property instance in this model.
      * @param propertyURI the URI of the property

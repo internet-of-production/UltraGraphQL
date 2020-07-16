@@ -18,11 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,6 +41,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         Set<Future<SPARQLExecutionResult>> futureSPARQLresults = new HashSet<>();
 
         List<String> inputList = getStrings(query, input, markers, rootType, schema, resultSet);
+        List<ExecutorService> executors = new ArrayList<>();
 
         do {
 
@@ -56,6 +53,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
             }
 
             ExecutorService executor = Executors.newFixedThreadPool(50);
+            executors.add(executor);
             LocalSPARQLExecution execution = new LocalSPARQLExecution(query,inputSubset,markers,this, schema , this.model, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
@@ -66,6 +64,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         treeExecutionResult.setResultSet(resultSet);
         treeExecutionResult.setModel(unionModel);
+        executors.forEach(executorService -> executorService.shutdown());
 
         return treeExecutionResult;
     }

@@ -97,8 +97,8 @@ public class HGQLQueryService {
             } else {
                 result.put("data", client.getDataOutput(acceptType));
             }
+            client.close();
         }
-
         if (qlResult != null) {
             result.put("data", data);
             errors.addAll(qlResult.getErrors());

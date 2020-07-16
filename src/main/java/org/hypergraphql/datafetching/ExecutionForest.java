@@ -44,6 +44,7 @@ public class ExecutionForest  {
                 LOGGER.error("Problem generating model", e);
             }
         });
+        executor.shutdown();
         return model;
     }
 

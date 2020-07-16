@@ -35,4 +35,8 @@ public class SPARQLExecutionResult {
                 "Model : \n" + this.model.toString() + "\n" +
                 "ResultSet : \n" + this.resultSet.toString();
     }
+
+    public void close(){
+        this.model.close();
+    }
 }
