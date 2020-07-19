@@ -1,0 +1,117 @@
+{
+  ex_Person_GET{
+    _id
+    ex_relatedWith{
+      _id
+      ex_relatedWith{
+        _id
+        ex_relatedWith{
+          _id
+          ex_relatedWith{
+            _id
+            ex_relatedWith{
+              _id
+              ex_relatedWith{
+                _id
+                ex_relatedWith{
+                  _id
+                  ex_relatedWith{
+                    _id
+                    ex_relatedWith{
+                      _id
+                      ex_relatedWith{
+                        _id
+                        ex_relatedWith{
+                          _id
+                          ex_relatedWith{
+                            _id
+                            ex_relatedWith{
+                              _id
+                              ex_relatedWith{
+                                _id
+                                ex_relatedWith{
+                                  _id
+                                  ex_relatedWith{
+                                    _id
+                                    ex_relatedWith{
+                                      _id
+                                      ex_relatedWith{
+                                        _id
+                                        ex_relatedWith{
+                                          _id
+                                          ex_relatedWith{
+                                            _id
+                                            ex_relatedWith{
+                                              _id
+                                              ex_relatedWith{
+                                                _id
+                                                ex_relatedWith{
+                                                  _id
+                                                  ex_relatedWith{
+                                                    _id
+                                                    ex_relatedWith{
+                                                      _id
+                                                      ex_relatedWith{
+                                                        _id
+                                                        ex_relatedWith{
+                                                          _id
+                                                          ex_relatedWith{
+                                                            _id
+
+                                                          }
+
+                                                        }
+
+                                                      }
+
+                                                    }
+
+                                                  }
+
+                                                }
+
+                                              }
+
+                                            }
+
+                                          }
+
+                                        }
+
+                                      }
+
+                                    }
+
+                                  }
+
+                                }
+
+                              }
+
+                            }
+
+                          }
+
+                        }
+
+                      }
+
+                    }
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+  }
+}
