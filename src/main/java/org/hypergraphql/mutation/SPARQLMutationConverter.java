@@ -1,6 +1,5 @@
 package org.hypergraphql.mutation;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import graphql.language.*;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datamodel.HGQLSchema;

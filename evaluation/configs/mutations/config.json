@@ -1,0 +1,21 @@
+{
+  "name": "query-test",
+  "schema": "schema.graphql",
+  "mutations": true,
+  "mutationService": "mutation",
+  "server": {
+    "port": 8098,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "mutation",
+      "type": "SPARQLEndpointService",
+      "url": "http://localhost:3030/mutation",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

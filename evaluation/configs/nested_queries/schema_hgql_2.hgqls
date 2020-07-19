@@ -1,0 +1,10 @@
+type __Context{
+	ex_Person:	_@href(iri:"http://example.org/Person")
+	ex_relatedWith:	_@href(iri:"http://example.org/relatedWith")
+}
+interface ex_Person_Interface {
+	ex_relatedWith: [ex_Person] @service(id: "dataset")
+}
+type ex_Person implements ex_Person_Interface @service(id: "dataset") {
+	ex_relatedWith: [ex_Person] @service(id: "dataset")
+}

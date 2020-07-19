@@ -1,0 +1,16 @@
+{
+ "proto":[{
+  "id": "?rel_0",
+    "rel_1":{
+    "id": "?rel_1"    }
+
+ }],
+ "$where": [
+  "?rel_0 a ex:Person",
+  "?rel_0 ex:relatedWith ?rel_1",
+  "?rel_1 a ex:Person"
+ ],
+ "$prefixes":{
+  "ex": "http://example.org/"
+ }
+}

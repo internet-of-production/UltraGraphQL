@@ -1,0 +1,111 @@
+{
+ "proto":[{
+  "id": "?rel_0",
+    "rel_1":{
+    "id": "?rel_1",
+      "rel_2":{
+      "id": "?rel_2",
+        "rel_3":{
+        "id": "?rel_3",
+          "rel_4":{
+          "id": "?rel_4",
+            "rel_5":{
+            "id": "?rel_5",
+              "rel_6":{
+              "id": "?rel_6",
+                "rel_7":{
+                "id": "?rel_7",
+                  "rel_8":{
+                  "id": "?rel_8",
+                    "rel_9":{
+                    "id": "?rel_9",
+                      "rel_10":{
+                      "id": "?rel_10",
+                        "rel_11":{
+                        "id": "?rel_11",
+                          "rel_12":{
+                          "id": "?rel_12",
+                            "rel_13":{
+                            "id": "?rel_13",
+                              "rel_14":{
+                              "id": "?rel_14",
+                                "rel_15":{
+                                "id": "?rel_15",
+                                  "rel_16":{
+                                  "id": "?rel_16",
+                                    "rel_17":{
+                                    "id": "?rel_17",
+                                      "rel_18":{
+                                      "id": "?rel_18",
+                                        "rel_19":{
+                                        "id": "?rel_19",
+                                          "rel_20":{
+                                          "id": "?rel_20"                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+ }],
+ "$where": [
+  "?rel_0 a ex:Person",
+  "?rel_0 ex:relatedWith ?rel_1",
+  "?rel_1 a ex:Person",
+  "?rel_1 ex:relatedWith ?rel_2",
+  "?rel_2 a ex:Person",
+  "?rel_2 ex:relatedWith ?rel_3",
+  "?rel_3 a ex:Person",
+  "?rel_3 ex:relatedWith ?rel_4",
+  "?rel_4 a ex:Person",
+  "?rel_4 ex:relatedWith ?rel_5",
+  "?rel_5 a ex:Person",
+  "?rel_5 ex:relatedWith ?rel_6",
+  "?rel_6 a ex:Person",
+  "?rel_6 ex:relatedWith ?rel_7",
+  "?rel_7 a ex:Person",
+  "?rel_7 ex:relatedWith ?rel_8",
+  "?rel_8 a ex:Person",
+  "?rel_8 ex:relatedWith ?rel_9",
+  "?rel_9 a ex:Person",
+  "?rel_9 ex:relatedWith ?rel_10",
+  "?rel_10 a ex:Person",
+  "?rel_10 ex:relatedWith ?rel_11",
+  "?rel_11 a ex:Person",
+  "?rel_11 ex:relatedWith ?rel_12",
+  "?rel_12 a ex:Person",
+  "?rel_12 ex:relatedWith ?rel_13",
+  "?rel_13 a ex:Person",
+  "?rel_13 ex:relatedWith ?rel_14",
+  "?rel_14 a ex:Person",
+  "?rel_14 ex:relatedWith ?rel_15",
+  "?rel_15 a ex:Person",
+  "?rel_15 ex:relatedWith ?rel_16",
+  "?rel_16 a ex:Person",
+  "?rel_16 ex:relatedWith ?rel_17",
+  "?rel_17 a ex:Person",
+  "?rel_17 ex:relatedWith ?rel_18",
+  "?rel_18 a ex:Person",
+  "?rel_18 ex:relatedWith ?rel_19",
+  "?rel_19 a ex:Person",
+  "?rel_19 ex:relatedWith ?rel_20",
+  "?rel_20 a ex:Person"
+ ],
+ "$prefixes":{
+  "ex": "http://example.org/"
+ }
+}

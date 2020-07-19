@@ -1,0 +1,19 @@
+{
+  "name": "growing_fields_test",
+  "schema": "schema_hgql_1.hgqls",
+  "server": {
+    "port": 8091,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "LocalModelSPARQLService",
+      "url": "http://localhost:3030/growing_fields",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

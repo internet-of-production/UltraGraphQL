@@ -1,0 +1,36 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/>.
+@prefix hgqls: <http://hypergraphql.org/mapping/>.
+@prefix ex: <http://example.org/>.
+
+# Object
+#rdfs:Class a hgqls:object.
+owl:Class a hgqls:object.
+
+# Field
+rdf:Property a hgqls:field.
+
+# object implements (subObject)
+rdfs:subClassOf a hgqls:implements.
+
+# implied Field (subField)
+rdfs:subPropertyOf a hgqls:impliedField.
+
+# fieldObject - defines which objects have this field
+rdfs:domain a hgqls:fieldObject.
+
+# outputtype of a field
+rdfs:range a hgqls:fieldOutputType.
+
+# implementsMutually - used to define that objects implement each other
+
+
+# sharedOutputType - used to define that fields share the same output type
+
+
+# sameAs - defines equalities between schema entities
+owl:sameAs a hgqls:sameAs.
+owl:equivalentProperty a hgqls:sameAs.
+owl:equivalentClass a hgqls:sameAs.

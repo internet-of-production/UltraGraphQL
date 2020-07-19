@@ -127,10 +127,6 @@ shadowJar {
     transform(XmlAppendingTransformer) {
         resource = 'META-INF/cxf/cxf-extension-xml.xml'
     }
-//    append 'META-INF/cxf/bus-extensions.txt'
-//    transform(AppendingTransformer) {
-//        resource = 'META-INF/cxf/bus-extensions.txt'
-//    }
 
     zip64 = true
 

@@ -1,0 +1,20 @@
+{
+  "name": "growing_fields_test",
+  "schema": "schema_hgql_2.hgqls",
+  "server": {
+    "port": 8092,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "SPARQLEndpointService",
+      "url": "http://localhost:3030/growing_fields",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

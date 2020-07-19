@@ -77,7 +77,7 @@ public class HGQLMutationService {
                         .build())
                 .build();
         final Map<String, Object> res_selectionSet = executeSelectionSet(request, mutation_selectionSets, acceptType);
-        res_selectionSet.put("mutation", sparql_translation);
+//        res_selectionSet.put("mutation", sparql_translation);
         return res_selectionSet;
     }
 

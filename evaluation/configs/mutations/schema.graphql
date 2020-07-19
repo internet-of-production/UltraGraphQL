@@ -1,0 +1,61 @@
+type __Context{
+	hgqls_Literal:	_@href(iri:"http://hypergraphql.org/schema/Literal")
+	foaf_name:	_@href(iri:"http://xmlns.com/foaf/0.1/name")
+	ex_Person:	_@href(iri:"http://example.org/Person")
+	ex_surname:	_@href(iri:"http://example.org/surname")
+	ex_car:	_@href(iri:"http://example.org/car")
+	ex_drives:	_@href(iri:"http://example.org/drives")
+	ex_model:	_@href(iri:"http://example.org/model")
+	ex_ownedBy:	_@href(iri:"http://example.org/ownedBy")
+	rdf_type:	_@href(iri:"http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+	ex_age:	_@href(iri:"http://example.org/age")
+	foaf_Person:	_@href(iri:"http://xmlns.com/foaf/0.1/Person")
+	hgqls_value:	_@href(iri:"http://hypergraphql.org/schema/value")
+	ex_relatedWith:	_@href(iri:"http://example.org/relatedWith")
+	ex_name:	_@href(iri:"http://example.org/name")
+}
+
+interface hgqls_Literal_Interface {
+	hgqls_value: [String] 
+}
+interface ex_Person_Interface {
+	rdf_type: [String] @service(id: "mutation")
+	foaf_name: [String] @service(id: "mutation")
+	ex_name: [String] @service(id: "mutation")
+	ex_age: [String] @service(id: "mutation")
+	ex_surname: [String] @service(id: "mutation")
+	ex_relatedWith: [ex_relatedWith_OutputType]@service(id: "mutation")
+	ex_drives: [ex_car] @service(id: "mutation")
+}
+interface ex_car_Interface {
+	rdf_type: [String] @service(id: "mutation")
+	ex_ownedBy: [ex_Person] @service(id: "mutation")
+	ex_model: [String] @service(id: "mutation")
+}
+interface ex_relatedWith_OutputType {
+ rdf_type: [String] @service(id: "mutation")
+	foaf_name: [String] @service(id: "mutation")
+	ex_name: [String] @service(id: "mutation")
+	ex_age: [String] @service(id: "mutation")
+	ex_surname: [String] @service(id: "mutation")
+	ex_relatedWith: [ex_relatedWith_OutputType] @service(id: "mutation")
+	ex_drives: [ex_car] @service(id: "mutation")
+}
+type hgqls_Literal implements hgqls_Literal_Interface @service(id: "mutation") {
+ 	hgqls_value: [String] 
+}
+
+type ex_Person implements ex_relatedWith_OutputType & ex_Person_Interface @service(id: "mutation") {
+ 	rdf_type: [String] @service(id: "mutation")
+	foaf_name: [String] @service(id: "mutation")
+	ex_name: [String] @service(id: "mutation")
+	ex_age: [String] @service(id: "mutation")
+	ex_surname: [String] @service(id: "mutation")
+	ex_relatedWith: [ex_relatedWith_OutputType]@service(id: "mutation")
+	ex_drives: [ex_car] @service(id: "mutation")
+}
+type ex_car implements ex_car_Interface @service(id: "mutation") {
+ 	rdf_type: [String] @service(id: "mutation")
+	ex_ownedBy: [ex_Person] @service(id: "mutation")
+	ex_model: [String] @service(id: "mutation")
+}

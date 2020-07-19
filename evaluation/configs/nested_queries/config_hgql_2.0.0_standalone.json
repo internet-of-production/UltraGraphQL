@@ -1,0 +1,22 @@
+{
+  "name": "nested_query_test",
+  "schema": "schema_hgql_2.hgqls",
+  "server": {
+    "port": 8093,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "LocalModelSPARQLService",
+      "url": "http://localhost:3030/dataset",
+      "filepath": "data/nested_person_data.ttl",
+      "filetype": "Turtle",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

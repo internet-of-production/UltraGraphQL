@@ -1,0 +1,19 @@
+{
+  "name": "query-test",
+  "schema":"schema_dbpedia.hgqls",
+  "server": {
+    "port": 8092,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "SPARQLEndpointService",
+      "url": "https://dbpedia.org/sparql",
+      "graph": "http://dbpedia.org",
+      "user": "",
+      "password": ""
+    }
+  ]
+}

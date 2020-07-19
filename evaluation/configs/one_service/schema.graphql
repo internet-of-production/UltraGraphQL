@@ -1,0 +1,26 @@
+type __Context{
+	rdf_type:	_@href(iri:"http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+	ex_age:	_@href(iri:"http://example.org/age")
+	ex_Person:	_@href(iri:"http://example.org/Person")
+	ex_relatedWith:	_@href(iri:"http://example.org/relatedWith")
+	ex_surname:	_@href(iri:"http://example.org/surname")
+	ex_car:	_@href(iri:"http://example.org/car")
+	ex_drives:	_@href(iri:"http://example.org/drives")
+	ex_name:	_@href(iri:"http://example.org/name")
+	ex_model:	_@href(iri:"http://example.org/model")
+	ex_ownedBy:	_@href(iri:"http://example.org/ownedBy")
+}
+
+type ex_Person @service(id: "dataset") {
+ 	ex_relatedWith: [ex_Person] @service(id: "dataset")
+	ex_age: [String] @service(id: "dataset")
+	rdf_type: [String] @service(id: "dataset")
+	ex_drives: [ex_car] @service(id: "dataset")
+	ex_name: [String] @service(id: "dataset")
+	ex_surname: [String] @service(id: "dataset")
+}
+type ex_car @service(id: "dataset") {
+ 	rdf_type: [String] @service(id: "dataset")
+	ex_ownedBy: [ex_Person] @service(id: "dataset")
+	ex_model: [String] @service(id: "dataset")
+}

@@ -78,6 +78,18 @@
     fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
     fuseki:dataset                   <#mutation_dataset2> ;
     .
+<#service8> rdf:type fuseki:Service ;
+    fuseki:name                       "nested_queries" ;       # http://host:port/ds
+    fuseki:serviceQuery               "sparql" ;   # SPARQL query service
+    fuseki:serviceQuery               "query" ;    # SPARQL query service (alt name)
+    fuseki:serviceUpdate              "update" ;   # SPARQL update service
+    fuseki:serviceUpload              "upload" ;   # Non-SPARQL upload service
+    fuseki:serviceReadWriteGraphStore "data" ;     # SPARQL Graph store protocol (read and write)
+    # A separate read-only graph store endpoint:
+    fuseki:serviceReadGraphStore      "get" ;      # SPARQL Graph store protocol (read only)
+    fuseki:dataset                   <#dataset_nested_queries> ;
+    .
+
 <#mutation_dataset2>    rdf:type ja:RDFDataset ;
     ja:defaultGraph
         [ a ja:MemoryModel ;
@@ -96,7 +108,14 @@
         ja:content [ja:externalContent <file:data/raw/persons_and_cars.ttl> ] ;
         ] ;
         .
-
+        
+<#dataset_nested_queries>    rdf:type ja:RDFDataset ;
+    ja:defaultGraph
+        [ a ja:MemoryModel ;
+        ja:content [ja:externalContent <file:data/nested_person_data.ttl> ] ;
+        ] ;
+        .
+        
 <#ex_person>    rdf:type ja:RDFDataset ;
     ja:defaultGraph
         [ a ja:MemoryModel ;
@@ -110,7 +129,6 @@
         ja:content [ja:externalContent <file:data/raw/foaf_person_cross_relations.ttl> ] ;
         ] ;
         .
-
 
 <#personRes> rdf:type ja:RDFDataset;
      ja:defaultGraph <#inferenceModel>

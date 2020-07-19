@@ -1,62 +1,57 @@
 #HGQL 2.0.0 Performance Evaluation
 
 The feature extensions for HGQL 1.0.3 are referenced as version 2.0.0 during the evaluation.
-To evaluate the performance HGQL is compared to the old version of HGQL and against SPARQL it self.
+To evaluate the performance HGQL is compared to the old version of HGQL, SPARQL Transformer and against SPARQL it self.
 Due to multiple possible ways to setup HGQL and to execute the query the evaluation will compare HGQL setup with local rdf files and configured with a SPARQL service also running on the same system.
 For this reason for the SPARQL service a fuseki server is setup with the same datasets.
 
+All HGQL server configurations are stored in the folder **configs** and the logs of the server in the folder **logs**.
+The queries used in the tests can be found in the folder **queries** each test has a own subfolder in the folder.
+The query results are stored in a **results** folder located in the corresponding query folder along with the figures.
+
+
+All tests are written in a python jupyter notebook.
+To start the jupyter notebook run the command  **$jupyter lab**
+
+
 # Query tests with one service
 
-To run the HGQL query tests with local rdf files, no fuseki server is needed.
-The Tests are executed with
-```
-bash run_query_hgql_2.0.0_standalone.sh
-bash run_query_hgql_1.0.3_standalone.sh
-```
-
-Both command should be run separately.
-
-For the Tests where the data only accessible through SPARQL the Fuseki server has to be started with
+Before starting the test in the notebook run the commands below to start the server
 ```
 bash run_server.sh
+bash start_hgql_server_one_service_test.sh
 ```
 
-The scripts with the tests are then executed in parrallel to the server one by one with the following commands
-
+# Query Test with Growing Nested Queries
+Before starting the test in the notebook run the commands below to start the server
 ```
-bash run_query_hgql_2.0.0.sh
-bash run_query_hgql_1.0.3.sh
-bash run_query_sparql.sh
+bash run_server.sh
+bash start_hgql_server_nested_queries.sh
 ```
 
-The SPARQL conducts two tests. First the queries are executed with **SPARQL Over HTTP (SOH)** and afterwards all queries are queriedd again with an POST request through **curl**.
-All queries for HGQL are also executed as POST request through curl.
+# Query Test with Growing Amount of Fields
+Before starting the test in the notebook run the commands below to start the server
+```
+bash run_fuseki_growing_field_server.sh
+bash start_hgql_server_growing_fields.sh
+```
 
+# Query Test with DBpedia
+Before starting the test in the notebook run the commands below to start the server
+```
+bash start_hgql_server_dbpedia.sh
+```
 
 # Multiple service tests
-Two services with interlinked data and equivalence relations.
-The old version of HGQL is excluded from this test as it only supports one service per schema entity.
-
-
-To run the HGQL query tests with local rdf files, no fuseki server is needed.
-The Tests are executed with
-```
-bash run_multi_service_test_hgql_standalone.sh
-```
-
-Both command should be run separately.
-For the Tests where the data only accessible through SPARQL the Fuseki server has to be started with
+Before starting the test in the notebook run the commands below to start the server
 ```
 bash run_server.sh
-```
-The same fuseki server script is used as for the tests with one service because the server is setup with multiple datasets which are not inter queryable unless specified as service in the query.
-
-The scripts with the tests are then executed in parrallel to the server one by one with the following commands
-
-```
-bash run_multi_service_test_hgql.sh
-bash run_multi_service_test_sparql.sh
+bash start_hgql_server_multiple_services_test.sh
 ```
 
-The SPARQL conducts two tests. First the queries are executed with **SPARQL Over HTTP (SOH)** and afterwards all queries are queriedd again with an POST request through **curl**.
-All queries for HGQL are also executed as POST request through curl.
+# Mutation Tests
+Before starting the test in the notebook run the commands below to start the server
+```
+bash run_server.sh
+bash start_hgql_server_mutations.sh
+```

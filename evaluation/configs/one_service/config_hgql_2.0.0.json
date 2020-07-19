@@ -1,0 +1,22 @@
+{
+  "name": "query-test",
+  "schema": "schema.graphql",
+  "server": {
+    "port": 8092,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "SPARQLEndpointService",
+      "url": "http://localhost:3030/dataset",
+      "filepath": "data/raw/persons_and_cars.ttl",
+      "filetype": "Turtle",
+      "graph": "",
+      "user": "",
+      "password": ""
+    }
+  ]
+}
