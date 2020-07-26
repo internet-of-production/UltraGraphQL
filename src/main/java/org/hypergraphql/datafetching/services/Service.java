@@ -120,6 +120,7 @@ public abstract class Service {
             Resource object = results.getResource(currentNode.get("nodeId").asText());
             Resource subject = model.createResource(HGQL_QUERY_URI);
             Property predicate = model.createProperty("", HGQL_QUERY_NAMESPACE + typeName);
+
             model.add(subject, predicate, object);
         }
         return model;
@@ -303,14 +304,17 @@ public abstract class Service {
         if(propertyString != null && currentNode.get("targetName").asText().equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
             //ToDo:
             Resource subject = results.getResource(currentNode.get("parentId").asText());
-            Property predicate = model.createProperty("", propertyString.getId());
-            Resource object = model.getResource(HGQL_QUERY_NAMESPACE + results.get(currentNode.get("nodeId").asText()).hashCode());
-            Property literal_value = model.createProperty(HGQL_SCALAR_LITERAL_VALUE_URI);
-            Resource literal = model.getResource(HGQL_SCALAR_LITERAL_URI);
-            RDFNode value = results.get(currentNode.get("nodeId").asText());
-            model.add(subject, predicate, object);
-            model.add(object,literal_value,value);
-            model.add(object, RDF.type, literal);
+            Property predicate = model.getProperty(propertyString.getId());
+            final RDFNode nodeId = results.get(currentNode.get("nodeId").asText());
+            if(nodeId != null){
+                Resource object = model.getResource(HGQL_QUERY_NAMESPACE + nodeId.hashCode());
+                Property literal_value = model.createProperty(HGQL_SCALAR_LITERAL_VALUE_URI);
+                Resource literal = model.getResource(HGQL_SCALAR_LITERAL_URI);
+                RDFNode value = results.get(currentNode.get("nodeId").asText());
+                model.add(subject, predicate, object);
+                model.add(object,literal_value,value);
+                model.add(object, RDF.type, literal);
+            }
             return;
         }
 
