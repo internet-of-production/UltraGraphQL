@@ -1,0 +1,20 @@
+{
+  "name": "one_service",
+  "extraction": true,
+  "mutations": true,
+  "mutationService": "dataset",
+  "server": {
+    "port": 8000,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset",
+      "type": "LocalModelSPARQLService",
+      "filepath": "examples/mutations/dataset.ttl",
+      "filetype": "Turtle"
+    }
+  ]
+}

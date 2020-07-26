@@ -1,0 +1,30 @@
+{
+  "name": "multiple_services",
+  "extraction": true,
+  "server": {
+    "port": 8000,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset_a",
+      "type": "LocalModelSPARQLService",
+      "filepath": "dataset_a.ttl",
+      "filetype": "Turtle"
+    },
+    {
+      "id": "dataset_b",
+      "type": "LocalModelSPARQLService",
+      "filepath": "dataset_b.ttl",
+      "filetype": "Turtle"
+    },
+    {
+      "id": "dataset_c",
+      "type": "LocalModelSPARQLService",
+      "filepath": "dataset_c.ttl",
+      "filetype": "Turtle"
+    }
+  ]
+}

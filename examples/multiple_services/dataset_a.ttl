@@ -1,0 +1,26 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix schema: <http://schema.org/>.
+@prefix ex:    <http://example.org/> .
+
+
+
+ex:bob a ex:Person;
+       ex:name "Bob";
+       ex:age 42;
+       ex:relatedWith ex:alice;
+       ex:address "Evergreen Terrace 742";
+       ex:drives ex:car_1 .
+
+ex:alice a ex:Person;
+         ex:name "Alice";
+         ex:age 24;
+         ex:relatedWith ex:bob;
+         ex:address ex:addr742ET;
+         ex:drives ex:car_2 .
+
+ex:addr742ET a ex:Address .
+
+ex:car_1 a ex:Car .
+ex:car_2 a ex:Ecar .
