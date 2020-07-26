@@ -1,0 +1,304 @@
+{
+  "head": {
+    "vars": [ "x_1" , "x_1_1" , "x_1_1_1" , "x_1_1_1_1" ]
+  } ,
+  "results": {
+    "bindings": [
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_8" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_17" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_40" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_7" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_21" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_41" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_25" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_9" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_21" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_41" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_30" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_2" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_44" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_37" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_21" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_41" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_35" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_22" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_1" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_19" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_20" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_10" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_27" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_31" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_19" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_20" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_10" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_15" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_10" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_27" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_31" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_5" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_37" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_21" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_41" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_1" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_2" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_39" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_46" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_15" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_10" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_34" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_44" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_29" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_24" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_33" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_30" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_12" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_25" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_9" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_45" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_42" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_4" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_9" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_22" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_1" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_2" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_41" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_48" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_46" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_15" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_10" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_27" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_17" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_17" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_32" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_9" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_8" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_17" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_28" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_2" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_14" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_48" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_10" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_27" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_31" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_19" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_24" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_33" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_30" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_2" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_26" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_20" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_10" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_27" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_31" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_23" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_18" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_12" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_25" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_47" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_3" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_18" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_12" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_49" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_7" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_21" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_41" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_43" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_9" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_4" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_6" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_3" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_18" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_12" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_0" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_45" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_13" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_33" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_30" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_2" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_16" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_3" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_18" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_12" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_25" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_18" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_12" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_25" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_9" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_28" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_38" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_8" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_17" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_11" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_13" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_36" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_38" }
+      } ,
+      {
+        "x_1": { "type": "uri" , "value": "http://example.org/person_27" } ,
+        "x_1_1": { "type": "uri" , "value": "http://example.org/person_31" } ,
+        "x_1_1_1": { "type": "uri" , "value": "http://example.org/person_19" } ,
+        "x_1_1_1_1": { "type": "uri" , "value": "http://example.org/person_20" }
+      }
+    ]
+  }
+}
