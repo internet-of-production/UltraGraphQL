@@ -19,9 +19,11 @@ rdfs:subPropertyOf a hgqls:impliedField.
 
 # fieldObject - defines which objects have this field
 rdfs:domain a hgqls:fieldObject.
+schema:domainIncludes a hgqls:fieldObject.
 
 # outputtype of a field
 rdfs:range a hgqls:fieldOutputType.
+schema:rangeIncludes a hgqls:fieldOutputType.
 
 # implementsMutually - used to define that objects implement each other
 
