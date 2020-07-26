@@ -111,7 +111,7 @@ public class RDFtoHGQL {
                     type_a_obj = this.types.get(id_a);
                     buildType(type_b, serviceId); // only builds type_a if it NOT exists already
                     type_b_obj = this.types.get(id_b);
-                    type_b_obj.addInterface(type_a_obj.getBase_interface());
+                    type_a_obj.addInterface(type_b_obj.getBase_interface());
                 }
             }
         }
