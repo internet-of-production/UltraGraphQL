@@ -87,12 +87,14 @@ public class SPARQLMutationConverter {
             String var_root = rootObject.getName();
             String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
                     + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
+            String delete_all_with_id_optional= optionalClause(toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o"))) + "\n"
+                    + optionalClause(toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName())));
             String triple = toTriple(toVar(var_root), rdf_type, uriToResource(rootObject.getId())) + "\n";
             triple += args.stream()
                     .filter(argument -> !argument.getName().equals("_id"))
                     .map(argument -> translateArgument(rootObject,null, argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
-            triple += "\n" + delete_all_with_id;
+            triple += "\n" + delete_all_with_id_optional;
             return addDeleteWrapper(delete_all_with_id)+ "\n" + addWhereWrapper(triple);
         }else{
             // No arguments were given only perform the selectionSet
