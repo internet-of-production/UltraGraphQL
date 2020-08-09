@@ -6,28 +6,30 @@
 @prefix ex: <http://example.org/>.
 
 # Object
-rdfs:Class a hgqls:object.
+rdfs:Class a hgqls:object .
 
 # Field
-rdf:Property a hgqls:field.
+rdf:Property a hgqls:field .
 
 # object implements (subObject)
-rdfs:subClassOf a hgqls:implements.
+rdfs:subClassOf a hgqls:implements .
 
 # implied Field (subField)
-rdfs:subPropertyOf a hgqls:impliedField.
+rdfs:subPropertyOf a hgqls:impliedField .
 
 # fieldObject - defines which objects have this field
-rdfs:domain a hgqls:fieldObject.
+rdfs:domain a hgqls:fieldObject .
 
 # outputtype of a field
-rdfs:range a hgqls:fieldOutputType.
+rdfs:range a hgqls:fieldOutputType .
 
 # implementsMutually - used to define that objects implement each other
-owl:equivalentClass a hgqls:implementsMutually.
+
 
 # sharedOutputType - used to define that fields share the same output type
-owl:equivalentProperty a hgqls:sharedOutputType.
+
 
 # sameAs - defines equalities between schema entities
-owl:sameAs a hgqls:sameAs.
+owl:sameAs a hgqls:sameAs .
+owl:equivalentProperty a hgqls:sameAs .
+owl:equivalentClass a hgqls:sameAs .

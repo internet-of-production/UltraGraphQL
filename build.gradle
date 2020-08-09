@@ -79,7 +79,7 @@ dependencies {
 
 test {
     systemProperty 'hgql_version', project.version
-//    useJUnitPlatform()
+//    useJUnitPlatform()   // MUST be commented out to build because unit tests of hgql do not succeed (problem exists also in HGQL 1.0.3)
     testLogging {
         events 'PASSED', 'FAILED', 'SKIPPED'
     }
