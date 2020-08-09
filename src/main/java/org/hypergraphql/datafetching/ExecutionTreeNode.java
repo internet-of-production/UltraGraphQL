@@ -381,6 +381,8 @@ public class ExecutionTreeNode {
 
         if (hgqlSchema.getFields().containsKey(contextLdKey)) {
             return hgqlSchema.getFields().get(contextLdKey).getId();
+        } else if (hgqlSchema.getTypes().containsKey(contextLdKey)) {
+            return hgqlSchema.getTypes().get(contextLdKey).getId();
         } else {
             return HGQLVocabulary.HGQL_QUERY_NAMESPACE + contextLdKey;
         }
