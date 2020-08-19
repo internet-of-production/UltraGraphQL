@@ -13,6 +13,7 @@ evaluation/.ipynb_checkpoints/*
 .idea/
 .gradle/
 build/
+bin/
 *.iml
 
 _site/
