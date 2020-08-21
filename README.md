@@ -22,7 +22,7 @@ If multiple service are defined in the configuration the schema is summarized on
 ### Queries
 For each object type of the provided or extracted schema a query field is generated.
 To query for specific IRIs (IDs in UGQL) the argument **_id** can be used to filter for the provided IRIs.
-A detailed description of all possible query modifiers is provided [here](./docs/query_modifiers.md).
+A detailed description of the query translation and is provided [here](./docs/translation_phase.md) and an overview of all possible query modifiers is provided [here](./docs/query_modifiers.md).
 To test the different features of UGQL the provided [examples](examples/README.md) can be used to write and test the query features.
 
 > Note: The service MUST not be defined in the query. Based on the UGQL schema (UGQLS) the different services will be queried accordingly.
@@ -30,7 +30,7 @@ To test the different features of UGQL the provided [examples](examples/README.m
 <img src="./docs/figures/ugql_query_schematic.svg">
 
 ### Mutations
-Insert and delete mutations are generated for each object type of the UGQLS which corresponds to the output type of the mutation allowing to directly query the modified data.
+Insert and delete mutations are [generated](./docs/translation_phase.md#mutation-translation) for each object type of the UGQLS which corresponds to the output type of the mutation allowing to directly query the modified data.
 The mutation actions are only performed on one service of the services defined in the configuration.
 
 As shown in the examples the mutations allow to insert and delete object data.
@@ -83,11 +83,11 @@ For example UGQL service setups look into the [examples](examples/README.md) and
 
 ## Differences to HyperGraphQL
 - Automatic bootstrapping phase (through schema summarization)
- - Configurable summarization querying
- - Configurable mapping vocabulary
+  - Configurable summarization querying
+  - Configurable mapping vocabulary
 - Mutation support
- - Insert and delete mutation fields are generated for all objects in the schema
- - Mutation action is limited to one service (MUST be LocalModelSPARQLService or SPARQLEndpointService)
+  - Insert and delete mutation fields are generated for all objects in the schema
+  - Mutation action is limited to one service (MUST be LocalModelSPARQLService or SPARQLEndpointService)
 - Support for [multiple services](./docs/multiple_service_feature.md) per schema entity
 - Support of equivalence relations in the schema and during querying
 - [Interafaces](./docs/interface.md) and [Unions](./docs/union.md) supported in the schema
