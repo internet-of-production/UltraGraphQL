@@ -73,6 +73,7 @@ public class HGQLConfigService {
 
             LOGGER.info("Try to map configuration");
             final HGQLConfig config = mapper.readValue(inputStream, HGQLConfig.class);
+            inputStream.close();
             LOGGER.info("Configuration mapping successful");
             final SchemaParser schemaParser = new SchemaParser();
 

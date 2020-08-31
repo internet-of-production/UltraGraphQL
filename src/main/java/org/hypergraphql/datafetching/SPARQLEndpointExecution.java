@@ -8,18 +8,14 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.query.ARQ;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.query.*;
 import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.query.pattern.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +24,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> {
 
-    protected JsonNode query;
+
+    protected Query query;
     Set<String> inputSubset;
     Set<String> markers;
     SPARQLEndpointService sparqlEndpointService;
@@ -41,7 +39,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
     String rootType;
     SPARQLServiceConverter converter;
 
-    public SPARQLEndpointExecution(JsonNode query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
+    public SPARQLEndpointExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
         this.query = query;
         this.inputSubset = inputSubset;
         this.markers = markers;
@@ -57,7 +55,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
 
         markers.forEach(marker -> resultSet.put(marker, new HashSet<>()));
 
-        Model unionModel = ModelFactory.createDefaultModel();
+        AtomicReference<Result> formatedResults = new AtomicReference<>();
 
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
         LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}",sparqlEndpointService.getId(),sparqlQuery);
@@ -72,23 +70,30 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         HttpOp.setDefaultHttpClient(httpclient);
 
         ARQ.init();
-        Query jenaQuery = QueryFactory.create(sparqlQuery);
+        org.apache.jena.query.Query jenaQuery = QueryFactory.create(sparqlQuery);
 
         QueryEngineHTTP qEngine = QueryExecutionFactory.createServiceRequest(this.sparqlEndpointService.getUrl(), jenaQuery);
         qEngine.setClient(httpclient);
-        //qEngine.setSelectContentType(ResultsFormat.FMT_RS_XML.getSymbol());
-
         ResultSet results = qEngine.execSelect();
         results.forEachRemaining(solution -> {
-            markers.stream().filter(solution::contains).forEach(marker ->
-                    resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
+            markers.stream()
+                    .filter(solution::contains)
+                    .forEach(marker -> resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
 
-            unionModel.add(this.sparqlEndpointService.getModelFromResults(query, solution, schema));
+            Result partialRes = this.sparqlEndpointService.getModelFromResults(query, solution, schema);
+            if(formatedResults.get() == null){
+                formatedResults.set(partialRes);
+            }else{
+                formatedResults.get().merge(partialRes);
+            }
         });
 
-        SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, unionModel);
+        SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, formatedResults.get());
         LOGGER.debug("Result: {}", sparqlExecutionResult);
         qEngine.close();
+        if(!qEngine.isClosed()){
+            qEngine.abort();
+        }
         return sparqlExecutionResult;
     }
 

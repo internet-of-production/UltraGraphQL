@@ -32,7 +32,7 @@ class RDFtoHGQLTest {
         int n = 100;
         int iter = 100;
         Model model = ModelFactory.createDefaultModel();
-        FileWriter fileWriter = createFile("results_only_literal.csv");
+        FileWriter fileWriter = createFile("evaluation/mapping_evaluation/results_only_literal_v2.csv");
         for (int i=0; i<n; i++){
             addClassWithProperty(model, i, 5, true);
             double[] calcMEDIAN = new double[iter];
@@ -63,7 +63,7 @@ class RDFtoHGQLTest {
 
         // Run Test again with types as outputtype
         model = ModelFactory.createDefaultModel();
-        fileWriter = createFile("results_type.csv");
+        fileWriter = createFile("evaluation/mapping_evaluation/results_type_v2.csv");
         for (int i=0; i<n; i++){
             addClassWithProperty(model, i, 5, false);
             double[] calcMEDIAN = new double[iter];
@@ -102,7 +102,7 @@ class RDFtoHGQLTest {
 
         System.out.print(Math.pow(10,9));
         // Add equivalenceClass relations
-        fileWriter = createFile("results_equivalent_class.csv");
+        fileWriter = createFile("evaluation/mapping_evaluation/results_equivalent_class_v2.csv");
         int ec = 100;
         for(int i=0; i<ec; i++){
             addEquivalentClass(sameasClassModel, n);
@@ -133,7 +133,7 @@ class RDFtoHGQLTest {
         }
 
         // Add equivalenceClass relations
-        fileWriter = createFile("results_equivalent_property.csv");
+        fileWriter = createFile("evaluation/mapping_evaluation/results_equivalent_property_v2.csv");
         int ep = 100;
         for(int i=0; i<ep; i++){
             addEquivalentProperty(sameasClassModel, n);

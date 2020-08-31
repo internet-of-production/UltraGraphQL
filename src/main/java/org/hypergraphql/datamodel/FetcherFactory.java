@@ -3,7 +3,6 @@ package org.hypergraphql.datamodel;
 import graphql.language.Field;
 import graphql.language.OperationDefinition;
 import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLNamedType;
 import org.apache.jena.rdf.model.RDFNode;
 import org.hypergraphql.config.schema.HGQLVocabulary;
@@ -64,7 +63,7 @@ public class FetcherFactory {
         return environment -> {
             Field field = (Field) environment.getFields().toArray()[0];
             String predicate = (field.getAlias() == null) ? field.getName() : field.getAlias(); // predicate := field.name || field.alias
-            if(((DataFetchingEnvironment) environment).getOperationDefinition().getOperation() == OperationDefinition.Operation.MUTATION){
+            if(environment.getOperationDefinition().getOperation() == OperationDefinition.Operation.MUTATION){
                 predicate = (field.getAlias() == null) ? schema.getMutationFields().get(field.getName()) : field.getAlias();
             }
             ModelContainer client = environment.getContext();

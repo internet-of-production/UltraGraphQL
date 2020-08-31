@@ -1,7 +1,6 @@
 package org.hypergraphql.datafetching;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ExecutionForest  {
 
@@ -28,24 +28,30 @@ public class ExecutionForest  {
         return forest;
     }
 
-    public Model generateModel() {
+    public Result generateModel() {
 
         ExecutorService executor = Executors.newFixedThreadPool(10);
-        Model model = ModelFactory.createDefaultModel();
-        Set<Future<Model>> futureModels = new HashSet<>();
+//        Model model = ModelFactory.createDefaultModel();
+        AtomicReference<Result> formatedResult = new AtomicReference<>();
+        Set<Future<Result>> futureModels = new HashSet<>();
         getForest().forEach(node -> {
             FetchingExecution fetchingExecution = new FetchingExecution(new HashSet<>(), node);
             futureModels.add(executor.submit(fetchingExecution));
         });
-        futureModels.forEach(futureModel -> {
+        futureModels.forEach(futureResult -> {
             try {
-                model.add(futureModel.get());
+//                model.add(futureModel.get());
+                if(formatedResult.get() == null){
+                    formatedResult.set(futureResult.get());
+                }else{
+                    formatedResult.get().merge(futureResult.get());
+                }
             } catch (InterruptedException | ExecutionException e) {
                 LOGGER.error("Problem generating model", e);
             }
         });
         executor.shutdown();
-        return model;
+        return formatedResult.get();
     }
 
     public String toString() {

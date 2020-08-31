@@ -5,8 +5,8 @@ import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.tdb2.store.NodeIdType;
 import org.hypergraphql.config.schema.*;
+import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
@@ -338,6 +338,7 @@ public class HGQLSchema {
                 // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
                 ManifoldService manifoldService = new ManifoldService();
                 manifoldService.setParameters(queryFieldServices);
+                manifoldService.setLevel(ExecutionTreeNode.ROOT_TYPE);
                 queryFieldService = manifoldService;
             }else if(queryFieldServices.size() == 1){
                 queryFieldService = queryFieldServices.iterator().next();
@@ -377,6 +378,7 @@ public class HGQLSchema {
                     // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
                     ManifoldService manifoldService = new ManifoldService();
                     manifoldService.setParameters(fieldOfTypeServices);
+                    manifoldService.setLevel(ExecutionTreeNode.ROOT_TYPE);
                     fieldOfTypeService = manifoldService;
                 }else if(fieldOfTypeServices.size() == 1){
                     fieldOfTypeService = fieldOfTypeServices.iterator().next();

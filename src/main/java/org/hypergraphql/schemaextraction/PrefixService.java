@@ -1,25 +1,16 @@
 package org.hypergraphql.schemaextraction;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.jena.rdf.model.impl.InfModelImpl;
-import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.rdf.model.Resource;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -67,7 +58,7 @@ public class PrefixService {
     public String getId(Resource uri){
         String suffix = uri.getLocalName();
         String prefix = getPrefix(uri);
-        return String.format("%s_%s", prefix, suffix);
+        return prefix + "_" + suffix;
     }
 
     /**

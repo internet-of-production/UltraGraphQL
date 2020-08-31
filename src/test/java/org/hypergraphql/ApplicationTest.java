@@ -8,6 +8,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
+import org.hypergraphql.datafetching.services.SPARQLService;
+import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,7 @@ import java.nio.file.Paths;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ApplicationTest {
 
@@ -108,6 +109,7 @@ class ApplicationTest {
         String config = "build/resources/test/evaluation/combined_services/config.json";
         String query = "{Person{firstName address{street city{ _id label(lang:\\\"de\\\")}}}}";
         JSONObject json_response = sendPost(config, query);
+        System.out.println(json_response);
         String alice_firstName = "Alice";
         String alice_residence = "Aachen";
         boolean correctly_nested = false;
@@ -238,14 +240,26 @@ class ApplicationTest {
     @Test
     void limitAndOffsetTest() throws Exception {
         String config = "build/resources/test/evaluation/limit_and_offset/config.json";
-        String query = "{Person{_id label }}";
+        String query = "{Person(" + SPARQLServiceConverter.ID + ": [\\\"http://www.example.org/alice\\\"]" + " ){" + SPARQLServiceConverter.ID + " label(" + SPARQLServiceConverter.ORDER + ": " + SPARQLServiceConverter.ORDER_DESC + ", " + SPARQLServiceConverter.LIMIT + ": 1, " + SPARQLServiceConverter.OFFSET + ": 1) }}";
         JSONObject json_response = sendPost(config, query);
-
+        System.out.println(json_response);
         Thread.sleep(SOCKET_CLOSING);
-        //ToDo: Write test cases -> while true loop only for live testing
-        while (true){
+        for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
+            JSONObject person = (JSONObject) o;
+            if(person.has(SPARQLServiceConverter.ID)){
+                if(person.getString("_id").equals("http://www.example.org/alice")){
+                    if(person.has("label")){
+                        JSONArray label = person.getJSONArray("label");
+                        assertTrue(label.length() == 1);
+                        assertEquals("Alice2", label.get(0));
+                    }
 
+                }
+            }
         }
+//        while (true){
+//
+//        }
     }
     //ToDo: Finish this test
     //@Test
@@ -254,9 +268,9 @@ class ApplicationTest {
         Application.main(new String[]{"-config", config});
         Thread.sleep(SOCKET_CLOSING);
         //ToDo: Write test cases -> while true loop only for live testing
-        while(true){
-
-        }
+//        while(true){
+//
+//        }
     }
 
 
@@ -266,6 +280,7 @@ class ApplicationTest {
         String query = "{ex_Person{ex_name ex_address{...on " + HGQL_SCALAR_LITERAL_GQL_NAME +
                 "{" + HGQL_SCALAR_LITERAL_VALUE_GQL_NAME + "} ...on ex_Address{ex_house_number}}}}";
         JSONObject json_response = sendPost(config, query);
+        System.out.println(json_response);
         JSONObject data = (JSONObject) json_response.get("data");
         Boolean hasLiteral = false;
         Boolean hasObject = false;

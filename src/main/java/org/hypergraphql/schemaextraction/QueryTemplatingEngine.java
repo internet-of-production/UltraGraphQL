@@ -2,7 +2,6 @@ package org.hypergraphql.schemaextraction;
 
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.hypergraphql.config.schema.HGQLVocabulary;
-import org.hypergraphql.services.HGQLConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +155,7 @@ public class QueryTemplatingEngine {
      */
     private String alternativePath(Set<String> nodes){
         return nodes.stream()
-                .map(t->String.format("<%s>",t.toString()))
+                .map(t->"<" + t + ">")
                 .collect(Collectors.joining("|"));
     }
 

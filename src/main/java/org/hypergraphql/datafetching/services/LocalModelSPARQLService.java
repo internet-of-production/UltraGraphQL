@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -11,8 +10,10 @@ import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.LocalSPARQLExecution;
 import org.hypergraphql.datafetching.SPARQLExecutionResult;
 import org.hypergraphql.datafetching.TreeExecutionResult;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.exception.HGQLConfigurationException;
+import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.util.LangUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,12 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
     protected String fileType;
 
     @Override
-    public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
         LOGGER.debug(String.format("%s: Start query execution", this.getId()));
         Map<String, Set<String>> resultSet = new HashMap<>();
-        Model unionModel = ModelFactory.createDefaultModel();
+//        Model unionModel = ModelFactory.createDefaultModel();
+
         Set<Future<SPARQLExecutionResult>> futureSPARQLresults = new HashSet<>();
 
         List<String> inputList = getStrings(query, input, markers, rootType, schema, resultSet);
@@ -47,7 +49,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
 
             Set<String> inputSubset = new HashSet<>();
             if(!inputList.isEmpty()){
-                int size = inputList.size()<VALUES_SIZE_LIMIT? inputList.size() : VALUES_SIZE_LIMIT;
+                int size = Math.min(inputList.size(), VALUES_SIZE_LIMIT);
                 inputSubset = inputList.stream().limit(size).collect(Collectors.toSet());
                 inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
@@ -59,11 +61,12 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
 
         } while (inputList.size()>0);
 
-        iterateFutureResults(futureSPARQLresults, unionModel, resultSet);
+        Result result = iterateFutureResults(futureSPARQLresults, resultSet);
 
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         treeExecutionResult.setResultSet(resultSet);
-        treeExecutionResult.setModel(unionModel);
+//        treeExecutionResult.setModel(unionModel);
+        treeExecutionResult.setFormatedResult(result);
         executors.forEach(executorService -> executorService.shutdown());
 
         return treeExecutionResult;

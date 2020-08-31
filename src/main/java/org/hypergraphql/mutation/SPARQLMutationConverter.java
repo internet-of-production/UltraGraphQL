@@ -19,7 +19,7 @@ public class SPARQLMutationConverter {
     private HGQLSchema schema;
     private String rdf_type = "a";
 
-    public enum MUTATION_ACTION {INSERT, DELETE};
+    public enum MUTATION_ACTION {INSERT, DELETE}
 
     public SPARQLMutationConverter(HGQLSchema schema){
         this.schema = schema;
@@ -53,10 +53,9 @@ public class SPARQLMutationConverter {
                 .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
-        Boolean hasID = optionalID.isPresent();
-        Boolean hasOtherFields = args.stream()
-                .filter(argument -> !argument.getName().equals("_id"))   // all arguments that are not _id
-                .count() > 0;  // has atleast one field differnt form _id
+        boolean hasID = optionalID.isPresent();
+        // all arguments that are not _id
+        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals("_id"));  // has atleast one field differnt form _id
         if(hasID && hasOtherFields){
             String result = "";
             result += args.stream()

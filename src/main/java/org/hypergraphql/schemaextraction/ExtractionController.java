@@ -8,6 +8,7 @@ import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.exception.HGQLConfigurationException;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -40,15 +41,12 @@ public class ExtractionController {
     private void extractAndMap(){
         for (ServiceConfig conf: serviceConfigs) {
             if(conf.getType().equals(SPARQL_ENDPOINT)){
-                LOGGER.debug(String.format("Extract the schema from SPARQL endpoint %s with auth username: %s, password: %s",
-                        conf.getId(),
-                        conf.getUser(),
-                        conf.getPassword()));
+                LOGGER.debug(MessageFormat.format("Extract the schema from SPARQL endpoint {0} with auth username: {1}, password: {2}", conf.getId(), conf.getUser(), conf.getPassword()));
                 Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword(), conf.getGraph());
                 this.mapper.create(serviceSchema, conf.getId());
             }else if(conf.getType().equals(LOCAL_RDF_MODEL)){
                 Model serviceSchema = null;
-                LOGGER.debug(String.format("Extract schema form local RDF file for service %s", conf.getId()));
+                LOGGER.debug("Extract schema form local RDF file for service " + conf.getId());
                 FileInputStream fileStream = null;
                 try{
                     serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype(), conf.getGraph());

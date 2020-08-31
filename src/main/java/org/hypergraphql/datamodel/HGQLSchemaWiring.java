@@ -1,6 +1,5 @@
 package org.hypergraphql.datamodel;
 
-import graphql.GraphQL;
 import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.commons.lang3.BooleanUtils;
@@ -11,9 +10,10 @@ import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.ServiceConfig;
+import org.hypergraphql.datafetching.ExecutionTreeNode;
+import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
-import org.hypergraphql.mutation.SPARQLMutationConverter;
 import org.hypergraphql.mutation.SPARQLMutationConverter.MUTATION_ACTION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -570,7 +570,7 @@ public class HGQLSchemaWiring {
                             .filter(typeConfig -> typeConfig.getId().equals(targetUri))
                             .findFirst();
                     if(targetId.isPresent()){
-                        if(type.getUnionMembers().keySet().contains(targetId.get().getName())){
+                        if(type.getUnionMembers().containsKey(targetId.get().getName())){
                             return this.schema.getObjectType(targetId.get().getName());
                         }
                     }

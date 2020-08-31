@@ -5,16 +5,14 @@ import org.apache.jena.rdf.model.*;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.schemaextraction.schemamodel.*;
 
-
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_URI;
+import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_URI;
 
 /**
  * RDFtoHGQL obtains a mapping configuration and can then be used to generate HGQL schema from RDF schemata.
@@ -54,7 +52,7 @@ public class RDFtoHGQL {
         buildType(literal,null);
         Type literal_obj = this.types.get(graphqlNameSanitation(this.prefixService.getId(literal)));
         Resource value = schema.getResource(HGQL_SCALAR_LITERAL_VALUE_URI);
-        if(!literal_obj.getFields().contains(graphqlNameSanitation(this.prefixService.getId(value)))){
+        if(!literal_obj.getFields().stream().anyMatch(field -> field.getId().equals(graphqlNameSanitation(this.prefixService.getId(value))))){
             Interface literal_inter = literal_obj.getBase_interface();
             Field literal_value = new Field(value, prefixService);
             literal_value.addOutputType(literal_obj);
@@ -99,7 +97,7 @@ public class RDFtoHGQL {
             Query queryType = QueryFactory.create(queryStringType);
             try (QueryExecution qexec = QueryExecutionFactory.create(queryType, this.model)) {
                 ResultSet results = qexec.execSelect();
-                for (; results.hasNext(); ) {
+                while(results.hasNext()){
                     QuerySolution soln = results.nextSolution();
                     RDFNode type_a = soln.get("s");
                     RDFNode type_b = soln.get("o");
@@ -148,7 +146,7 @@ public class RDFtoHGQL {
                 filterFieldMappings);
         try (QueryExecution qexec = QueryExecutionFactory.create(queryStringField, this.model)) {
             ResultSet results = qexec.execSelect();
-            for (; results.hasNext(); ) {
+            while(results.hasNext()){
                 QuerySolution soln = results.nextSolution();
                 RDFNode field_s = soln.get("s");  //subproperty
                 RDFNode field_o = soln.get("o");  //superproperty
@@ -302,8 +300,7 @@ public class RDFtoHGQL {
         Query query = QueryFactory.create(queryString) ;
         try (QueryExecution qexec = QueryExecutionFactory.create(query, schema)) {
             ResultSet results = qexec.execSelect() ;
-            for ( ; results.hasNext() ; )
-            {
+            while(results.hasNext()){
                 QuerySolution soln = results.nextSolution();
                 RDFNode type_a = soln.get("s") ;
                 RDFNode type_b = soln.get("o") ;
@@ -339,7 +336,7 @@ public class RDFtoHGQL {
         Query query = QueryFactory.create(queryString);
         try (QueryExecution qexec = QueryExecutionFactory.create(query, schema)) {
             ResultSet results = qexec.execSelect();
-            for (; results.hasNext(); ) {
+            while(results.hasNext()){
                 QuerySolution soln = results.nextSolution();
                 RDFNode field_s = soln.get("s");  //subject
                 RDFNode field_o = soln.get("o");  //object
@@ -380,8 +377,7 @@ public class RDFtoHGQL {
         Query queryType = QueryFactory.create(queryStringType);
         try (QueryExecution qexec = QueryExecutionFactory.create(queryType, this.model)) {
             ResultSet results = qexec.execSelect() ;
-            for ( ; results.hasNext() ; )
-            {
+            while(results.hasNext()){
                 QuerySolution soln = results.nextSolution();
                 RDFNode type_a = soln.get("s") ;
                 RDFNode type_b = soln.get("o") ;
@@ -414,7 +410,7 @@ public class RDFtoHGQL {
                 fieldMappings);
         try (QueryExecution qexec = QueryExecutionFactory.create(queryStringField, this.model)) {
             ResultSet results = qexec.execSelect();
-            for (; results.hasNext(); ) {
+            while(results.hasNext()){
                 QuerySolution soln = results.nextSolution();
                 RDFNode field_s = soln.get("s");  //subject
                 RDFNode field_o = soln.get("o");  //object
@@ -462,9 +458,9 @@ public class RDFtoHGQL {
         // Context
         buildContext();
         String context_content = this.context.keySet().stream()
-                .map(key -> String.format("\t%s:\t_@href(iri:\"%s\")", key, this.context.get(key)))
+                .map(key -> "\t" + key + ":\t_@href(iri:\"" + this.context.get(key) + "\")")
                 .collect(Collectors.joining("\n"));
-        String context = String.format("type __Context{\n%s\n}", context_content);
+        String context = "type __Context{\n" + context_content + "\n}";
         //build interfaces (come with the fields)
         String interfaces = this.interfaces.values().stream()
                 .map(Interface::build)
@@ -479,7 +475,7 @@ public class RDFtoHGQL {
                 .filter(s -> !s.isEmpty())   // filterout unions that a have under two types
                 .collect(Collectors.joining("\n"));
         //build inputtypes
-        return String.format("%s\n%s\n%s\n%s",context,interfaces,union,types);
+        return context + "\n" + interfaces + "\n" + union + "\n" + types;
     }
 
     private void finalRelations(){

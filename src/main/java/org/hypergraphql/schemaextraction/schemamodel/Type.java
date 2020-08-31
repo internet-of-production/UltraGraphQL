@@ -212,7 +212,7 @@ public class Type {
     private String generateName(){
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
-        return RDFtoHGQL.graphqlNameSanitation(String.format("%s_%s", prefix, name));
+        return RDFtoHGQL.graphqlNameSanitation(prefix + "_" + name);
     }
 
     /**
@@ -222,8 +222,7 @@ public class Type {
     public String build(){
         fetchInterfaces();
         fetchFields();
-        String res =String.format("type %s %s %s {\n \t%s\n}", this.id, buildImplements(), buildDirectives(), buildFields());
-        return res;
+        return "type " + this.id + " " + buildImplements() + " " + buildDirectives() + " {\n \t" + buildFields() + "\n}";
     }
 
     private String buildDirectives(){
@@ -239,13 +238,13 @@ public class Type {
     }
     private String buildImplements(){
         final Set<Interface> interfaceSet = this.interfaces.stream()
-                .filter(anInterface -> (anInterface instanceof  Union)? ((Union) anInterface).getTypes().size() > 1 : true)   // Only implement those interfaces which have more han one type
+                .filter(anInterface -> !(anInterface instanceof Union) || ((Union) anInterface).getTypes().size() > 1)   // Only implement those interfaces which have more han one type
                 .collect(Collectors.toSet());
         String interfaces =  interfaceSet.stream()
                 .map(Interface::getId)
                 .collect(Collectors.joining(" & "));
         if(!interfaces.equals("")){
-            return String.format("implements %s", interfaces);
+            return "implements " + interfaces;
         }else{
             return interfaces;
         }

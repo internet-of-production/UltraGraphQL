@@ -1,23 +1,21 @@
 package org.hypergraphql.datafetching.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.jena.query.QuerySolution;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.NodeIterator;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.rdf.model.*;
 import org.hypergraphql.config.schema.FieldConfig;
-import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.TreeExecutionResult;
+import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
+import org.hypergraphql.datafetching.services.resultmodel.StringResult;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.QueryNode;
+import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.query.pattern.Query;
+import org.hypergraphql.query.pattern.QueryPattern;
+import org.hypergraphql.query.pattern.SubQueriesPattern;
 
 import java.util.*;
 
@@ -44,11 +42,11 @@ public abstract class Service {
         this.id = id;
     }
 
-    public abstract TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> strings, String rootType, HGQLSchema schema);
+    public abstract TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> strings, String rootType, HGQLSchema schema);
 
     public abstract void setParameters(ServiceConfig serviceConfig);
 
-    /**
+    /** ToDo: Review documentation -------------------------------------------------------------------------------------
      * Builds a RDF model that contains information about the schema of the used SPARQL variables in the given query.
      * Adds for the currentNode a triple using the variable id of the parentNode as subject and the
      * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
@@ -63,33 +61,282 @@ public abstract class Service {
      * @param schema HGQLSchema
      * @return Returns a model containing schema information of the query variables
      */
-    public Model getModelFromResults(JsonNode query, QuerySolution results , HGQLSchema schema) {
+    public Result getModelFromResults(Query query, QuerySolution results , HGQLSchema schema) {
 
-        Model model = ModelFactory.createDefaultModel();
-        if (query.isNull()) {
-            return model;
+        Result res = null; // ToDo: Initalize res properly i.e. parent npde
+        Map<String, Result> subfields = new TreeMap<>();
+        if (query == null) {
+            return res;
         }
+        String parentName = null;
+        String parentAlias = null;
+        String parentType = null;
+        Map<String, Object> parentArgs = null;
+        String parentId = null;
 
-        if (query.isArray()) { // selectionSet with multiple fields
+        if (query.isSubQuery()) { // selectionSet with multiple fields
 
-            Iterator<JsonNode> nodesIterator = query.elements();
-
-            while (nodesIterator.hasNext()) {
-                JsonNode currentNode = nodesIterator.next();
-                Model currentModel = buildModel(results, currentNode , schema);
-                model.add(currentModel);
-                model.add(getModelFromResults(currentNode.get("fields"), results ,schema));   // recursive call for selectionSet of the field
+            for(QueryPattern currentNode : ((SubQueriesPattern) query).getSubqueries()){
+                Result subRes = buildModel(results, currentNode, schema, null);
+                if(subRes instanceof ObjectResult && results.contains(currentNode.nodeId)) {
+                    getModelFromResults(currentNode.fields,
+                            results,
+                            schema,
+                            ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(currentNode.nodeId).toString()),
+                            query);
+                }
+                addAndMerge(subfields, currentNode.name, subRes);
+                if(currentNode.parentName != null){
+                    parentName = currentNode.parentName;
+                    parentAlias = currentNode.parentAlias;
+                    parentType = currentNode.parentType;
+                    parentArgs = currentNode.parentArgs;
+                    parentId = currentNode.parentId;
+                }
             }
+//            Iterator<JsonNode> nodesIterator = query.elements();
+//            while (nodesIterator.hasNext()) {
+//                JsonNode currentNode = nodesIterator.next();
+//                Result subRes = buildModel(results, currentNode, schema, null);
+//                if(subRes instanceof ObjectResult) {
+//                    getModelFromResults(currentNode.get("fields"),
+//                            results,
+//                            schema,
+//                            ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(currentNode.get("nodeId").asText()).toString()),
+//                            query);
+//                }
+//                addAndMerge(subfields, currentNode.get("name").asText(), subRes);
+//                if(parentName == null && currentNode.has("parentName")){
+//                    parentName = currentNode.get("parentName").asText();
+//                    parentAlias = currentNode.get("parentAlias").asText();
+//                    parentType = currentNode.get("parentType").asText();
+//                    parentArgs = currentNode.get("parentArgs").asText();
+//                    parentId = currentNode.get("parentId").asText();
+//                }
+//            }
         } else {
-            Model currentModel = buildModel(results, query , schema);
-            model.add(currentModel);
-            model.add(getModelFromResults(query.get("fields"), results, schema));   // recursive call for selectionSet of the field
+            QueryPattern queryPattern = (QueryPattern) query;
+            Result subRes = buildModel(results, queryPattern, schema, null);
+            if(subRes instanceof ObjectResult){
+                getModelFromResults(queryPattern.fields,
+                        results,
+                        schema,
+                        ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(queryPattern.nodeId).toString()),
+                        queryPattern);
+            }
+            subfields.put(queryPattern.name, subRes);
+
+            if(queryPattern.parentName != null){
+                parentName = queryPattern.parentName;
+                parentAlias = queryPattern.parentAlias;
+                parentType = queryPattern.parentType;
+                parentArgs = queryPattern.parentArgs;
+                parentId = queryPattern.parentId;
+            }
         }
-        return model;
+
+        if(parentName != null){
+            // If the parentTypeName is not null then the query is as subquery and depending on the object of the overlaying query
+            res = new ObjectResult(parentName, parentAlias);
+            res.setNodeId(parentId);
+            if(schema.getFields().containsKey(parentType) && schema.getTypes().get(parentType).getFields().containsKey(parentName)){
+                // parent field is normal field
+                res.isList(schema.getTypes().get(parentType).getField(parentName).isList());
+            }else if(schema.getQueryFields().containsKey(parentName)){
+                // parent field is query field -> always list
+                res.isList(true);
+            }else{
+                // parent field unkown -> assume list to avoid conflicts
+                res.isList(true);
+            }
+
+            ((ObjectResult)res).addObject(results.get(parentId).toString(), subfields);
+            return res;
+        }
+        if(subfields.size() == 1){
+            return subfields.values().iterator().next();
+        }else if(subfields.isEmpty()){
+            return null;
+        }
+        return res;
 
     }
 
-    /**
+    /** ToDo: Review documentation -------------------------------------------------------------------------------------
+     *
+     * @param query
+     * @param results
+     * @param schema
+     * @param subfields
+     * @param parentQuery
+     */
+    private void getModelFromResults(Query query, QuerySolution results , HGQLSchema schema, Map<String, Result> subfields, Query parentQuery) {
+
+        if (query == null) {
+            return;
+        }
+
+        if (query.isSubQuery()) { // selectionSet with multiple fields
+
+            for(QueryPattern currentNode : ((SubQueriesPattern)query).subqueries){
+                if(JSONLD.containsKey(currentNode.name)){
+                    //Internal field result to these fields is resolved differently
+                    if(currentNode.name.equals(SPARQLServiceConverter.ID)){
+                        final StringResult id = new StringResult(currentNode.name);
+                        id.isList(false);
+                        id.setNodeId(currentNode.nodeId);
+                        if(results.contains(currentNode.parentId)){
+                            id.addString(results.get(currentNode.parentId).toString());
+                        }
+                        subfields.put(currentNode.name,id);
+                        continue;
+                    }else if(currentNode.name.equals(SPARQLServiceConverter.TYPE)){
+                        if(parentQuery instanceof QueryPattern){
+                            String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  // ToDo: add existences check
+                            if(typeId != null){
+                                final StringResult type = new StringResult(currentNode.name);
+                                type.setNodeId(currentNode.nodeId);
+                                type.isList(false);
+                                type.addString(typeId);
+                                subfields.put(currentNode.name, type);
+                            }
+                        }else{
+                            //ToDo: Handle this case
+                        }
+                        continue;
+                    }
+                }
+                if((currentNode.name.equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME))){
+                    continue;
+                }
+                Result subRes = null;
+                if(parentQuery.isSubQuery()){
+                    final Optional<QueryPattern> parent = ((SubQueriesPattern) parentQuery).subqueries.stream().filter(queryPattern -> queryPattern.nodeId.equals(currentNode.parentId)).findAny();
+                    if(parent.isPresent()){
+                        subRes = buildModel(results, currentNode, schema, (QueryPattern) parent.get());
+                    }else{
+                        //error this stat should not be reached
+                    }
+
+                }else{
+                    subRes = buildModel(results, currentNode, schema, (QueryPattern) parentQuery);
+                }
+
+                if(subRes instanceof ObjectResult && !currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
+                    String nodeId = currentNode.nodeId;
+                    if(results.contains(nodeId)){
+                        getModelFromResults(currentNode.fields,
+                                results,
+                                schema,
+                                ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(nodeId).toString()),
+                                currentNode);
+                    }
+                }
+                addAndMerge(subfields, currentNode.name, subRes);
+            }
+
+//            Iterator<JsonNode> nodesIterator = query.elements();
+//
+//            while (nodesIterator.hasNext()) {
+//                JsonNode currentNode = nodesIterator.next();
+//                if(JSONLD.containsKey(currentNode.get("name").asText())){
+//                    //Internal field result to these fields is resolved differently
+//                    if(currentNode.get("name").asText().equals(SPARQLServiceConverter.ID)){
+//                        final StringResult id = new StringResult(currentNode.get("name").asText());
+//                        id.isList(false);
+//                        id.setNodeId(currentNode.get("nodeId").asText());
+//                        if(results.contains(currentNode.get("parentId").asText())){
+//                            id.addString(results.get(currentNode.get("parentId").asText()).toString());
+//                        }
+//                        subfields.put(currentNode.get("name").asText(),id);
+//                        continue;
+//                    }else if(currentNode.get("name").asText().equals(SPARQLServiceConverter.TYPE)){
+//                        String typeId = schema.getTypes().get(parentQuery.get("targetName")).getId();  // ToDo: add existences check
+//                        if(typeId != null){
+//                            final StringResult type = new StringResult(currentNode.get("name").asText());
+//                            type.setNodeId(currentNode.get("nodeId").asText());
+//                            type.isList(false);
+//                            type.addString(typeId);
+//                            subfields.put(currentNode.get("name").asText(), type);
+//                        }
+//                        continue;
+//                    }
+//                }
+//                if((currentNode.get("name").asText().equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME))){
+//                    continue;
+//                }
+//                Result subRes = buildModel(results, currentNode, schema, parentQuery);
+//                if(subRes instanceof ObjectResult && !currentNode.get("targetName").asText().equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
+//                    String nodeId = currentNode.get("nodeId").asText();
+//                    if(results.contains(nodeId)){
+//                        getModelFromResults(currentNode.get("fields"),
+//                                results,
+//                                schema,
+//                                ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(nodeId).toString()),
+//                                currentNode);
+//                    }
+//                }
+//                addAndMerge(subfields, currentNode.get("name").asText(), subRes);
+//            }
+        } else {
+            QueryPattern queryPattern = (QueryPattern) query;
+            if(JSONLD.containsKey(queryPattern.name)){
+                //Internal field result to these fields is resolved differently
+                if(queryPattern.name.equals(SPARQLServiceConverter.ID)){
+                    final StringResult id = new StringResult(queryPattern.name);
+                    id.isList(false);
+                    id.setNodeId(queryPattern.nodeId);
+                    if(results.contains(queryPattern.parentId)){
+                        id.addString(results.get(queryPattern.parentId).toString());
+                    }
+                    subfields.put(queryPattern.name,id);
+                    return;
+                }else if(queryPattern.name.equals(SPARQLServiceConverter.TYPE)){
+                    if(parentQuery instanceof QueryPattern){
+                        String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  //ToDo: Add existence check
+                        if(typeId != null){
+                            final StringResult type = new StringResult(queryPattern.name);
+                            type.isList(false);
+                            type.setNodeId(queryPattern.nodeId);
+                            type.addString(typeId);
+                            subfields.put(queryPattern.name, type);
+                        }
+                    }else{
+                        //Todo: handle this case
+                    }
+
+                    return;
+                }
+            }
+            Result subRes = buildModel(results, queryPattern, schema, (QueryPattern) parentQuery);
+            if(subRes instanceof ObjectResult){
+                getModelFromResults(queryPattern.fields,
+                        results,
+                        schema,
+                        ((ObjectResult) subRes).getSubfiedldsOfObject(results.get(queryPattern.nodeId).toString()),
+                        query);
+            }
+            addAndMerge(subfields, queryPattern.name, subRes);
+        }
+
+    }
+
+    /** ToDo: Review documentation -------------------------------------------------------------------------------------
+     *
+     * @param subfields
+     * @param subfield
+     * @param result
+     */
+    private void addAndMerge(Map<String, Result> subfields, String subfield, Result result){
+        if(subfields.containsKey(subfield)){
+            // Field already in list merge result sets
+            subfields.get(subfield).merge(result);
+        }else{
+            subfields.put(subfield, result);
+        }
+    }
+
+    /** ToDo: Review documentation -------------------------------------------------------------------------------------
      * Builds a RDF model that contains information about the schema of the used SPARQL variables by querying the given
      * currentNode. Adds for the currentNode a triple using the variable id of the parentNode as subject and the
      * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
@@ -104,45 +351,68 @@ public abstract class Service {
      * @param schema HGQLSchema
      * @return Returns a model containing schema information of the query variables
      */
-    private Model buildModel(QuerySolution results, JsonNode currentNode , HGQLSchema schema) {
+    private Result buildModel(QuerySolution results, QueryPattern currentNode , HGQLSchema schema, QueryPattern parentNode) {
 
-        Model model = ModelFactory.createDefaultModel();
 
-        FieldConfig propertyString = schema.getFields().get(currentNode.get("name").asText());
-        TypeConfig targetTypeString = schema.getTypes().get(currentNode.get("targetName").asText());   // field output type
-        populateModel(results, currentNode, model, propertyString, targetTypeString);
 
-        QueryFieldConfig queryField = schema.getQueryFields().get(currentNode.get("name").asText());
+        FieldConfig propertyString = schema.getFields().get(currentNode.name);
+        TypeConfig targetTypeString = schema.getTypes().get(currentNode.targetType);   // field output type
+        Result res;
+        String field = currentNode.name;
+        String alias = currentNode.alias;
+        if(currentNode.targetType.equals("String")){
+            res = new StringResult(field, alias, currentNode.args);
+            res.setNodeId(currentNode.nodeId);
+        }else if(currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
+            res = new ObjectResult(field, alias, currentNode.args);
+            String nodeId = currentNode.nodeId;
+            res.setNodeId(nodeId);
+            ((ObjectResult)res).addObject(HGQL_QUERY_NAMESPACE + nodeId.hashCode()); // Add Literal Placeholder object
 
-        if (queryField != null) {
-
-            String typeName = (currentNode.get("alias").isNull()) ? currentNode.get("name").asText() : currentNode.get("alias").asText();  // use the name if alias is null otherwise use alias
-            Resource object = results.getResource(currentNode.get("nodeId").asText());
-            Resource subject = model.createResource(HGQL_QUERY_URI);
-            Property predicate = model.createProperty("", HGQL_QUERY_NAMESPACE + typeName);
-
-            model.add(subject, predicate, object);
+        }else{
+            res = new ObjectResult(field, alias, currentNode.args);
+            String nodeId = currentNode.nodeId;
+            res.setNodeId(nodeId);
+            if(results.contains(nodeId)) {
+                ((ObjectResult) res).addObject(results.get(nodeId).toString());
+            }
         }
-        return model;
+        if(parentNode == null){
+            // root query field
+            res.isList(true);
+        }else{
+            final String targetName = parentNode.targetType;
+            if(targetName.equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+                res.isList(false);
+            }else{
+                res.isList(schema.getTypes().get(targetName).getField(field).isList());
+            }
+        }
+
+        populateModel(results, currentNode, res, propertyString, targetTypeString);
+
+        return res;
     }
 
     //only used by HGraphQLService
-    Map<String, Set<String>> getResultset(Model model, JsonNode query, Set<String> input, Set<String> markers, HGQLSchema schema) {
+    Map<String, Set<String>> getResultset(Model model, Query query, Set<String> input, Set<String> markers, HGQLSchema schema) {
 
         Map<String, Set<String>> resultset = new HashMap<>();
-        JsonNode node;
+        SubQueriesPattern node;
 
-        if (query.isArray()) {
-            node = query; // TODO - in this situation, we should iterate over the array
-        } else {
-            node = query.get("fields");
-            if (markers.contains(query.get("nodeId").asText())){
-                resultset.put(query.get("nodeId").asText(),findRootIdentifiers(model,schema.getTypes().get(query.get("targetName").asText())));
+        if (query instanceof SubQueriesPattern) {
+            node = (SubQueriesPattern) query; // TODO - in this situation, we should iterate over the array
+        }else if(query instanceof QueryPattern) {
+            node = ((QueryPattern) query).fields;
+            if (markers.contains(((QueryPattern) query).nodeId)){
+                resultset.put(((QueryPattern) query).nodeId,findRootIdentifiers(model,schema.getTypes().get(((QueryPattern) query).targetType)));
             }
+        }else{
+            node = null;
         }
         Set<LinkedList<QueryNode>> paths = new HashSet<>();
-        if (node != null && !node.isNull()) {
-            paths = getQueryPaths(node, schema);
+        if (node != null) {
+//            paths = getQueryPaths(node, schema);   // commented out because UltraGraphQL cuurently does not support other UGQL instances as services
         }
 
         paths.forEach(path -> {
@@ -276,7 +546,8 @@ public abstract class Service {
         }
     }
 
-    /**
+    /** ToDo: Review documentation -------------------------------------------------------------------------------------
+     * ToDo: Rework Description
      * Builds a RDF model that contains information about the schema using the SPARQL variables. Adds for the
      * currentNode a triple using the variable id of the parentNode as subject and the variable id of the outputtype/target as
      * object. Furthermore a triple indicating which object/class the outputtype/target variable id is is added.
@@ -287,51 +558,53 @@ public abstract class Service {
      * ToDo: Change names of the parameter, the suffix "String" is misleading.
      * @param results Results of the query
      * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
-     * @param model A model to insert the generated triples.
+     * @param res A model to insert the generated triples.
      * @param propertyString FieldConfig of the field which is the root of the currentNode
      * @param targetTypeString TypeConfig of the field of which is the root of the currentNode
      */
     private void populateModel(
             final QuerySolution results,
-            final JsonNode currentNode,
-            final Model model,
+            final QueryPattern currentNode,
+            final Result res,
             final FieldConfig propertyString,
             final TypeConfig targetTypeString
     ) {
-        if(currentNode.get("name").asText().equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
+        if(currentNode.name.equals(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
             return;
         }
-        if(propertyString != null && currentNode.get("targetName").asText().equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
-            //ToDo:
-            Resource subject = results.getResource(currentNode.get("parentId").asText());
-            Property predicate = model.getProperty(propertyString.getId());
-            final RDFNode nodeId = results.get(currentNode.get("nodeId").asText());
-            if(nodeId != null){
-                Resource object = model.getResource(HGQL_QUERY_NAMESPACE + nodeId.hashCode());
-                Property literal_value = model.createProperty(HGQL_SCALAR_LITERAL_VALUE_URI);
-                Resource literal = model.getResource(HGQL_SCALAR_LITERAL_URI);
-                RDFNode value = results.get(currentNode.get("nodeId").asText());
-                model.add(subject, predicate, object);
-                model.add(object,literal_value,value);
-                model.add(object, RDF.type, literal);
+        if(propertyString != null && currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+            String nodeId = currentNode.nodeId;
+            if(results.contains(nodeId)){
+                RDFNode value = results.get(nodeId);
+
+                final StringResult literalValue = new StringResult(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME);
+                literalValue.setNodeId(currentNode.nodeId);
+                literalValue.addString(value.toString());
+                literalValue.isList(true);
+                Map<String, Result> literalValueField = new TreeMap<>();
+                literalValueField.put(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME, literalValue);
+                if(res instanceof ObjectResult){
+                    ((ObjectResult) res).addObject(HGQL_QUERY_NAMESPACE + nodeId.hashCode(), literalValueField);
+                }
             }
             return;
         }
 
-        if (propertyString != null && !(currentNode.get("parentId").asText().equals("null"))) {
-            Property predicate = model.createProperty("", propertyString.getId());
-            Resource subject = results.getResource(currentNode.get("parentId").asText());
-            RDFNode object = results.get(currentNode.get("nodeId").asText());
-            if (predicate != null && subject != null && object != null) {
-                model.add(subject, predicate, object);
-            }
-        }
-
-        if (targetTypeString != null) {
-            Resource subject = results.getResource(currentNode.get("nodeId").asText());
-            Resource object = model.createResource(targetTypeString.getId());
-            if (subject != null && object != null) {
-                model.add(subject, RDF.type, object);
+        if (propertyString != null && !(currentNode.parentId.equals("null"))) {
+            RDFNode object = results.get(currentNode.nodeId);
+            if(object != null){
+                // object exists
+                final TreeMap<String, Result> subfields = new TreeMap<>();
+                if (targetTypeString == null) {
+                    // object is literal
+                    if(res instanceof  StringResult){
+                        ((StringResult) res).addString(object.asLiteral().getString());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                }
+                if(res instanceof ObjectResult){
+                    ((ObjectResult) res).addObject(object.toString(), subfields);
+                }
             }
         }
     }

@@ -1,7 +1,5 @@
 package org.hypergraphql.schemaextraction;
 
-import org.apache.jena.base.Sys;
-import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 

@@ -3,8 +3,6 @@ package org.hypergraphql.config.schema;
 import graphql.schema.GraphQLOutputType;
 import org.hypergraphql.datafetching.services.Service;
 
-import java.util.Set;
-
 public class FieldOfTypeConfig {
 
     public String getId() {
@@ -35,7 +33,7 @@ public class FieldOfTypeConfig {
     private String name;   // name of the IRI in this schema
     private Service service;   // type of service the field is queryed with e.g. ManifoldService, SPARQLEndpointService, etc.
     private GraphQLOutputType graphqlOutputType;
-    private Boolean isList;
+    private boolean isList;
     private String targetName;
 
     public FieldOfTypeConfig(String name, String id, Service service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {

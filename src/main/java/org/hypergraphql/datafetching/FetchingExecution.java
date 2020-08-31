@@ -1,6 +1,6 @@
 package org.hypergraphql.datafetching;
 
-import org.apache.jena.rdf.model.Model;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
  * Wrapper Class for ExecutionTreeNode to make the class a callable class.
  * A call forwards to the generateTreeModel method.
  */
-public class FetchingExecution implements Callable<Model> {
+public class FetchingExecution implements Callable<Result> {
 
     private Set<String> inputValues;
     private ExecutionTreeNode node;
@@ -21,7 +21,7 @@ public class FetchingExecution implements Callable<Model> {
     }
     
     @Override
-    public Model call() {
+    public Result call() {
         return node.generateTreeModel(inputValues);
     }
 }

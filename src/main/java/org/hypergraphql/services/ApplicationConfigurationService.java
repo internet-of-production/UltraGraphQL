@@ -67,8 +67,9 @@ public class ApplicationConfigurationService {
         try {
             final InputStream inputStream = getRequest.asBinary().getBody();
             final HGQLConfig config = hgqlConfigService.loadHGQLConfig(configUri, inputStream, username, password, false);
+            inputStream.close();
             return Collections.singletonList(config);
-        } catch (UnirestException e) {
+        } catch (UnirestException | IOException e) {
             throw new HGQLConfigurationException("Unable to read from remote URL", e);
         }
     }
