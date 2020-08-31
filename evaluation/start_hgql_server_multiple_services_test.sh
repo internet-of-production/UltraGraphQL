@@ -18,14 +18,14 @@ rlog() {
   # echo in color
   echo -e "${RED}${1}${NC}"
 }
-log "Starting HGQL server for the Multiple Services Test"
+log "Starting UGQL server for the Multiple Services Test"
 
-log "Starting HGQL 2.0.0 endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/multiple_services/config_hgql.json" >> logs/multiple_services/hgql_2.0.0.log &
+log "Starting UGQL 1.1.0 endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/multiple_services/config_hgql.json" >> logs/multiple_services/hgql_2.0.0.log &
 log "Interface running at http://localhost:8092/graphql"
 
-log "Starting HGQL 2.0.0 Standalone endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/multiple_services/config_hgql_standalone.json" >> logs/multiple_services/hgql_2.0.0_standalone.log &
+log "Starting UGQL 1.1.0 Standalone endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/multiple_services/config_hgql_standalone.json" >> logs/multiple_services/hgql_2.0.0_standalone.log &
 log "Interface running at http://localhost:8093/graphql"
 
 wait
