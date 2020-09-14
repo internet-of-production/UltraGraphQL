@@ -99,8 +99,8 @@ public class HGQLMutationService {
                 new ExecutionForestFactory().getExecutionForest(document, hgqlSchema);
 
 //        ModelContainer client = new ModelContainer(queryExecutionForest.generateModel());
-        Result formatedResult = queryExecutionForest.generateModel();
-        ObjectMapper mapper = new ObjectMapper();
+        Result formattedResult = queryExecutionForest.generateModel();
+//        ObjectMapper mapper = new ObjectMapper();
         if (acceptType == null) {
 //            executionInput = ExecutionInput.newExecutionInput()
 //                    .query(query)
@@ -110,8 +110,8 @@ public class HGQLMutationService {
 //
 //            qlResult = graphql.execute(executionInput);
 
-            if(formatedResult instanceof ObjectResult){
-                Map<String, Object> json = ((ObjectResult)formatedResult).generateJSON();
+            if(formattedResult instanceof ObjectResult){
+                Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
                 System.out.println(json);
                 data.putAll(json);
             }else{
@@ -119,12 +119,13 @@ public class HGQLMutationService {
             }
             data.put("@context", queryExecutionForest.getFullLdContext());
 
-            if (qlResult != null) {
+            if (data != null) {
                 result.put("data", data);
-                errors.addAll(qlResult.getErrors());
+                //ToDo: Add the error messages from the result object
+//                errors.addAll(qlResult.getErrors());
             }
         } else {
-            result.put("data", formatedResult.generateJSON());
+            result.put("data", formattedResult.generateJSON());
         }
         return result;
     }

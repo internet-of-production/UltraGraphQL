@@ -78,9 +78,9 @@ public class HGQLQueryService {
             ExecutionForest queryExecutionForest =
                     new ExecutionForestFactory().getExecutionForest(validatedQuery.getParsedQuery(), hgqlSchema);
 //            ModelContainer client = new ModelContainer(queryExecutionForest.generateModel());
-            Result formatedResult = queryExecutionForest.generateModel();
+            Result formattedResult = queryExecutionForest.generateModel();
 
-            ObjectMapper mapper = new ObjectMapper();
+//            ObjectMapper mapper = new ObjectMapper();
 //            double endTime = System.nanoTime();
 //            LOGGER.info("Time to fill result pool: {}", endTime - startTime);
 //            startTime = System.nanoTime();
@@ -94,8 +94,8 @@ public class HGQLQueryService {
 //                endTime = System.nanoTime();
 //                LOGGER.info("Time to query GraphQL response from result pool: {}", endTime - startTime);
 //                data.putAll(qlResult.getData());
-                if(formatedResult instanceof ObjectResult){
-                    Map<String, Object> json = ((ObjectResult)formatedResult).generateJSON();
+                if(formattedResult instanceof ObjectResult){
+                    Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
                     LOGGER.debug("Transformed JSON result: " + json);
                     data.putAll(json);
                 }else{
@@ -103,12 +103,13 @@ public class HGQLQueryService {
                 }
                 data.put("@context", queryExecutionForest.getFullLdContext());
             } else {
-                result.put("data", formatedResult.generateJSON());
+                result.put("data", formattedResult.generateJSON());
             }
 //            client.close();
         }
         if (data != null) {
             result.put("data", data);
+            //ToDo: Add the error messages from the result object
             if(qlResult != null) {
                 errors.addAll(qlResult.getErrors());
             }
