@@ -12,6 +12,7 @@ import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.ExecutionForest;
 import org.hypergraphql.datafetching.ExecutionForestFactory;
 import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
+import org.hypergraphql.datafetching.services.resultmodel.QueryRootResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.ValidatedQuery;
@@ -96,6 +97,10 @@ public class HGQLQueryService {
 //                data.putAll(qlResult.getData());
                 if(formattedResult instanceof ObjectResult){
                     Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
+                    LOGGER.debug("Transformed JSON result: " + json);
+                    data.putAll(json);
+                }else if(formattedResult instanceof QueryRootResult){
+                    Map<String, Object> json = ((QueryRootResult)formattedResult).generateJSON();
                     LOGGER.debug("Transformed JSON result: " + json);
                     data.putAll(json);
                 }else{

@@ -81,6 +81,8 @@ public class ObjectResult extends Result<Map<String, Object>> {
                     });
                     field.put(fieldName,value);
                 }
+            }else{
+                this.errors += "Schema Error for "+ this.name + ": Only one result should exist, all queried values are returned in a list.";
             }
         }
         if(this.args != null && this.args.get(SPARQLServiceConverter.ORDER) != null){
