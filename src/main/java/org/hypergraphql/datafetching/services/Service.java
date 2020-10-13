@@ -21,6 +21,9 @@ import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
+/**
+ * Provides methods to translate SPARQL results into Result objects. The Result object than allows to generate JSON objects.
+ */
 public abstract class Service {
 
     protected String type;
@@ -46,20 +49,12 @@ public abstract class Service {
 
     public abstract void setParameters(ServiceConfig serviceConfig);
 
-    /** ToDo: Review documentation -------------------------------------------------------------------------------------
-     * Builds a RDF model that contains information about the schema of the used SPARQL variables in the given query.
-     * Adds for the currentNode a triple using the variable id of the parentNode as subject and the
-     * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
-     * outputtype/target variable id is is added.
-     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
-     *      x_1 owner x_1_2.
-     *      x_1_2 a Person.
-     *      hgql:query hgql:query/owner x_1_2.
-     * Note: The variables used in the example can be arbitrary.
-     * @param query JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
+    /**
+     * Translates the given results for the given query into a Results object. Allowing to generate a JSON object form that object.
+     * @param query Query or sub-query containing the variables for the SPARQL query
      * @param results Results of the query
-     * @param schema HGQLSchema
-     * @return Returns a model containing schema information of the query variables
+     * @param schema HGQLSchema the query is based on
+     * @return Returns the given results translated into a Result object (This object allows to generate a JSON object form it)
      */
     public Result getModelFromResults(Query query, QuerySolution results , HGQLSchema schema) {
 
@@ -137,8 +132,8 @@ public abstract class Service {
 
         if(parentName != null){
             // If the parentTypeName is not null then the query is as subquery and depending on the object of the overlaying query
-            res = new ObjectResult(parentName, parentAlias);
-            res.setNodeId(parentId);
+            res = new ObjectResult(parentId, parentName, parentAlias);
+//            res.setNodeId(parentId);
             if(schema.getFields().containsKey(parentType) && schema.getTypes().get(parentType).getFields().containsKey(parentName)){
                 // parent field is normal field
                 res.isList(schema.getTypes().get(parentType).getField(parentName).isList());
@@ -162,13 +157,15 @@ public abstract class Service {
 
     }
 
-    /** ToDo: Review documentation -------------------------------------------------------------------------------------
-     *
-     * @param query
-     * @param results
-     * @param schema
-     * @param subfields
-     * @param parentQuery
+    /**
+     * Translates the given results for the given query/sub-query into the given subfield object. In the case that the query
+     * contains multiple fields the results for all fields are translated accordingly to a Result object and inserted
+     * into the given subfields object.
+     * @param query Query corresponding to the given results containing the name of the field and the used SPARQL variable name
+     * @param results Results of the given query
+     * @param schema HGQLSchema the query is based on
+     * @param subfields Result object were the translated results are inserted into
+     * @param parentQuery ParentQuery of the given query. The given query is a field/sub-query of the parentQuery
      */
     private void getModelFromResults(Query query, QuerySolution results , HGQLSchema schema, Map<String, Result> subfields, Query parentQuery) {
 
@@ -182,9 +179,9 @@ public abstract class Service {
                 if(JSONLD.containsKey(currentNode.name)){
                     //Internal field result to these fields is resolved differently
                     if(currentNode.name.equals(SPARQLServiceConverter.ID)){
-                        final StringResult id = new StringResult(currentNode.name);
+                        final StringResult id = new StringResult(currentNode.nodeId, currentNode.name);
                         id.isList(false);
-                        id.setNodeId(currentNode.nodeId);
+//                        id.setNodeId(currentNode.nodeId);
                         if(results.contains(currentNode.parentId)){
                             id.addString(results.get(currentNode.parentId).toString());
                         }
@@ -194,8 +191,8 @@ public abstract class Service {
                         if(parentQuery instanceof QueryPattern){
                             String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  // ToDo: add existences check
                             if(typeId != null){
-                                final StringResult type = new StringResult(currentNode.name);
-                                type.setNodeId(currentNode.nodeId);
+                                final StringResult type = new StringResult(currentNode.nodeId, currentNode.name);
+//                                type.setNodeId(currentNode.nodeId);
                                 type.isList(false);
                                 type.addString(typeId);
                                 subfields.put(currentNode.name, type);
@@ -283,9 +280,9 @@ public abstract class Service {
             if(JSONLD.containsKey(queryPattern.name)){
                 //Internal field result to these fields is resolved differently
                 if(queryPattern.name.equals(SPARQLServiceConverter.ID)){
-                    final StringResult id = new StringResult(queryPattern.name);
+                    final StringResult id = new StringResult(queryPattern.nodeId, queryPattern.name);
                     id.isList(false);
-                    id.setNodeId(queryPattern.nodeId);
+//                    id.setNodeId(queryPattern.nodeId);
                     if(results.contains(queryPattern.parentId)){
                         id.addString(results.get(queryPattern.parentId).toString());
                     }
@@ -295,9 +292,9 @@ public abstract class Service {
                     if(parentQuery instanceof QueryPattern){
                         String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  //ToDo: Add existence check
                         if(typeId != null){
-                            final StringResult type = new StringResult(queryPattern.name);
+                            final StringResult type = new StringResult(queryPattern.nodeId, queryPattern.name);
                             type.isList(false);
-                            type.setNodeId(queryPattern.nodeId);
+//                            type.setNodeId(queryPattern.nodeId);
                             type.addString(typeId);
                             subfields.put(queryPattern.name, type);
                         }
@@ -321,11 +318,12 @@ public abstract class Service {
 
     }
 
-    /** ToDo: Review documentation -------------------------------------------------------------------------------------
-     *
-     * @param subfields
-     * @param subfield
-     * @param result
+    /**
+     * Adds the given results to the corresponding subfield in subfields. If the subfield of the results does not exist
+     * the subfield and results are added to the subfields otherwise the results of the corresponding subfield are merged.
+     * @param subfields subfields with results of an object that should be extended
+     * @param subfield Subfield name that corresponds to the given results
+     * @param result Results that should be added to the given subfields
      */
     private void addAndMerge(Map<String, Result> subfields, String subfield, Result result){
         if(subfields.containsKey(subfield)){
@@ -336,23 +334,16 @@ public abstract class Service {
         }
     }
 
-    /** ToDo: Review documentation -------------------------------------------------------------------------------------
-     * Builds a RDF model that contains information about the schema of the used SPARQL variables by querying the given
-     * currentNode. Adds for the currentNode a triple using the variable id of the parentNode as subject and the
-     * variable id of the outputtype/target as object. Furthermore a triple indicating which object/class the
-     * outputtype/target variable id is is added.
-     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
-     *      x_1 owner x_1_2.
-     *      x_1_2 a Person.
-     *      hgql:query hgql:query/owner x_1_2.
-     * Note: The variables used in the example can be arbitrary.
+    /**
+     * Translates the given results for the given query/sub-query into a Result object.
+     * The actual Result type that is returned is depending on the output type of the given query.
      * @param results Results of the query
-     * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
+     * @param currentNode Query or sub-query containing the variables for the SPARQL query
      * @param schema HGQLSchema
      * @return Returns a model containing schema information of the query variables
      */
     private Result buildModel(QuerySolution results, QueryPattern currentNode , HGQLSchema schema, QueryPattern parentNode) {
-
+        //ToDo: Check if buildModel and populateModel can be merged together
 
 
         FieldConfig propertyString = schema.getFields().get(currentNode.name);
@@ -361,20 +352,20 @@ public abstract class Service {
         String field = currentNode.name;
         String alias = currentNode.alias;
         if(currentNode.targetType.equals("String")){
-            res = new StringResult(field, alias, currentNode.args);
-            res.setNodeId(currentNode.nodeId);
+            res = new StringResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(currentNode.nodeId);
         }else if(currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
-            res = new ObjectResult(field, alias, currentNode.args);
-            String nodeId = currentNode.nodeId;
-            res.setNodeId(nodeId);
-            ((ObjectResult)res).addObject(HGQL_QUERY_NAMESPACE + nodeId.hashCode()); // Add Literal Placeholder object
+//            String nodeId = currentNode.nodeId;
+            res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(nodeId);
+            ((ObjectResult)res).addObject(HGQL_QUERY_NAMESPACE + currentNode.nodeId.hashCode()); // Add Literal Placeholder object
 
         }else{
-            res = new ObjectResult(field, alias, currentNode.args);
-            String nodeId = currentNode.nodeId;
-            res.setNodeId(nodeId);
-            if(results.contains(nodeId)) {
-                ((ObjectResult) res).addObject(results.get(nodeId).toString());
+            res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
+//            String nodeId = currentNode.nodeId;
+//            res.setNodeId(nodeId);
+            if(results.contains(currentNode.nodeId)) {
+                ((ObjectResult) res).addObject(results.get(currentNode.nodeId).toString());
             }
         }
         if(parentNode == null){
@@ -389,6 +380,7 @@ public abstract class Service {
             }
         }
 
+        // insert the actual results in to the object that were created above
         populateModel(results, currentNode, res, propertyString, targetTypeString);
 
         return res;
@@ -546,19 +538,14 @@ public abstract class Service {
         }
     }
 
-    /** ToDo: Review documentation -------------------------------------------------------------------------------------
-     * ToDo: Rework Description
-     * Builds a RDF model that contains information about the schema using the SPARQL variables. Adds for the
-     * currentNode a triple using the variable id of the parentNode as subject and the variable id of the outputtype/target as
-     * object. Furthermore a triple indicating which object/class the outputtype/target variable id is is added.
-     * Example: A Query Company{owner{...}}  on the schema Company{owner: Person} will add the triples:
-     *      x_1 owner x_1_2.
-     *      x_1_2 a Person.
-     * Note: The variables used in the example can be arbitrary.
+    /**
+     * Adds the query results (given in results) for the currentNode into the given Result res.
+     * The insertions into res are depending on the output type of the query/sub-query meaning that either a ObjectResult
+     * or StringResult is added.
      * ToDo: Change names of the parameter, the suffix "String" is misleading.
      * @param results Results of the query
-     * @param currentNode JSON representation of a GraphQL query or subquery containing the variables for the SPARQL query
-     * @param res A model to insert the generated triples.
+     * @param currentNode Query or subquery containing the variables for the SPARQL query
+     * @param res Result object to insert the solutions of the given query
      * @param propertyString FieldConfig of the field which is the root of the currentNode
      * @param targetTypeString TypeConfig of the field of which is the root of the currentNode
      */
@@ -577,8 +564,8 @@ public abstract class Service {
             if(results.contains(nodeId)){
                 RDFNode value = results.get(nodeId);
 
-                final StringResult literalValue = new StringResult(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME);
-                literalValue.setNodeId(currentNode.nodeId);
+                final StringResult literalValue = new StringResult(currentNode.nodeId, HGQL_SCALAR_LITERAL_VALUE_GQL_NAME);
+//                literalValue.setNodeId(currentNode.nodeId);
                 literalValue.addString(value.toString());
                 literalValue.isList(true);
                 Map<String, Result> literalValueField = new TreeMap<>();

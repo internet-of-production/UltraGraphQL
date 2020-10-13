@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -27,6 +26,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 
+/**
+ * This class is responsible for the execution of SPARQL queries against a remote SPARQL endpoint.
+ * Intended use of this class is to execute and format the results of the given query.
+ * The SPARQLEndpointService uses multiple instances of this class to execute parts of queries in parallel.
+ */
 public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> {
 
 
@@ -39,6 +43,15 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
     String rootType;
     SPARQLServiceConverter converter;
 
+    /**
+     *
+     * @param query query or sub-query to be executed
+     * @param inputSubset Possible IRIs of the parent query that are used to limit the results of this query/sub-query. Should be below the defined value limit (VALUES_SIZE_LIMIT)
+     * @param markers variables for the SPARQL query
+     * @param sparqlEndpointService Service object with data model, query is executed on this model
+     * @param schema HGQLSchema the query is based on
+     * @param rootType type of the query root
+     */
     public SPARQLEndpointExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
         this.query = query;
         this.inputSubset = inputSubset;
@@ -49,6 +62,10 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         this.converter = new SPARQLServiceConverter(schema);
     }
 
+    /**
+     * Executes the query assigned to the object and builds-up the formatted result
+     * @return Query results and IRIs for underlying queries
+     */
     @Override
     public SPARQLExecutionResult call() {
         Map<String, Set<String>> resultSet = new HashMap<>();

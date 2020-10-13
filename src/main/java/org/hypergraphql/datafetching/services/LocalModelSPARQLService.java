@@ -25,6 +25,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+/**
+ *  This Service class is initialized with a local dataset. Queries that are executed on this service are evaluated against
+ *  the data model of this object.
+ *
+ *  Note: In the UGQL config file local datasets are configured with the type LocalModelSPARQLService which resulting in
+ *        an object of this class.
+ */
 public class LocalModelSPARQLService extends SPARQLEndpointService{
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalModelSPARQLService.class);
@@ -33,6 +40,17 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
     protected String filepath;
     protected String fileType;
 
+    /**
+     * Executes the given query on the data model of this object.
+     * If more IRIs are provided in input then defined in VALUES_SIZE_LIMIT as limit the values are distributed over multiple queries to sta below the limit.
+     * If the amount of input is to large the resulting queries are executed in parallel.
+     * @param query query or sub-query to be executed
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers variables for the SPARQL query
+     * @param rootType type of the query root
+     * @param schema HGQLSchema the query is based on
+     * @return Query results and IRIs for underlying queries
+     */
     @Override
     public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
@@ -72,6 +90,12 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         return treeExecutionResult;
     }
 
+    /**
+     * Executes the given update and saves the updated data model in the original file.
+     * ToDo: Optimize the model saving. For example only save to file periodically and at service shutdown instead of saving after each update.
+     * @param update SPARQL Update
+     * @return True if the update succeeds otherwise False
+     */
     public Boolean executeUpdate(String update){
         try{
             UpdateAction.parseExecute(update, this.model);

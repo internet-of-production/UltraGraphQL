@@ -34,6 +34,24 @@ import java.util.stream.Collectors;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_ID;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 
+/**
+ * This class handles and coordinates the query execution of a GraphQL query.
+ * The GraphQL query is provided to the object at the initiation of the object along with the schema the query is based on.
+ * The query is than converted to an internal structure where a SPARQL variable is assigned to each field name.
+ * Furthermore, the query is split up into service related parts. By considering the query as tree-structure a coherent
+ * set of fields that is controlled by one service, starting by the root of the given query, is converted to SPARQL and
+ * by this object (this object only manages and initiates this process). For the other query fields new ExecutionTreeNodes
+ * are created controlling and managing the execution of these query parts. These additional ExecutionTreeNodes are stored
+ * in the childrenNodes attribute and during the final result transformation phase the results of the children are merged
+ * into the final result accordingly.
+ * Further technical details:
+ * In the case multiple services are assigned to schema entities with the ManifoldService this rules of creating the
+ * childrenNodes is changed to creating a new ExecutionTreeNode for each query level. This is due to the case that the
+ * queried IRIs on one service can lead to results of sub-results on another service even though the IRI is not queried
+ * by the parent query field on this service. Therefore, for ManifoldServices on each level a new ExecutionTreeNode is
+ * created even though they share the same set of services to ensure a separate execution of the sub-queries.
+ *
+ */
 public class ExecutionTreeNode {
 
     private Service service; // getService configuration
@@ -45,7 +63,7 @@ public class ExecutionTreeNode {
     private HGQLSchema hgqlSchema;
 
     // constant names of the fields int the JSON query representation
-    // ToDo: To increase performance rename these variables to short identifiers, since they are only used internally they must not be human readable (for debugging not optimal)
+
     public static final String ROOT_TYPE = "Query";
     public static final String NODE_ID = "nodeId";
     public static final String ARGS = "args";
@@ -104,19 +122,36 @@ public class ExecutionTreeNode {
         return result;
 
     }
+
+    /**
+     * Initiates the conversion of the given query into a query structure that is executed if the generateTreeModel method is called.
+     * The given query (field) is converted according to the assigned services in the given HGQLSchema.
+     * @param field Root query field of a query or sub-query
+     * @param nodeId ID that is used to identify the given field in the whole query. Used as SPARQL variable for the field.
+     * @param schema HGQLSchema the query (field) is based on
+     */
     ExecutionTreeNode(Field field, String nodeId , HGQLSchema schema) {
         this(field, nodeId, schema, null);
     }
+
     private ExecutionTreeNode(Service service, Set<Field> fields, String parentId, String parentType, HGQLSchema schema){
         this(service, fields, parentId, parentType, schema, null);
     }
 
+    /**
+     * Initiates the conversion of the given query into a query structure that is executed if the generateTreeModel method is called.
+     * The given query (field) is converted according to the assigned services in the given HGQLSchema.
+     * @param field Root query field of a query or sub-query
+     * @param nodeId ID that is used to identify the given field in the whole query. Used as SPARQL variable for the field.
+     * @param schema HGQLSchema the query (field) is based on
+     * @param parentField ID (SPARQL variable) that identifies the parent field of the given field
+     */
     ExecutionTreeNode(Field field, String nodeId , HGQLSchema schema, Field parentField ) {
 
         if(schema.getQueryFields().containsKey(field.getName())) {
             this.service = schema.getQueryFields().get(field.getName()).service();   // service that is responsible for given field
         } else if(schema.getFields().containsKey(field.getName())) {
-            LOGGER.info("here");
+            LOGGER.info("here");   //ToDo:
         } else {
             throw new HGQLConfigurationException("Field '" + field.getName() + "' not found in schema");
         }
@@ -127,8 +162,22 @@ public class ExecutionTreeNode {
         this.rootType = ROOT_TYPE;
         this.hgqlSchema = schema;
         this.query = getFieldJson(field, ROOT_TYPE, nodeId, ROOT_TYPE, parentField);
+
     }
 
+    /**
+     * Initiates the conversion of the given query into a query structure that is executed if the generateTreeModel method is called.
+     * The given query (field) is converted according to the assigned services in the given HGQLSchema.
+     *
+     * Note: Carefully use this constructor as it uses the given service as service for the given fields.
+     *       Intention of this constructor is the use with subfields that also have the same ManifoldService as there parent field.
+     * @param service Service that is responsible for the given fields.
+     * @param fields Set of sub-queries (sub-fields)
+     * @param parentId ID (SPARQL variable) that identifies the parent field of the given field
+     * @param parentType Type of the parent field
+     * @param schema HGQLSchema the query is based on
+     * @param parentField Parent field of the given fields
+     */
     private ExecutionTreeNode(Service service, Set<Field> fields, String parentId, String parentType, HGQLSchema schema, Field parentField) {
 
         this.service = service;
@@ -212,11 +261,15 @@ public class ExecutionTreeNode {
 
 
     /**
-     * Handling of fields that have union or interface as outputType
-     * @param field
-     * @param parentId
+     * Handling of fields that have union or interface as outputType.
+     * Generates a virtual field by adding the field for all possible types for the interface/union with different corresponding output types.
+     * The SPARQL variable name generation is hereby altered to indicate the virtual field. Instead of underscore
+     * plus incrementing number for the number fo field a "_y" is appended to indicate the virtual field.
+     * The result transformation then knows how to translate the results accordingly.
+     * @param field set of fields of one object
+     * @param parentId objectId of the object tht has the given fields
      * @param nodeId
-     * @param parentType
+     * @param parentType object name
      * @return
      */
     private SubQueriesPattern getVirtualFieldsJson(Field field, String parentId, String nodeId, String parentType, TypeConfig target, Field parentField) {
@@ -315,7 +368,7 @@ public class ExecutionTreeNode {
 
 
     /**
-     * Generates a JSON object representing the given field and its subfield if defined. For subfields with a different
+     * Generates a QueryPattern object representing the given field and its subfield if defined. For subfields with a different
      * service a new ExecutionTreeNode is created  and added to the ExecutionForest of this object
      * @param field Field of the query
      * @param parentId objectId of this field
@@ -331,7 +384,7 @@ public class ExecutionTreeNode {
     }
 
     /**
-     * Generates a JSON object representing the given field and its subfield if defined. For subfields with a different
+     * Generates a QueryPattern object representing the given field and its subfield if defined. For subfields with a different
      * service a new ExecutionTreeNode is created  and added to the ExecutionForest of this object
      * @param field Field of the query
      * @param parentId objectId of this field
@@ -405,7 +458,7 @@ public class ExecutionTreeNode {
     }
 
     /**
-     * Generates a JSON representation for the subfields with the same service. For subfields with a different service
+     * Generates a SubQueriesPattern object for the subfields with the same service. For subfields with a different service
      * create a new ExecutionTreeNode and add the new object to the ExecutionForest of this object
      * @param field Field containing a query selection set
      * @param parentId id of the objectType of the given field
@@ -419,11 +472,10 @@ public class ExecutionTreeNode {
     }
 
     /**
-     * Generates a JSON representation for the subfields with the same service. For subfields with a different service
+     * Generates a SubQueriesPattern object for the subfields with the same service. For subfields with a different service
      * create a new ExecutionTreeNode and add the new object to the ExecutionForest of this object
      * @param field Field containing a query selection set
      * @param parentId id of the objectType of the given field
-     * @param parentType name of the objectType of the given field
      * @param targetName targetName of the field (outputtype)
      * @return JSON object of the subfields that have the same service or null if no subfield uses this service
      */
@@ -441,7 +493,7 @@ public class ExecutionTreeNode {
 
             for (Map.Entry<Service, Set<Field>> entry : splitFields.entrySet()) {
                 boolean differentLevel = entry.getKey() instanceof ManifoldService && this.service instanceof ManifoldService && !((ManifoldService) entry.getKey()).getLevel().equals(((ManifoldService) this.service).getLevel());
-                if (!entry.getKey().getId().equals(this.service.getId()) || differentLevel) {  //ToDo: // If the service is NOT the same service as the service of this object create a new ExecutionTreeNode
+                if (!entry.getKey().getId().equals(this.service.getId()) || differentLevel) {  //ToDo:? // If the service is NOT the same service as the service of this object create a new ExecutionTreeNode
                     ExecutionTreeNode childNode = new ExecutionTreeNode(
                             entry.getKey(),   //service
                             entry.getValue(),   // fields
@@ -488,7 +540,7 @@ public class ExecutionTreeNode {
                                 }
                     })
                     .findAny();
-            if (hasSameServiceSubfields.isPresent()){//ToDo:   // at least one subfield has the same service as this field
+            if (hasSameServiceSubfields.isPresent()){//ToDo: ?  // at least one subfield has the same service as this field
                 return getFieldsJson(hasSameServiceSubfields.get().getValue(), nodeId, targetName, field);   // return Json representation of the subfields of the selectionSet
             }
         }
@@ -587,6 +639,9 @@ public class ExecutionTreeNode {
                     }
                     // Add the service to the result
                     if(serviceConfig instanceof ManifoldService){
+                        // crete new ManifoldService instance to ensure that the subfields of the query (for the same set
+                        // of services) is executed separately to cover the potential case that data queried in the parent
+                        // query are queried from the whole set of services.
                         serviceConfig = new ManifoldService((ManifoldService) serviceConfig, parentId);
                     }
                     addOrCreate(result, serviceConfig, field);
@@ -605,10 +660,12 @@ public class ExecutionTreeNode {
     }
 
     /**
-     *
-     * @param result
-     * @param service
-     * @param field
+     * Adds the given field to the result map based on the given service. If the service is already in the result and has
+     * the ame level the field is added to the set of fields that are already in the result. If they have a different
+     * level the service is inserted as new object with the field in the fields list.
+     * @param result Map containing the service as key and the fields queried on the service as value
+     * @param service Service that is responsible for the given field.
+     * @param field Field object to be added to the given result
      */
     private void addOrCreate(Map<Service, Set<Field>> result, Service service, Field field){
         final Optional<Map.Entry<Service, Set<Field>>> optionalServiceSetEntry = result.entrySet().stream()
@@ -630,9 +687,11 @@ public class ExecutionTreeNode {
     }
 
     /**
-     *
-     * @param input
-     * @return
+     * Generates the result for the query of this object by executing the query and requesting the results of the childNodes
+     * (sub-queries with different service id). The result of the query and the results of the childNodes are than merged
+     * to a complete result and returned.
+     * @param input Input values (IRIs) of a parent query that limit the results of this query
+     * @return Results for the query and 
      */
     Result generateTreeModel(Set<String> input) {
 

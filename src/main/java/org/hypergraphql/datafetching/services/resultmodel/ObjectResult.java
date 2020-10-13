@@ -1,8 +1,5 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,28 +7,61 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * ObjectResult represents query results of fields that have a type as output type (not Scalar value).
+ * Each queried field with these conditions results in an own objet.
+ * Nested fields in the query also result in nested ObjectResult objects.
+ */
 public class ObjectResult extends Result<Map<String, Object>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ObjectResult.class);
-    //ToDo: Test what is better TreeMap or HashMap.
     Map<String, Map<String, Result>> subfields = new HashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
 
-    public ObjectResult(String name) {
-        super(name);
+    /**
+     * Initalize ObjectResult with nodeId and name, both are mandatory for all ObjectResults
+     * @param nodeId Id of the query field also used as SPARQL variable
+     * @param name Name of the queried field
+     */
+    public ObjectResult(String nodeId, String name) {
+        super(nodeId, name);
     }
 
-    public ObjectResult(String name, String alias) {
-        super(name, alias);
+    /**
+     *  Additionally to the name the field also has a alias defined.
+     * @param nodeId Id of the query field also used as SPARQL variable
+     * @param name Name of the field
+     * @param alias Alias of the field name
+     */
+    public ObjectResult(String nodeId, String name, String alias) {
+        super(nodeId, name, alias);
     }
 
-    public ObjectResult(String name, Map<String, Object> args) {
-        super(name, args);
+    /**
+     * Additionally arguments are defined for the field
+     * @param nodeId Id of the query field also used as SPARQL variable
+     * @param name Name of the field
+     * @param args Arguments of the field
+     */
+    public ObjectResult(String nodeId, String name, Map<String, Object> args) {
+        super(nodeId, name, args);
     }
 
-    public ObjectResult(String name, String alias, Map<String, Object> args) {
-        super(name, alias, args);
+    /**
+     * Additionally the field has an alias and arguments
+     * @param nodeId Id of the query field also used as SPARQL variable
+     * @param name Name of the field
+     * @param alias Alias of the field
+     * @param args Arguments of the field
+     */
+    public ObjectResult(String nodeId, String name, String alias, Map<String, Object> args) {
+        super(nodeId, name, alias, args);
     }
 
+    /**
+     * Returns the queried subfields contained in this object for the given iri
+     * @param iri IRI, the identifier of the object results
+     * @return Returns the subfiedls and corresponding results for the given iri that are contained in this object
+     */
     public Map<String, Result> getSubfiedldsOfObject(String iri){
         if(this.subfields.containsKey(iri)){
             return this.subfields.get(iri);
@@ -40,6 +70,11 @@ public class ObjectResult extends Result<Map<String, Object>> {
         }
     }
 
+    /**
+     * Adds a empty object entity to the object.
+     * If this object already contains this entity nothing is done.
+     * @param iri Id of the added object
+     */
     public void addObject(String iri){
         if(this.subfields.containsKey(iri)){
             // Already in the list -> do nothing
@@ -48,6 +83,14 @@ public class ObjectResult extends Result<Map<String, Object>> {
         }
     }
 
+    /**
+     * Adds a object entity with the given subfields to this objet.
+     * The given subfields are the results for the given iri.
+     * If the given subfields or parts of the subfields already exist in this object, than the results are merged together.
+     * Otherwise the subfields are are simply added.
+     * @param iri IRI that identifies the given subfields
+     * @param subfields Subfield results for the given IRI
+     */
     public void addObject(String iri, Map<String, Result> subfields){
         if(this.subfields.containsKey(iri)){
             final Map<String, Result> obj = this.subfields.get(iri);
@@ -80,31 +123,42 @@ public class ObjectResult extends Result<Map<String, Object>> {
                         this.errors += result.errors;
                     });
                     field.put(fieldName,value);
+                    return field;
                 }
             }else{
                 this.errors += "Schema Error for "+ this.name + ": Only one result should exist, all queried values are returned in a list.";
             }
         }
-        if(this.args != null && this.args.get(SPARQLServiceConverter.ORDER) != null){
-            Comparator comparator = null;
-            // If new order features are added extend the comparator cases here
-            switch(this.args.get("order").toString()){
-                case SPARQLServiceConverter.ORDER_ASC: comparator = Map.Entry.comparingByKey(); break;
-                case SPARQLServiceConverter.ORDER_DESC: comparator = Map.Entry.comparingByKey(Comparator.reverseOrder()); break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + this.args.get("order"));
+        try {
+            if (this.args != null && this.args.get(SPARQLServiceConverter.ORDER) != null) {
+                Comparator comparator = null;
+                // If new order features are added extend the comparator cases here
+                switch (this.args.get(SPARQLServiceConverter.ORDER).toString()) {
+                    case SPARQLServiceConverter.ORDER_ASC:
+                        comparator = Map.Entry.comparingByKey();
+                        break;
+                    case SPARQLServiceConverter.ORDER_DESC:
+                        comparator = Map.Entry.comparingByKey(Comparator.reverseOrder());
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + this.args.get(SPARQLServiceConverter.ORDER));
+                }
+                if (comparator != null) {
+                    Map<String, Map<String, Result>> subfields_sorted = new HashMap<>();
+                    this.subfields.entrySet().stream()
+                            .sorted(comparator)
+                            .forEachOrdered(o -> subfields_sorted.put(((Map.Entry<String, Map<String, Result>>) o).getKey(), ((Map.Entry<String, Map<String, Result>>) o).getValue()));
+                    this.subfields = subfields_sorted;
+                }
             }
-            if (comparator != null) {
-                Map<String, Map<String, Result>> subfields_sorted = new HashMap<>();
-                this.subfields.entrySet().stream()
-                        .sorted(comparator)
-                        .forEachOrdered(o -> subfields_sorted.put(((Map.Entry<String, Map<String, Result>>) o).getKey(), ((Map.Entry<String, Map<String, Result>>) o).getValue()));
-                this.subfields = subfields_sorted;
-            }
+        }catch (ClassCastException e){
+            this.errors += "Casting exception for the arguments of field " + this.name + ". ";
+            LOGGER.error(e.getMessage());
+            e.printStackTrace();
         }
         subfields = this.subfields.values().stream()
-//                .skip(args == null || args.get("offset") == null ? 0 : (long)args.get("offset"))   // offset interferes with multiple services limiter. offset is therefore only applied on the SPARQL queries and not on the final result build up
-                .limit(args == null || args.get("limit") == null ? this.subfields.size() : (long)args.get("limit"))
+                .skip(args == null || args.get(SPARQLServiceConverter.OFFSET) == null ? 0 : ((Number) args.get(SPARQLServiceConverter.OFFSET)).longValue())   // offset interferes with multiple services limiter.
+                .limit(args == null || args.get(SPARQLServiceConverter.LIMIT) == null ? this.subfields.size() : ((Number) args.get(SPARQLServiceConverter.LIMIT)).longValue())
                 .map(objectEntry -> {
                     Map<String,Object> object = new HashMap<>();
                     for (Map.Entry<String, Result> entry : objectEntry.entrySet()) {
@@ -151,6 +205,18 @@ public class ObjectResult extends Result<Map<String, Object>> {
         }
     }
 
+    /**
+     * Functions similarly to the merge method but checks the level of the result.
+     * If the given subfield results are not on the same level as this object the subfield is forwarded one level deeper
+     * to ensure that the results/subfields are merged correctly.
+     * Furthermore this method only adds new data to result entities that already exist. Contrary to the merge method here,
+     * only the existing entities are extended with further data but NO new entity is added.
+     * This is due to the handling and execution of multiple queries where a query result may contain data for an entity
+     * queried from another service but it also is possible that other data is also in the result for other entities.
+     * The deepSubfieldMerge means here that the result entities from this object and below (result is tree structure)
+     * only pick there data from the given subfield result to extend there data.
+     * @param subfields Potential results for the subfields of this object
+     */
     public void deepSubfieldMerge(Result subfields){
         if(nodeId.equals(subfields.getNodeId())){
             // same level merge results on matching ids
@@ -183,78 +249,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
                 }
             }
         }
-
-//        for (Map<String, Result> stringResultMap : this.subfields.values()) {
-//            if (stringResultMap.containsKey(subfields.name)) {
-//                stringResultMap.get(subfields.name).merge(subfields);
-//            }
-//        }
     }
 
 
-
-    public static void main(String[] args) {
-        ObjectResult res = new ObjectResult("ex_Person");
-        StringResult name = new StringResult("ex_name");
-        name.values.add("Bob");
-        name.values.add("Alice");
-        StringResult age = new StringResult("ex_age");
-        age.values.add("42");
-        StringResult street = new StringResult("ex_street");
-        street.values.add("Evergreen Terrace 742");
-        Map<String, Result> addr_fields = new HashMap<>();
-        addr_fields.put("ex_street", street);
-        addr_fields.put("number", age);
-        ObjectResult addr = new ObjectResult("ex_address");
-        addr.subfields.put("http://example.org/addr_a", addr_fields);
-        Map<String, Result> fields = new HashMap<String, Result>();
-        fields.put("ex_name", name);
-        fields.put("ex_age", age);
-        fields.put("ex_address", addr);
-        res.subfields.put("http://example.org/bob", fields);
-
-        System.out.println(res.generateJSON());
-
-        // Test Merge
-
-        ObjectResult res2 = new ObjectResult("ex_Person");
-        StringResult name2 = new StringResult("ex_name");
-        name2.values.add("Eve");
-        name2.values.add("Eve");
-        StringResult age2 = new StringResult("ex_age");
-        age2.values.add("24");
-        StringResult street2 = new StringResult("ex_street");
-        street2.values.add("Evergreen Terrace 666");
-        Map<String, Result> addr_fields2 = new HashMap<String, Result>();
-        addr_fields2.put("ex_street", street2);
-        addr_fields2.put("number", age2);
-        ObjectResult addr2 = new ObjectResult("ex_address");
-        addr2.subfields.put("http://example.org/addr_a", addr_fields2);
-        Map<String, Result> fields2 = new HashMap<String, Result>();
-        fields2.put("ex_name", name2);
-        fields2.put("ex_age", age2);
-        fields2.put("ex_address", addr2);
-        res2.subfields.put("http://example.org/bob", fields2);
-
-        res.merge(res2);
-        System.out.println(res.generateJSON());
-
-        // Test ordering
-        Map<String, Object> arguments = new HashMap<>();
-        arguments.put(SPARQLServiceConverter.ORDER,SPARQLServiceConverter.ORDER_DESC);
-
-        name.args = arguments;
-        System.out.println(res.generateJSON());
-
-        // Test limit and offset
-
-        arguments.put(SPARQLServiceConverter.LIMIT,1);
-        arguments.put(SPARQLServiceConverter.OFFSET, 1);
-        name.args = arguments;
-//        long start = System.currentTimeMillis();
-        System.out.println(res.generateJSON());
-        long finish = System.currentTimeMillis();
-//        long timeElapsed = finish - start;
-//        System.out.println(timeElapsed);
-    }
 }

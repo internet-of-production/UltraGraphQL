@@ -51,6 +51,17 @@ public class SPARQLEndpointService extends SPARQLService {
         return password== null? "" : password;
     }
 
+    /**
+     * Executes the given query against the SPARQL endpoint assigned to this object.
+     * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
+     * If more IRIs are provided in input then defined in VALUES_SIZE_LIMIT as limit the values are distributed over multiple queries to sta below the limit.
+     * @param query query or sub-query to be executed
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers variables for the SPARQL query
+     * @param rootType type of the query root
+     * @param schema HGQLSchema the query is based on
+     * @return Query results and IRIs for underlying queries
+     */
     @Override
     public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
@@ -86,6 +97,12 @@ public class SPARQLEndpointService extends SPARQLService {
         return treeExecutionResult;
     }
 
+    /**
+     * Executes the given SPARQL Update against the SPARQL endpoint assigned to this object.
+     * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
+     * @param update SPARQL Update
+     * @return True if the update succeeds otherwise False
+     */
     public Boolean executeUpdate(String update){
         try{
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -138,11 +155,11 @@ public class SPARQLEndpointService extends SPARQLService {
      * Init resultSet by inserting each marker as key with a empty set as value. Also add to the input set the URIs of
      * the id argument of the query and return them as list.
      * @param query JSON representation of a graphql query needed to extract information about query arguments
-     * @param input
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
      * @param markers variables for the SPARQL query
      * @param rootType type of the query root
      * @param schema HGQLSchema
-     * @param resultSet
+     * @param resultSet A Map where the markers are inserted as keys with an empty set as value
      * @return List with input values
      */
     List<String> getStrings(Query query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema, Map<String, Set<String>> resultSet) {

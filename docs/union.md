@@ -1,33 +1,40 @@
-# HyperGraphQL Union Support
-HGQL supports the basic GraphQL union functionalities.
+# UltraGraphQL Union Support
+
+UGQL supports the basic GraphQL union functionalities.
 In the schema a union is defined as follows:
->```GraphQL
->union animal = dog | cat
->type dog{}
->type cat{}
->```
+
+```GraphQL
+union animal = dog | cat
+type dog{}
+type cat{}
+```
+
 The members of a union MUST be a objectType and MUST be defined in the schema.
-Unions are used to define that a outputtype of a field has multiple possible outputtypes.
+Unions are used to define that a output type of a field has multiple possible output types.
 In GraphQL those fields are queried as follows:
->```GraphQL
->{ Person{
->     owns{
->        ... on dog{
->                name
->                breed
->        }
->        ... on cat{
->                name
->        }
->     }
-> }
->}
->```
+
+```GraphQL
+{ Person{
+     owns{
+        ... on dog{
+                name
+                breed
+        }
+        ... on cat{
+                name
+        }
+     }
+ }
+}
+```
 
 >Currently NOT supported are union extend features
 
-## Implementation
-HGQL has interpreted unions and interfaces as objectTypes, which had allowed to define these types in the schema but it was not possible to use these types in the intended way.
+## Example
+This example is a in-depth analysis of the [UnionTest](./evaluation/union_test.md).
+
+## Implementation of Unions in UGQL 1.0.0
+UGQL has interpreted unions and interfaces as objectTypes, which had allowed to define these types in the schema but it was not possible to use these types in the intended way.
 To add unionTypes to the HGQLSchema and then to the GraphQL schema, the queries are validated against, the information about these types have to be inserted into the rdfSchema.
 The rdfSchema is an RDF dataset containing information about the HGQLSchema.
 With this dataset HGQLSchema objects are created like *FieldConfig*, *FieldOfTypeConfig*, *QueryFieldConfig* and the *TypeConfig*.
@@ -40,6 +47,7 @@ Therefore the fields and objects are used to generate corresponding GraphQL obje
 To support unionTypes and interfaceTypes the TypeConfig has to checked to generate either a *GraphQLObjectType*, *GraphQLUnionType* or a *GraphQLInterfaceType*.
 GraphQLUnionType is initialised with the name, memberTypes and a TypeResolver.
 This TypeResolver is needed during the data fetching to decide of which type an object is.
+
 >UnionType TypeResolver logic:
 >
 >![Diagram about the UnionType TypeResolver logic](./figures/UnionType_TypeResolver.svg)
@@ -53,9 +61,8 @@ Therefore a field with a union as output is translated into virtual fields of th
 >![Conversion of unions to Json representation of the query](./figures/TypeResolver_JsonQuery.svg)
 
 
-## Example
-This example is a in-depth analysis of the [UnionTest](./evaluation/union_test.md).
-### HGQL Schema
+
+### UGQL Schema
 ```GraphQL
 type __Context{
 	dbo_address:	_@href(iri:"http://dbpedia.org/ontology/address")
@@ -239,7 +246,10 @@ Document{
 ```
 A anotated version of this json document can be found [here](#graphql-query-representation-anotated)
 
-### HGQL Json Query Representation
+### UGQL Json Query Representation
+
+>Note: As from **UGQL 1.1.0** the JSON representation of the query was replaced by Java objects to increase the type strictness and performance. The java objects use the same names as attributes.
+
 The field *eg_address* occurs twice in the JSON representation because each virtual field queries another type with a different selectionSet.
 The nodeId and parentId define the SPARQL query variable used in the SPARQL queries as seen [here](#hgql-query)
 ```JSON
@@ -390,8 +400,11 @@ WHERE {
 ```
 
 
-## Current Limitation of Unions
-In HyperGraphQL the query is translated into SPARQL queries and the results of these queries is stoared in a **ResultPool**. To generate the GraphQL response out of this rdf dataset the GraphQLSchema object is initialized with data fetchers that extract the data from this ResultPool. The GraphQL DataFetcher fetches fields with a unionType as output by resolving for each object the type to query.
+## Limitation of Unions in UGQL 1.0.0
+
+>As from **UGQL 1.1.0** this limitation does no longer exist. If a queried entity has multiple types the individual fields of those types are merged into the object of the entity. Possible schema validations in the cardinality of the result are covered by the safe fallback by converting the output type og the field to a list and adding this change in the schema of the result to the error message of the query. For example if *_type* is queried on a entity with two types then the type output type is automatically changed to a list containing both types.
+
+In **UltraGraphQL 1.0.0** the query is translated into SPARQL queries and the results of these queries is stoared in a **ResultPool**. To generate the GraphQL response out of this rdf dataset the GraphQLSchema object is initialized with data fetchers that extract the data from this ResultPool. The GraphQL DataFetcher fetches fields with a unionType as output by resolving for each object the type to query.
 For example if the following triple is in the ResultPool
 > ex:Alice ex:owns ex:Rex.
 
@@ -413,6 +426,8 @@ A problem occurs if *ex:Rex* is defined as both *cat* and *dog* in this case the
 
 ## Appendix
 ### GraphQL Query Representation anotated
+>Note: As from **UGQL 1.1.0** the JSON representation of the query was replaced by Java objects to increase the type strictness and performance. The java objects use the same names as attributes.
+
 - green boxes cover fields
 - red boxes cover inlineFragments
 ![GraphQL Query Representation anotated](./figures/graphql_json_query.png)

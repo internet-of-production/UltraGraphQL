@@ -14,6 +14,12 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+/**
+ * The ManifoldService represents a set of multiple services. Incoming queries are forwarded to all services of this object and executed.
+ * Returning results are merged and returned.
+ * Note: This class is not intended to be used as a service type in the UGQL config file and will only be created internally
+ *       if multiple service ids are assigned to one schema entity.
+ */
 public class ManifoldService extends Service {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ManifoldService.class);
@@ -32,17 +38,17 @@ public class ManifoldService extends Service {
 
 
     /**
-     * Executes the query by handing over the query to each service of this object to execute the query and  then the
-     * merging the results of each service are merged together.
-     * @param query JSON representation of a graphql query
-     * @param input
-     * @param strings
-     * @param rootType
-     * @param schema
-     * @return
+     * Executes the query by handing over the query to each service of this object to execute the query to then
+     * merge the results of each service.
+     * @param query query or sub-query to be executed
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers variables for the SPARQL query
+     * @param rootType type of the query root
+     * @param schema HGQLSchema the query is based on
+     * @return Query results and IRIs for underlying queries
      */
     @Override
-    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> strings, String rootType, HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema) {
         LOGGER.debug(String.format("%s: Start query execution for all services", this.getId()));
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         Map<String, Set<String>> resultSet = new HashMap<>();
@@ -50,7 +56,7 @@ public class ManifoldService extends Service {
         Result formatedResult = null;
 //        Set<Future<TreeExecutionResult>> futureResults = new HashSet<>();
         for( Service service : services){
-              TreeExecutionResult res_part = service.executeQuery(query, input, strings, rootType, schema);
+              TreeExecutionResult res_part = service.executeQuery(query, input, markers, rootType, schema);
               res_part.getResultSet().forEach((var, uri) ->{
                   if(resultSet.get(var)== null){
                       resultSet.put(var, uri);
