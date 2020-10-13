@@ -1,0 +1,25 @@
+{
+  "name": "extended_mapping",
+  "extraction": true,
+  "mapping": "mapping.ttl",
+  "server": {
+    "port": 8000,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql",
+    "framework": "jaxrs"
+  },
+  "services": [
+    {
+      "id": "dataset_a",
+      "type": "LocalModelSPARQLService",
+      "filepath": "dataset_a.ttl",
+      "filetype": "Turtle"
+    },
+    {
+      "id": "dataset_b",
+      "type": "LocalModelSPARQLService",
+      "filepath": "dataset_b.ttl",
+      "filetype": "Turtle"
+    }
+  ]
+}
