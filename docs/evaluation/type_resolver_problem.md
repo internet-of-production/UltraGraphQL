@@ -1,4 +1,8 @@
 #Type Resolver Problem
+> As from **UGQL v1.1.0 or higher** this problem does not exist anymore. No if a resource has multiple types the fields of the different types are merged.
+>Furthermore, if a schema violation does occur because of the merging a safe fail was integrated. 
+>Meaning that if a field output type is defined as NOT list (single output) but the merging results in more than one result, than the output type for the file is changed to list for this result and marked in the error segment of the result.
+>
 Fields with the output types interface and union can output differrent object types.
 GraphQL therefore need to evaluate the type of result values inorder to call the corresponding data fetcher in order to query type related data.
 For this purpose a type resolver is assigned to each field with an interface or union as output type.
