@@ -10,6 +10,7 @@ import org.hypergraphql.exception.HGQLConfigurationException;
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Coordinates the schema extraction by extracting the schema from each service separately and merging them into one
@@ -26,11 +27,15 @@ public class ExtractionController {
     RDFtoHGQL mapper;
 
     public ExtractionController(List<ServiceConfig> serviceConfigs, Model mapping, String query_template){
+        this(serviceConfigs, mapping, query_template, null);
+    }
+
+    public ExtractionController(List<ServiceConfig> serviceConfigs, Model mapping, String query_template, Map<String, String> namespace_prefixes){
         LOGGER.info("Start extracting the schema");
         this.serviceConfigs = serviceConfigs;
         this.mapping = new MappingConfig(mapping);
         this.extractor = new SPARQLExtraction(this.mapping,query_template);
-        this.mapper = new RDFtoHGQL(this.mapping);
+        this.mapper = new RDFtoHGQL(this.mapping, namespace_prefixes);
         extractAndMap();
     }
 

@@ -123,7 +123,8 @@ public class HGQLConfigService {
                 mapping.read(mapping_config, null, "TTL");
                 ExtractionController extractionController = new ExtractionController(config.getServiceConfigs(),
                         mapping,
-                        extraction_query);
+                        extraction_query,
+                        config.getPrefixes());
                 reader = extractionController.getHGQLSchemaReader();
                 if(config.getSchemaFile() != null){
                     LOGGER.info("Extracted HyperGraphQL schema will be stored in {}", config.getSchemaFile());

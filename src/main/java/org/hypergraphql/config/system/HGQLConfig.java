@@ -7,6 +7,7 @@ import graphql.schema.GraphQLSchema;
 import org.hypergraphql.datamodel.HGQLSchema;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by szymon on 05/09/2017.
@@ -24,6 +25,7 @@ public class HGQLConfig {
     private  String queryFile;
     private Boolean mutations;
     private String mutationService;
+    private Map<String, String> prefixes;
 
     //Additional attributes
     private GraphQLSchema schema;
@@ -49,7 +51,8 @@ public class HGQLConfig {
             @JsonProperty("mapping") String mappingFile,
             @JsonProperty("query") String queryFile,
             @JsonProperty("mutations") Boolean mutations,
-            @JsonProperty("mutationService") String mutationService
+            @JsonProperty("mutationService") String mutationService,
+            @JsonProperty("prefixes") Map<String, String> prefixes
     ) {
         this.name = name;
         this.schemaFile = schemaFile;
@@ -60,6 +63,7 @@ public class HGQLConfig {
         this.queryFile = queryFile;
         this.mutations = mutations;
         this.mutationService = mutationService;
+        this.prefixes = prefixes;
     }
 
     /**
@@ -184,6 +188,15 @@ public class HGQLConfig {
      */
     public String getMutationService(){
         return mutationService;
+    }
+
+    /**
+     * Getter method for the attribute prefixes. The defined prefixes are used fot the name generation of schema entities
+     * during the bootstrapping phase.
+     * @return Prefixes to be used for the name generation. The namespace abbreviation is used as key and the namespace is the value
+     */
+    public Map<String, String> getPrefixes(){
+        return this.prefixes;
     }
 }
 

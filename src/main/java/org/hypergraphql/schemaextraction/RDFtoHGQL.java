@@ -27,11 +27,15 @@ public class RDFtoHGQL {
     private Map<String, Interface> interfaces = new HashMap<String, Interface>();
     private Map<String, Inputtype> inputtypes = new HashMap<String, Inputtype>();
     private Map<String, String> context = new HashMap<>();   // (hgql_id, uri)
-    private PrefixService prefixService = new PrefixService();
+    private PrefixService prefixService;
     private Model model = ModelFactory.createDefaultModel();
 
     public RDFtoHGQL(MappingConfig mappingConf){
         this.mapConfig = mappingConf;
+    }
+    public RDFtoHGQL(MappingConfig mappingConf, Map<String,String> namespace_prefixes){
+        this.mapConfig = mappingConf;
+        this.prefixService = new PrefixService(invert(namespace_prefixes));
     }
 
     /**
@@ -496,36 +500,25 @@ public class RDFtoHGQL {
         return name.replaceAll("[^a-zA-Z0-9_]","");
     }
 
-
-    //ToDo: parse the queried schema into the corresponding objects
-
-    public static void main(String[] args) throws FileNotFoundException {
-        // Load mapping configuration
-//        Model mapModel = ModelFactory.createDefaultModel();
-//        System.out.println("Working Directory = " +
-//                System.getProperty("user.dir"));
-//        String mapInputFileName = "./src/main/resources/schema/mapping.ttl";
-//        mapModel.read(new FileInputStream(mapInputFileName),null,"TTL");
-//        // Load Test RDF schema
-//        Model model = ModelFactory.createDefaultModel();
-//        System.out.println("Working Directory = " +
-//                System.getProperty("user.dir"));
-//        String inputFileName = "./src/main/java/org/hypergraphql/schemaextraction/test.ttl";
-//        model.read(new FileInputStream(inputFileName),null,"TTL");
-//        // Init Class
-//        model.write(System.out);
-//        RDFtoHGQL converter = new RDFtoHGQL(new MappingConfig(mapModel));
-//        converter.create(model, "TestService");
-//        String sdl = converter.buildSDL();
-//        System.out.println(sdl);
-
-//        Model rdfsExample = ModelFactory.createDefaultModel();
-//        String inputFileName = "./src/main/resources/schema/test_data_inference.ttl";
-//        rdfsExample.read(new FileInputStream(inputFileName),null, "TTL");
-//        InfModel inf = ModelFactory.createRDFSModel(rdfsExample);
-//        inf.write(System.out);
-
-        System.out.print(RDFtoHGQL.graphqlNameSanitation("ex_Data-Test?dsw48üü48"));
+    /**
+     * Inverts the given map by making the key to the new value and vice versa.
+     * Example:
+     *    1->"Bob"
+     *    2->"Alice"
+     *
+     *    is converted do
+     *
+     *    "Bob"->1
+     *    "Alice"->2
+     * @param map Map the inversion is performed on
+     * @param <V> Datatype of the key
+     * @param <K> Datatype of the value
+     * @return Returns the inversion of the given map
+     */
+    public static <V, K> Map<V, K> invert(Map<K, V> map) {
+        return map.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
 
