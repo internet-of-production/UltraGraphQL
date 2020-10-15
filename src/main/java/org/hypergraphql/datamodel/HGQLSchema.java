@@ -193,17 +193,11 @@ public class HGQLSchema {
 
             for (Directive dir : directives) {
                 if (dir.getName().equals("service") && type instanceof ObjectTypeDefinition) {
-                    String getQueryUri = typeUri;// + "_GET";
-//                    String getByIdQueryUri = typeUri + "_GET_BY_ID";
+                    String getQueryUri = typeUri;
 
                     rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);   //ToDo: HGQL_QUERY_FIELD and HGQL_QUERY_GET_FIELD are the same if _GET_BY_ID is removed
                     rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_GET_FIELD);
                     rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getQueryUri);
-//                    rdfSchema.insertStringLiteralTriple(getQueryUri, HGQL_HAS_NAME, typeName + "_GET");
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_GET_BY_ID_FIELD);
-//                    rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getByIdQueryUri);
-//                    rdfSchema.insertStringLiteralTriple(getByIdQueryUri, HGQL_HAS_NAME, typeName + "_GET_BY_ID");
 
                     String outputListTypeURI = schemaNamespace + UUID.randomUUID();
 
@@ -211,7 +205,6 @@ public class HGQLSchema {
                     rdfSchema.insertObjectTriple(outputListTypeURI, HGQL_OF_TYPE, typeUri);
 
                     rdfSchema.insertObjectTriple(getQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
 
                     if (dir.getArgument("id").getValue() instanceof ArrayValue) {
                         // Multiple services are defined for one type add all serviceIds for this type
