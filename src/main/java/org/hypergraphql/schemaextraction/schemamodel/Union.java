@@ -49,7 +49,7 @@ public class Union extends Interface {   // ToDo: Rename Union to sharedFieldsIn
 
     public String build(){
         if(this.types.size() > 1){
-            return String.format("interface %s {\n %s\n}", getName(), buildTypes());
+            return "interface " + getName() + " {\n " + buildTypes() + "\n}";
         }else {
             return "";
         }

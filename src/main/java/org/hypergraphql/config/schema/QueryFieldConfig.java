@@ -2,8 +2,6 @@ package org.hypergraphql.config.schema;
 
 import org.hypergraphql.datafetching.services.Service;
 
-import java.util.Set;
-
 public class QueryFieldConfig {
 
     private Service service;

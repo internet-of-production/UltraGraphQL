@@ -1,25 +1,16 @@
 package org.hypergraphql.schemaextraction;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.jena.rdf.model.impl.InfModelImpl;
-import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.rdf.model.Resource;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE_PREFIX;
@@ -48,11 +40,18 @@ public class PrefixService {
 
 
     public PrefixService(){
-        this.namespaceMapping.put(HGQL_SCHEMA_NAMESPACE, HGQL_SCHEMA_NAMESPACE_PREFIX);
+        this(null);
     }
 
     public PrefixService(Map<String,String> namespaceMapping){
-        this.namespaceMapping = namespaceMapping;
+        if(namespaceMapping != null){
+            // filter out any occurrences of the internal IRI (namespace and prefix of it)
+            namespaceMapping = namespaceMapping.entrySet().stream()
+                    .filter(entry -> !entry.getKey().equals(HGQL_SCHEMA_NAMESPACE) && !entry.getValue().equals(HGQL_SCHEMA_NAMESPACE_PREFIX))
+                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+            this.namespaceMapping = namespaceMapping;
+        }
+        this.namespaceMapping.put(HGQL_SCHEMA_NAMESPACE, HGQL_SCHEMA_NAMESPACE_PREFIX);
     }
 
     public Map<String, String> getNamespaceMapping() {
@@ -67,7 +66,7 @@ public class PrefixService {
     public String getId(Resource uri){
         String suffix = uri.getLocalName();
         String prefix = getPrefix(uri);
-        return String.format("%s_%s", prefix, suffix);
+        return prefix + "_" + suffix;
     }
 
     /**

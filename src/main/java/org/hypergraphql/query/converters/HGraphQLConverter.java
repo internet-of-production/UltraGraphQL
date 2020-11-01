@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hypergraphql.config.schema.QueryFieldConfig;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.query.pattern.Query;
+import org.hypergraphql.query.pattern.QueryPattern;
+import org.hypergraphql.query.pattern.SubQueriesPattern;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +39,7 @@ public class HGraphQLConverter {
         return String.format(ARG, uriSequence);
     }
 
-    private String getArgsSTR(JsonNode getArgs) {
+    private String getArgsSTR(Map<String, Object> getArgs) {
 
         if (getArgs != null) {
             return "";
@@ -57,13 +60,15 @@ public class HGraphQLConverter {
         return String.format(ARG, argsStr);
     }
 
-    private String langSTR(ObjectNode langArg) {
+    private String langSTR(Map<String, Object> langArg) {
 
-        if (langArg.isNull()) {
+        if (langArg == null) {
             return "";
         }
-        final String LANGARG = "(lang:\"%s\")";
-        return String.format(LANGARG, langArg.get("lang").asText());
+        if(langArg.containsKey(SPARQLServiceConverter.LANG)){
+            return "(lang:\"" + (String) langArg.get(SPARQLServiceConverter.LANG) + "\")" ;
+        }
+        return "";
     }
 
     private String querySTR(String content) {
@@ -73,41 +78,39 @@ public class HGraphQLConverter {
     }
 
 
-    public String convertToHGraphQL(JsonNode jsonQuery, Set<String> input, String rootType) {
+    public String convertToHGraphQL(Query jsonQuery, Set<String> input, String rootType) {
 
         Map<String, QueryFieldConfig> queryFields = schema.getQueryFields();
-        Boolean root = (!jsonQuery.isArray() && queryFields.containsKey(jsonQuery.get("name").asText()));
+        boolean root = (!jsonQuery.isSubQuery() && queryFields.containsKey(((QueryPattern)jsonQuery).name));
 
         if (root) {
-            if (queryFields.get(jsonQuery.get("name").asText()).type().equals(HGQL_QUERY_GET_FIELD)) {
-                return getSelectRoot_GET(jsonQuery);
+            if (queryFields.get(((QueryPattern)jsonQuery).name).type().equals(HGQL_QUERY_GET_FIELD)) {
+                return getSelectRoot_GET((QueryPattern)jsonQuery);
             } else {
-                return getSelectRoot_GET_BY_ID(jsonQuery);
+                return getSelectRoot_GET_BY_ID((QueryPattern)jsonQuery);
             }
         } else {
-            return getSelectNonRoot((ArrayNode) jsonQuery, input, rootType);
+            return getSelectNonRoot((SubQueriesPattern) jsonQuery, input, rootType);
         }
     }
 
-    private String getSelectRoot_GET_BY_ID(JsonNode jsonQuery) {
+    private String getSelectRoot_GET_BY_ID(QueryPattern jsonQuery) {
 
-        Set<String> uris = new HashSet<>();
-        ArrayNode urisArray = (ArrayNode) jsonQuery.get("args").get("uris");
-        urisArray.elements().forEachRemaining(el -> uris.add(el.asText()));
-        String key = jsonQuery.get("name").asText() + urisArgSTR(uris);
-        String content = getSubQuery(jsonQuery.get("fields"), jsonQuery.get("targetName").asText());
+        Set<String> uris = (Set<String>) jsonQuery.args.get(SPARQLServiceConverter.LANG);
+        String key = jsonQuery.name + urisArgSTR(uris);
+        String content = getSubQuery(jsonQuery.fields, jsonQuery.targetType);
         return querySTR(key + content);
     }
 
 
-    private String getSelectRoot_GET(JsonNode jsonQuery) {
+    private String getSelectRoot_GET(QueryPattern jsonQuery) {
 
-        String key = jsonQuery.get("name").asText() + getArgsSTR(jsonQuery.get("args"));
-        String content = getSubQuery(jsonQuery.get("fields"), jsonQuery.get("targetName").asText());
+        String key = jsonQuery.name + getArgsSTR(jsonQuery.args);
+        String content = getSubQuery(jsonQuery.fields, jsonQuery.targetType);
         return querySTR(key + content);
     }
 
-    private String getSelectNonRoot(ArrayNode jsonQuery, Set<String> input, String rootType) {
+    private String getSelectNonRoot(SubQueriesPattern jsonQuery, Set<String> input, String rootType) {
 
         String topQueryFieldName = rootType + "_GET_BY_ID";
         String key = topQueryFieldName + urisArgSTR(input);
@@ -115,7 +118,7 @@ public class HGraphQLConverter {
         return querySTR(key + content);
     }
 
-    private String getSubQuery(JsonNode fieldsJson, String parentType) {
+    private String getSubQuery(SubQueriesPattern fieldsJson, String parentType) {
 
         Set<String> subQueryStrings = new HashSet<>();
 
@@ -124,7 +127,7 @@ public class HGraphQLConverter {
             subQueryStrings.add("_type");
         }
 
-        if (fieldsJson==null || fieldsJson.isNull()) {
+        if (fieldsJson==null || fieldsJson.subqueries == null) {
             if (subQueryStrings.isEmpty()) {
                 return "";
             } else {
@@ -132,14 +135,13 @@ public class HGraphQLConverter {
             }
         } else {
 
-            Iterator<JsonNode> fields = fieldsJson.elements();
 
-            fields.forEachRemaining(field -> {
-                ArrayNode fieldsArray = (field.get("fields").isNull()) ? null : (ArrayNode) field.get("fields");
-                String arg = (field.get("args").isNull()) ? "" : langSTR((ObjectNode) field.get("args"));
-                String fieldString = field.get("name").asText() + arg + " " + getSubQuery(fieldsArray, field.get("targetName").asText());
+            for(QueryPattern field : fieldsJson.subqueries) {
+                SubQueriesPattern fieldsArray = field.fields;
+                String arg = langSTR(field.args);
+                String fieldString = field.name + arg + " " + getSubQuery(fieldsArray, field.targetType);
                 subQueryStrings.add(fieldString);
-            });
+            }
         }
 
         if (!subQueryStrings.isEmpty()) {

@@ -8,31 +8,23 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.WebContent;
 import org.apache.jena.riot.web.HttpOp;
-import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
-import org.apache.jena.update.UpdateAction;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.system.ServiceConfig;
+import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.SPARQLEndpointExecution;
 import org.hypergraphql.datafetching.SPARQLExecutionResult;
 import org.hypergraphql.datafetching.TreeExecutionResult;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.query.pattern.Query;
+import org.hypergraphql.query.pattern.QueryPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,12 +51,22 @@ public class SPARQLEndpointService extends SPARQLService {
         return password== null? "" : password;
     }
 
+    /**
+     * Executes the given query against the SPARQL endpoint assigned to this object.
+     * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
+     * If more IRIs are provided in input then defined in VALUES_SIZE_LIMIT as limit the values are distributed over multiple queries to sta below the limit.
+     * @param query query or sub-query to be executed
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers variables for the SPARQL query
+     * @param rootType type of the query root
+     * @param schema HGQLSchema the query is based on
+     * @return Query results and IRIs for underlying queries
+     */
     @Override
-    public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
 
         LOGGER.debug(String.format("%s: Start query execution", this.getId()));
         Map<String, Set<String>> resultSet = new HashMap<>();
-        Model unionModel = ModelFactory.createDefaultModel();
         Set<Future<SPARQLExecutionResult>> futureSPARQLresults = new HashSet<>();
 
         List<String> inputList = getStrings(query, input, markers, rootType, schema, resultSet);
@@ -75,7 +77,7 @@ public class SPARQLEndpointService extends SPARQLService {
 
             Set<String> inputSubset = new HashSet<>();
             if(!inputList.isEmpty()){
-                int size = inputList.size()<VALUES_SIZE_LIMIT? inputList.size() : VALUES_SIZE_LIMIT;
+                int size = Math.min(inputList.size(), VALUES_SIZE_LIMIT);
                 inputSubset = inputList.stream().limit(size).collect(Collectors.toSet());
                 inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
@@ -86,15 +88,21 @@ public class SPARQLEndpointService extends SPARQLService {
 
         } while (inputList.size()>0);
 
-        iterateFutureResults(futureSPARQLresults, unionModel, resultSet);
+        Result result = iterateFutureResults(futureSPARQLresults, resultSet);
 
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         treeExecutionResult.setResultSet(resultSet);
-        treeExecutionResult.setModel(unionModel);
+        treeExecutionResult.setFormatedResult(result);
         executors.forEach(executorService -> executorService.shutdown());
         return treeExecutionResult;
     }
 
+    /**
+     * Executes the given SPARQL Update against the SPARQL endpoint assigned to this object.
+     * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
+     * @param update SPARQL Update
+     * @return True if the update succeeds otherwise False
+     */
     public Boolean executeUpdate(String update){
         try{
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -114,16 +122,19 @@ public class SPARQLEndpointService extends SPARQLService {
         }
     }
 
-    void iterateFutureResults (
+    Result iterateFutureResults (
             final Set<Future<SPARQLExecutionResult>> futureSPARQLResults,
-            final Model unionModel,
             Map<String, Set<String>> resultSet
     ) {
-
+        Result res = null;
         for (Future<SPARQLExecutionResult> futureExecutionResult : futureSPARQLResults) {
             try {
                 SPARQLExecutionResult result = futureExecutionResult.get();
-                unionModel.add(result.getModel());
+                if(res == null){
+                    res = result.getResult();
+                }else{
+                    res.merge(result.getResult());
+                }
                 result.getResultSet().forEach((var, uris) ->{
                     if(resultSet.get(var)== null){
                         resultSet.put(var, uris);
@@ -131,37 +142,35 @@ public class SPARQLEndpointService extends SPARQLService {
                         resultSet.get(var).addAll(uris);
                     }
                 } );
-                result.close();
 //                resultSet.putAll(result.getResultSet());
             } catch (InterruptedException
                     | ExecutionException e) {
                 e.printStackTrace();
             }
         }
+        return res;
     }
 
     /**
      * Init resultSet by inserting each marker as key with a empty set as value. Also add to the input set the URIs of
      * the id argument of the query and return them as list.
      * @param query JSON representation of a graphql query needed to extract information about query arguments
-     * @param input
+     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
      * @param markers variables for the SPARQL query
      * @param rootType type of the query root
      * @param schema HGQLSchema
-     * @param resultSet
+     * @param resultSet A Map where the markers are inserted as keys with an empty set as value
      * @return List with input values
      */
-    List<String> getStrings(JsonNode query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema, Map<String, Set<String>> resultSet) {
+    List<String> getStrings(Query query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema, Map<String, Set<String>> resultSet) {
         for (String marker : markers) {
             resultSet.put(marker, new HashSet<>());
         }
         //ToDo: Handle the _GET_BY_ID to function if the argument id is given and is not null
-        if (rootType.equals("Query")&&schema.getQueryFields().get(query.get("name").asText()).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
-            Iterator<JsonNode> uris = query.get("args").get("uris").elements();
-            while (uris.hasNext()) {
-                String uri = uris.next().asText();
-                input.add(uri);
-            }
+        if (rootType.equals(ExecutionTreeNode.ROOT_TYPE)&&schema.getQueryFields().get(((QueryPattern)query).name).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
+
+            Set<String> ids = (Set<String>) ((QueryPattern)query).args.get(SPARQLServiceConverter.ID);
+            ids.forEach(input::add);
         }
         return new ArrayList<>(input);
     }

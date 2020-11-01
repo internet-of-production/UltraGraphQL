@@ -2,17 +2,17 @@ package org.hypergraphql.datamodel;
 
 import org.apache.jena.arq.querybuilder.Order;
 import org.apache.jena.arq.querybuilder.SelectBuilder;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.sparql.lang.sparql_11.ParseException;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by szymon on 22/08/2017.
@@ -304,7 +304,7 @@ public class ModelContainer {
         }
         builder.addWhere(subject, getPropertyFromUri(predicateURI),OBJECT);
         Query query = builder.build();
-        LOGGER.debug("SPARQL query aganst the result pool: \n {}",query.toString());
+        LOGGER.debug("SPARQL query against the result pool: \n {}",query.toString());
         QueryExecution qexec = QueryExecutionFactory.create(query, this.model) ;
         ResultSet results = qexec.execSelect();
         while (results.hasNext()){
@@ -312,7 +312,7 @@ public class ModelContainer {
             final RDFNode rdfNode = next.get("?object");
             if(rdfNode.isLiteral()){
                 if(args.containsKey("lang")){
-                    if(rdfNode.asLiteral().getLanguage().equals((String) args.get("lang"))){
+                    if(rdfNode.asLiteral().getLanguage().equals(args.get("lang"))){
                         res.add(rdfNode.asLiteral().getString());
                     }
                 }else{

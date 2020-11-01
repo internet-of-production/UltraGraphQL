@@ -18,14 +18,14 @@ rlog() {
   # echo in color
   echo -e "${RED}${1}${NC}"
 }
-log "Starting HGQL server for the Nested Queries Test"
+log "Starting UGQL server for the Nested Queries Test"
 
-log "Starting HGQL 2.0.0 endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/nested_queries/config_hgql_2.0.0.json" >> logs/nested_queries/hgql_2.0.0.log &
+log "Starting UGQL 1.1.0 endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/nested_queries/config_hgql_2.0.0.json" >> logs/nested_queries/hgql_2.0.0.log &
 log "Interface running at http://localhost:8092/graphql"
 
-log "Starting HGQL 2.0.0 Standalone endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/nested_queries/config_hgql_2.0.0_standalone.json" >> logs/nested_queries/hgql_2.0.0_standalone.log &
+log "Starting UGQL 1.1.0 Standalone endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/nested_queries/config_hgql_2.0.0_standalone.json" >> logs/nested_queries/hgql_2.0.0_standalone.log &
 log "Interface running at http://localhost:8093/graphql"
 
 wait

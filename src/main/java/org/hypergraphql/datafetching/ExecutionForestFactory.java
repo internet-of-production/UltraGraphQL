@@ -27,7 +27,7 @@ public class ExecutionForestFactory {
      */
     public ExecutionForest getExecutionForest(Document queryDocument , HGQLSchema schema) {
 
-        ExecutionForest forest = new ExecutionForest();
+        ExecutionForest forest = new ExecutionForest(true);
 
         SelectionSet queryFields = selectionSet(queryDocument);
 

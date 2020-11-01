@@ -20,17 +20,20 @@ rlog() {
 }
 log "Starting HGQL server for the One Service Test"
 
-log "Starting HGQL 2.0.0 endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/one_service/config_hgql_2.0.0.json" >> logs/one_service/hgql_2.0.0.log &
-log "Interface running at http://localhost:8092/graphql"
+#log "Starting HGQL 2.0.0 endpoint in the background"
+#java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/one_service/config_hgql_2.0.0.json" >> logs/one_service/hgql_2.0.0.log &
+#log "Interface running at http://localhost:8092/graphql"
 
-log "Starting HGQL 2.0.0 Standalone endpoint in the background"
-java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/one_service/config_hgql_2.0.0_standalone.json" >> logs/one_service/hgql_2.0.0_standalone.log &
-log "Interface running at http://localhost:8093/graphql"
+#log "Starting HGQL 2.0.0 Standalone endpoint in the background"
+#java -jar ./hypergraphql-2.0.0-exe.jar --config "configs/one_service/config_hgql_2.0.0_standalone.json" >> logs/one_service/hgql_2.0.0_standalone.log &
+#log "Interface running at http://localhost:8093/graphql"
 
-log "Starting HGQL 1.0.3 endpoint in the background"
-java -jar ./hypergraphql-1.0.3-exe.jar --config "configs/one_service/config_hgql_1.0.3.json" >> logs/one_service/hgql_1.0.3.log &
-log "Interface running at http://localhost:8091/graphql"
+log "Starting UGQL 1.1.0 endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/one_service/config_ugql_1.1.0.json" >> logs/one_service/ugql_1.1.0.log &
+log "Interface running at http://localhost:8000/graphql"
 
+log "Starting UGQL 1.1.0 Standalone endpoint in the background"
+java -jar ./ultragraphql-1.1.0-exe.jar --config "configs/one_service/config_ugql_1.1.0_standalone.json" >> logs/one_service/ugql_1.1.0_standalone.log &
+log "Interface running at http://localhost:8001/graphql"
 wait
 

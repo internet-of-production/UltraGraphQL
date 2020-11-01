@@ -13,7 +13,7 @@
     {
       "id": "dataset",
       "type": "LocalModelSPARQLService",
-      "filepath": "examples/mutations/dataset.ttl",
+      "filepath": "dataset.ttl",
       "filetype": "Turtle"
     }
   ]

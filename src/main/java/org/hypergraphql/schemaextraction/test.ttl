@@ -5,59 +5,59 @@
 @prefix schema: <http://schema.org/>.
 @prefix ex: <http://example.org/>.
 
-foaf:Agent a rdfs:Class.
+foaf:Agent a rdfs:Class .
 
-foaf:DoubleAgent a rdfs:Class.
+foaf:DoubleAgent a rdfs:Class .
 
-foaf:Person a rdfs:Class.
+foaf:Person a rdfs:Class .
 
-foaf:DoubleAgent rdfs:subClassOf foaf:Agent.
+foaf:DoubleAgent rdfs:subClassOf foaf:Agent .
 
 foaf:accident a rdf:Property;
     rdfs:domain foaf:Agent;
-    rdfs:range foaf:Person.
+    rdfs:range foaf:Person .
 
 foaf:kills a rdf:Property;
     rdfs:domain foaf:Agent;
-    rdfs:range foaf:Person.
+    rdfs:range foaf:Person .
 
 foaf:strangled rdfs:subPropertyOf foaf:kills;
     rdfs:domain foaf:DoubleAgent;
     rdfs:range foaf:Person;
-    rdfs:range ex:Human.
+    rdfs:range ex:Human .
 
 foaf:poisoned rdfs:subPropertyOf foaf:kills;
     rdfs:domain foaf:DoubleAgent;
-    rdfs:range foaf:Person.
+    rdfs:range foaf:Person .
 
-foaf:poisoned owl:equivalentProperty foaf:strangled.
+foaf:poisoned owl:equivalentProperty foaf:strangled .
 
 foaf:kills rdfs:subPropertyOf foaf:accident;
     rdfs:domain foaf:Agent;
-    rdfs:range foaf:Person.
+    rdfs:range foaf:Person .
 
-ex:Human a ex:Klasse.
+ex:Human a ex:Klasse .
 
 ex:name a ex:Eigenschaft;
     schema:domainIncludes foaf:Agent;
-    rdfs:range ex:Human.
+    rdfs:range ex:Human .
 
-ex:Human owl:equivalentClass foaf:Person.
-ex:Human owl:equivalentClass foaf:Ape.
-foaf:Ape a rdfs:Class.
+ex:Human owl:equivalentClass foaf:Person .
+ex:Human owl:equivalentClass foaf:Ape .
+foaf:Ape a rdfs:Class .
 
-foaf:Ape owl:equivalentKlasse foaf:Gorilla.
-foaf:Gorilla rdf:type rdfs:Class.
+foaf:Ape owl:equivalentKlasse foaf:Gorilla .
+foaf:Gorilla rdf:type rdfs:Class .
 
-foaf:Huhn rdf:type rdfs:Class.
-foaf:Hahn rdf:type rdfs:Class.
-foaf:Huhn owl:equivalentClass foaf:Hahn.
-foaf:Huhn owl:sameAs foaf:Hahn.
+foaf:Huhn rdf:type rdfs:Class .
+foaf:Hahn rdf:type rdfs:Class .
+foaf:Huhn owl:equivalentClass foaf:Hahn .
+foaf:Huhn owl:sameAs foaf:Hahn .
 
 
 ex:relatedTo a rdf:Property;
     rdfs:domain ex:Human;
     rdfs:range ex:Human;
-    rdfs:range foaf:Person.
+    rdfs:range foaf:Person .
 
 

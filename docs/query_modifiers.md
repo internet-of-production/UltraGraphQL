@@ -8,7 +8,7 @@
 | order | fields with an array as output type |
 
 ## _id
-Allows to define a set of IRIS to query fo specific objects.
+Allows to define a set of IRIs to query fo specific objects.
 If only one ID is defined a String instead of an array acn be used.
 
 Example:

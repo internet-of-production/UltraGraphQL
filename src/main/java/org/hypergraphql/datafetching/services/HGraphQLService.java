@@ -12,6 +12,7 @@ import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.TreeExecutionResult;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.converters.HGraphQLConverter;
+import org.hypergraphql.query.pattern.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class HGraphQLService extends Service {
     private final static Logger LOGGER = LoggerFactory.getLogger(HGraphQLService.class);
 
     @Override
-    public TreeExecutionResult executeQuery(JsonNode query, Set<String> input, Set<String> markers , String rootType, HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType, HGQLSchema schema) {
 
         Model model;
         Map<String, Set<String>> resultSet;
@@ -39,8 +40,8 @@ public class HGraphQLService extends Service {
 
         TreeExecutionResult treeExecutionResult = new TreeExecutionResult();
         treeExecutionResult.setResultSet(resultSet);
-        treeExecutionResult.setModel(model);
-
+//        treeExecutionResult.setModel(model);
+        //ToDo: Integrate HGQLServices into the new Result transformation
         return treeExecutionResult;
     }
 

@@ -13,7 +13,7 @@ True if mutations fields SHOULD be generated with corresponding actions, otherwi
 > Datatype: Boolean
 
 ##mutationService
-Service id of the service on which the mutation actions are executed. The service id MUST corespond to an service that is define din services.
+Service id of the service on which the mutation actions are executed. The service id MUST correspond to a service that is defined in the services.
 > Datatype: String
 
 ## extraction
@@ -63,7 +63,7 @@ Contains a list of individual services.
 
 ### Service
 A Service object consists of the id, type and URL of the service.
-Additionally the graph in which the data is stored is given and authentication information to access this service are given.
+Additionally, the graph in which the data is stored and authentication information to access this service are given.
 >Datatype: JSON-object
 #### id
 The id of a service MUST be unique for this service and will be used to link schema entities to a corresponding service using the **@service** directive.
@@ -94,6 +94,23 @@ Username to access the service
 #### password
 Password to access the service
 >Datatype: String
+------------------------
+##prefixes
+Allows defining prefixes for namespaces that will be used for the name generation of the bootstrapping phase.
+Normally the prefixes are queried form the web or are generated if non is found. To control the used prefixes they can be
+defined here. Prefixes that are defined in this configuration overwrite any internal prefix look-up or generation.
+>Note: namespace and prefix MUST be unique
+The prefixes must be defined as follows:
+
+```json
+"prefixes":{
+    "ex": "http//example.org/",
+    "schema": "http://schema.org/"
+}
+``` 
+
+> The use  of the IRI "http://hypergraphql.org/schema/" and the prefix "hgqls" are permitted as they are used for internal
+> schema relations and auxiliary structures. If they are defined anyway, they are filtered out.
 
 ## Example configuration
 ### Configuration with extraction and SPARQLEndpointService
@@ -118,11 +135,15 @@ Password to access the service
       "user": "admin",
       "password": "admin"
     }
-  ]
+  ],
+  "prefixes":{
+      "ex": "http//example.org/",
+      "schema": "http://schema.org/"
+  }
 }
 ```
 
-### Configuration with predefined schema and an local RDF Dataset
+### Configuration with predefined schema and a local RDF Dataset
 ```json
 {
   "name": "hgql-example-with-sparql",

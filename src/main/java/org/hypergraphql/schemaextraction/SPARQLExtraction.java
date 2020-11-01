@@ -1,6 +1,5 @@
 package org.hypergraphql.schemaextraction;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -12,19 +11,13 @@ import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFParser;
-import org.apache.jena.riot.system.ErrorHandlerFactory;
 import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.update.UpdateAction;
-import org.hypergraphql.exception.HGQLConfigurationException;
-import org.hypergraphql.services.HGQLConfigService;
-import org.hypergraphql.util.LangUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * A SPARQLExtraction  obtains the mapping configuration and the extraction query and is then able to extract the RDF

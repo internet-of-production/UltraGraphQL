@@ -13,7 +13,7 @@ java -jar ../../build/libs/ultragraphql-<version>-exe.jar --config config.json
 ```
 e.g.:
 ```bash
-java -jar ../../build/libs/ultragraphql-1.0.0-exe.jar --config config.json
+java -jar ../../build/libs/ultragraphql-1.1.0-exe.jar --config config.json
 ```
 
 ## Sample Queries

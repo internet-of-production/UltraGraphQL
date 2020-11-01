@@ -1,0 +1,18 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix schema: <http://schema.org/>.
+@prefix ex:    <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:bob a ex:Person;
+   ex:name "Bob";
+   ex:age 42 .
+
+ex:doc_1 a ex:Document;
+   rdfs:label "Document 1";
+   owl:equivalentClass ex:doc_2 .
+
+ex:doc_2 a foaf:Document;
+   rdfs:label "Document 2" .
+

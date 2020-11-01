@@ -9,7 +9,11 @@ The dataset and configuration are the same as in the example *one_service* but w
 To start the UGQL instance of this example run the following command from this folder.
 
 ```bash
-java -jar ../../build/libs/ultragraphql-exe.jar --config config.json
+java -jar ../../build/libs/ultragraphql-<version>-exe.jar --config config.json
+```
+e.g.:
+```bash
+java -jar ../../build/libs/ultragraphql-1.1.0-exe.jar --config config.json
 ```
 
 > Performed mutations on the dataset are persisted. To reset the dataset reload it form the repository or make a local copy.

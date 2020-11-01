@@ -6,7 +6,7 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 ex:alice a ex:Person ;
-         ex:label "Alice"@de;
+         ex:label "Alice3"@de;
          ex:label "Alice1"@fr;
          ex:label "Alice2"@en;
          ex:friends ex:bob;

@@ -5,8 +5,8 @@ import graphql.schema.*;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.tdb2.store.NodeIdType;
 import org.hypergraphql.config.schema.*;
+import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.exception.HGQLConfigurationException;
@@ -133,7 +133,7 @@ public class HGQLSchema {
             }
         });
         Set<String> unionNames = unions.keySet();
-        typeNames.removeIf(s -> unionNames.contains(s));// remove the union so that it is not insertet into rdfSchema as objectType
+        typeNames.removeIf(s -> unionNames.contains(s));// remove the union so that it is not inserted into rdfSchema as objectType
         for(String unionName : unionNames){
             String unionUri = schemaNamespace + unionName;
             UnionTypeDefinition union = unions.get(unionName);
@@ -193,17 +193,11 @@ public class HGQLSchema {
 
             for (Directive dir : directives) {
                 if (dir.getName().equals("service") && type instanceof ObjectTypeDefinition) {
-                    String getQueryUri = typeUri;// + "_GET";
-//                    String getByIdQueryUri = typeUri + "_GET_BY_ID";
+                    String getQueryUri = typeUri;
 
                     rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);   //ToDo: HGQL_QUERY_FIELD and HGQL_QUERY_GET_FIELD are the same if _GET_BY_ID is removed
                     rdfSchema.insertObjectTriple(getQueryUri, RDF_TYPE, HGQL_QUERY_GET_FIELD);
                     rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getQueryUri);
-//                    rdfSchema.insertStringLiteralTriple(getQueryUri, HGQL_HAS_NAME, typeName + "_GET");
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_FIELD);
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, RDF_TYPE, HGQL_QUERY_GET_BY_ID_FIELD);
-//                    rdfSchema.insertObjectTriple(schemaNamespace + "query", HGQL_HAS_FIELD, getByIdQueryUri);
-//                    rdfSchema.insertStringLiteralTriple(getByIdQueryUri, HGQL_HAS_NAME, typeName + "_GET_BY_ID");
 
                     String outputListTypeURI = schemaNamespace + UUID.randomUUID();
 
@@ -211,7 +205,6 @@ public class HGQLSchema {
                     rdfSchema.insertObjectTriple(outputListTypeURI, HGQL_OF_TYPE, typeUri);
 
                     rdfSchema.insertObjectTriple(getQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
-//                    rdfSchema.insertObjectTriple(getByIdQueryUri, HGQL_OUTPUT_TYPE, outputListTypeURI);
 
                     if (dir.getArgument("id").getValue() instanceof ArrayValue) {
                         // Multiple services are defined for one type add all serviceIds for this type
@@ -225,20 +218,26 @@ public class HGQLSchema {
                     }
 
                 }else if (dir.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA)) {
-                    if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
-                        final List<Value> sameAs_type = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
-                        for(Value sameAs : sameAs_type){
-                            rdfSchema.insertObjectTriple(typeUri, HGQLVocabulary.HGQLS_SAME_AS, schemaNamespace + ((StringValue)sameAs).getValue());
-                        }
-                    }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue){
-                        rdfSchema.insertObjectTriple(typeUri,
-                                HGQLVocabulary.HGQLS_SAME_AS,
-                                schemaNamespace + ((StringValue)dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
+                    if(dir.getArguments().contains(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS))) {
+                        if (dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue) {
+                            final List<Value> sameAs_type = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
+                            for (Value sameAs : sameAs_type) {
+                                String sameAs_type_iri = schemaNamespace + ((StringValue) sameAs).getValue();
+                                rdfSchema.insertObjectTriple(typeUri, HGQLVocabulary.HGQLS_SAME_AS, sameAs_type_iri);
+                                rdfSchema.insertStringLiteralTriple(sameAs_type_iri, HGQL_HAS_NAME, ((StringValue) sameAs).getValue());
+                            }
+                        } else if (dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue) {
+                            String sameAs_type_name = ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue();
+                            String sameAs_type_iri = schemaNamespace + sameAs_type_name;
+                            rdfSchema.insertObjectTriple(typeUri,
+                                    HGQLVocabulary.HGQLS_SAME_AS,
+                                    sameAs_type_iri);
+                            rdfSchema.insertStringLiteralTriple(sameAs_type_iri, HGQL_HAS_NAME, sameAs_type_name);
 
+                        }
                     }
                 }
-                //ToDo: Implement the functionality for the newly defined directives
-                //ToDo: sameAs
+                //ToDo: Implement the functionality for newly defined directives
             }
 
             List<Node> typeChildren = type.getChildren();
@@ -274,14 +273,20 @@ public class HGQLSchema {
                                 if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof ArrayValue){
                                     final List<Value> sameAs_field = ((ArrayValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValues();
                                     for(Value sameAs : sameAs_field){
+                                        String sameAs_field_name = ((StringValue)sameAs).getValue();
+                                        String sameAs_field_iri = schemaNamespace + typeName + "/" + ((StringValue)sameAs).getValue();
                                         rdfSchema.insertObjectTriple(fieldURI,
                                                 HGQLVocabulary.HGQLS_SAME_AS,
-                                                schemaNamespace + typeName + "/" + ((StringValue)sameAs).getValue());
+                                                sameAs_field_iri);
+                                        rdfSchema.insertStringLiteralTriple(sameAs_field_iri, HGQL_HAS_NAME, sameAs_field_name);
                                     }
                                 }else if(dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue() instanceof StringValue) {
+                                    String sameAs_field_name = ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue();
+                                    String sameAs_field_iri = schemaNamespace + typeName + "/" + sameAs_field_name;
                                     rdfSchema.insertObjectTriple(fieldURI,
                                             HGQLVocabulary.HGQLS_SAME_AS,
-                                            schemaNamespace + typeName + "/" + ((StringValue) dir.getArgument(HGQLVocabulary.HGQL_DIRECTIVE_PARAMETER_SAMEAS).getValue()).getValue());
+                                            sameAs_field_iri);
+                                    rdfSchema.insertStringLiteralTriple(sameAs_field_iri, HGQL_HAS_NAME, sameAs_field_name);
                                 }
                             }
 
@@ -318,13 +323,19 @@ public class HGQLSchema {
             RDFNode href = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HREF);
             //RDFNode serviceNode = rdfSchema.getValueOfObjectProperty(fieldNode, HGQL_HAS_SERVICE);
             //String serviceId = rdfSchema.getValueOfDataProperty(serviceNode, HGQL_HAS_ID);   // Not used, because it is not supported in FieldConfig
-            FieldConfig fieldConfig = new FieldConfig(href.asResource().getURI());
             final List<RDFNode> sameAs_fields = rdfSchema.getValuesOfObjectProperty(fieldNode, HGQLVocabulary.HGQLS_SAME_AS);
             Set<String> sameAs = sameAs_fields.stream()
                     .map(sameAs_field -> rdfSchema.getValueOfDataProperty(sameAs_field, HGQL_HAS_NAME))
                     .collect(Collectors.toSet());
-            fieldConfig.setSameAs(sameAs);
-            fields.put(name, fieldConfig);
+
+            FieldConfig fieldConfig;
+            if(this.fields.containsKey(name)){
+                this.fields.get(name).getSameAs().addAll(sameAs);
+            }else{
+                fieldConfig = new FieldConfig(href.asResource().getURI());
+                fieldConfig.setSameAs(sameAs);
+                fields.put(name, fieldConfig);
+            }
         }
 
         List<RDFNode> queryFieldNodes = rdfSchema.getSubjectsOfObjectProperty(RDF_TYPE, HGQL_QUERY_FIELD);
@@ -338,6 +349,7 @@ public class HGQLSchema {
                 // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
                 ManifoldService manifoldService = new ManifoldService();
                 manifoldService.setParameters(queryFieldServices);
+                manifoldService.setLevel(ExecutionTreeNode.ROOT_TYPE);
                 queryFieldService = manifoldService;
             }else if(queryFieldServices.size() == 1){
                 queryFieldService = queryFieldServices.iterator().next();
@@ -377,6 +389,7 @@ public class HGQLSchema {
                     // If a query field has multiple responsible services create a ManifoldService to interact with all services through one interface
                     ManifoldService manifoldService = new ManifoldService();
                     manifoldService.setParameters(fieldOfTypeServices);
+                    manifoldService.setLevel(ExecutionTreeNode.ROOT_TYPE);
                     fieldOfTypeService = manifoldService;
                 }else if(fieldOfTypeServices.size() == 1){
                     fieldOfTypeService = fieldOfTypeServices.iterator().next();

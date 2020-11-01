@@ -14,6 +14,7 @@ public class Interface {
     private String id;
     private PrefixService prefixService;
     private Set<Field> fields = new HashSet<>();
+    private final String interfacePostfix = "_Interface";
 
     public Interface(Resource uri, PrefixService prefixService){
         this.uri = uri;
@@ -52,7 +53,7 @@ public class Interface {
      * @return Returns this interface as SDL
      */
     public String build() {
-        return String.format("interface %s {\n\t%s\n}", getId(), buildFields());
+        return "interface " + getId() + " {\n\t" + buildFields() + "\n}";
     }
     private String buildFields(){
         return this.fields.stream()
@@ -67,6 +68,6 @@ public class Interface {
     private String generateName(){
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
-        return RDFtoHGQL.graphqlNameSanitation(String.format("%s_%s_Interface", prefix, name));
+        return RDFtoHGQL.graphqlNameSanitation(prefix + "_" + name + interfacePostfix);
     }
 }

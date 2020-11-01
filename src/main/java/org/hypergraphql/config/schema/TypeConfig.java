@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class TypeConfig  {
 
-    public static enum  TYPE {
+    public enum  TYPE {
         OBJECT ,UNION, INTERFACE
     }
 

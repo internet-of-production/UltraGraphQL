@@ -1,20 +1,18 @@
 package org.hypergraphql.services;
 
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.GraphQLError;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.*;
 import graphql.language.*;
 import graphql.schema.GraphQLSchema;
-import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.datafetching.ExecutionForest;
 import org.hypergraphql.datafetching.ExecutionForestFactory;
 import org.hypergraphql.datafetching.services.LocalModelSPARQLService;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
+import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
+import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
-import org.hypergraphql.datamodel.ModelContainer;
 import org.hypergraphql.mutation.SPARQLMutationConverter;
 import org.hypergraphql.query.ValidatedQuery;
 import org.slf4j.Logger;
@@ -97,27 +95,43 @@ public class HGQLMutationService {
         ExecutionForest queryExecutionForest =
                 new ExecutionForestFactory().getExecutionForest(document, hgqlSchema);
 
-        ModelContainer client = new ModelContainer(queryExecutionForest.generateModel());
-
+//        ModelContainer client = new ModelContainer(queryExecutionForest.generateModel());
+        Result formattedResult = queryExecutionForest.generateModel();
+//        ObjectMapper mapper = new ObjectMapper();
         if (acceptType == null) {
-            executionInput = ExecutionInput.newExecutionInput()
-                    .query(query)
-                    .context(client)
-                    .build();
+//            executionInput = ExecutionInput.newExecutionInput()
+//                    .query(query)
+//                    .context(client)
+//                    .build();
+//
+//
+//            qlResult = graphql.execute(executionInput);
 
-
-            qlResult = graphql.execute(executionInput);
-
-            data.putAll(qlResult.getData());
+            if(formattedResult instanceof ObjectResult){
+                Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
+                System.out.println(json);
+                data.putAll(json);
+            }else{
+                LOGGER.error("Result of query should not be a single JSON Array");
+            }
             data.put("@context", queryExecutionForest.getFullLdContext());
 
-            if (qlResult != null) {
+            if (data != null) {
                 result.put("data", data);
-                errors.addAll(qlResult.getErrors());
+                //ToDo: Add the error messages from the result object
+//                errors.addAll(qlResult.getErrors());
             }
         } else {
-            result.put("data", client.getDataOutput(acceptType));
+            result.put("data", formattedResult.generateJSON());
         }
+        //ToDo: Improve the Error build-up
+        if(formattedResult.getErrors() != null && !formattedResult.getErrors().equals("")){
+            final GraphQLError graphQLError = GraphqlErrorBuilder.newError()
+                    .message(formattedResult.getErrors())
+                    .build();
+            errors.add(graphQLError);
+        }
+
         return result;
     }
 }

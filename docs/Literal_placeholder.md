@@ -27,8 +27,8 @@ For the placeholder object and field the name space hgqls was chosen to avoid in
 >The name and name space of the placeholder object can be configured in the HGQL_Vocabulary class, but it has to be considered that changing the default value can lead to incompatibility issues and incase the object name ic changed it would also require to adjust the extraction query.
 
 >It should be mentioned that the placeholder object for literals is only generated if besides a String as output type also at least one other output type is defined.
-##Example
-###Dataset
+## Example
+### Dataset
 ```
 ex:Bob a ex:Person;
     ex:name "Bob";
@@ -40,7 +40,7 @@ ex:addr742ET a ex:Address;
     ex:street_name "Evergreen Terrace";
     ex:house_number "742".
 ```
-###HGQL Schema
+### HGQL Schema
 ```GraphQl
 interface ex_Address_Interface {
 
@@ -72,7 +72,7 @@ type ex_Address implements ex_address_OutputType & ex_Address_Interface @service
 
 ```
 
-###GraphQL query
+### GraphQL query
 ```
 {ex_Person
     ex_name
@@ -87,8 +87,10 @@ type ex_Address implements ex_address_OutputType & ex_Address_Interface @service
 }
 ```
 
-###JSON Representation of the Query
+### UGQL Representation of the Query
 
+> As from **UGQL 1.1.0 or higher** the JSON representation of the query is replaced by java objects with the same structure.
+> The JSON object below is therefore still valid to express the structure and naming of the UGQL representation of the GQL query since the SPARQL variable naming scheme did not change.
 
 ```json
 {
@@ -154,7 +156,7 @@ type ex_Address implements ex_address_OutputType & ex_Address_Interface @service
 ```
 
 
-###SPARQL Translation of the Query
+### SPARQL Translation of the Query
 ```sparql
 SELECT *
 WHERE
@@ -188,29 +190,8 @@ WHERE
 
 
 
-###Result enhancement
+### Result enhancement
 
-The result of the query is a mapping from result resources (IRIs and Literals) to corresponding query variables. During the result processing the results get enhanced with information of the schema.
-The single IRIs get transformed to complete triples so that the query resolver defined in the GraphQl schema are able to retrieve the information corretlly.
-
-Example:
-Let the result to the Query above be the following
- - ?x_1 = <http://example.org/Bob>
- - ?x_1_2 = "Bob"
- - ?x_1_1_y_1 = <http://example.org/addr742ET>
- -  ?x_1_1_y_1_1 = "742"
- -  ?x_1_1_y_2 = "742 Evergreen Terrace"
-
-The getModelFromResults method then transforms the results to the following triples.
-```rdf
-http://example.org/Bob @http://example.org/address http://example.org/addr742ET;
-http://example.org/Bob @http://example.org/name "Bob";
-http://example.org/Bob @http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://example.org/Person;
-http://hypergraphql.org/query @http://hypergraphql.org/query/ex_Person http://example.org/Bob;
- http://example.org/addr742ET @http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://example.org/Address;
- http://example.org/addr742ET @http://example.org/house_number "742".
- ex:Bob ex:address  hgqls:x_1_1_y_2.
- hgqls:x_1_1_y_2 rdf:type hgqls:Literal.
- hgqls:x_1_1_y_2 hgqls:string "742 Evergreen Terrace".
-
-```
+The result of the query is a mapping from result resources (IRIs and Literals) to corresponding query variables. 
+During the result transformation the results for the literal placeholder need to be converted to the literal placeholder structure to keep the result schema compliant.
+The results are therefore inserted with the structural overhead of the placeholder structure to the final result format.

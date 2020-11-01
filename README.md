@@ -1,13 +1,15 @@
-# <img src="./docs/figures/hypergraphql-logo.svg" width="30"> UltraGraphQL
+# [<img src="./docs/figures/HyperGraphQL.png" width="30">](hypergraphql-logo.svg) UltraGraphQL
 UltraGraphQL is a [GraphQL](https://graphql.org/) interface for querying and modifying RDF data on the Web.
 It extends [HyperGraphQL](https://www.hypergraphql.org/) by providing a automatic bootstrapping phase of the service and a more feature rich schema support with additional support for GraphQL mutations.
 Because it is based on HyperGraphQL features like the support of federated querying and exposing data from multiple linked data services using GraphQL query language and schemas were maintained and extended.
 The core of the response is a JSON-LD object, which extends the standard JSON with the JSON-LD context enabling semantic disambiguation of the contained data.
 
+![](./docs/figures/ugql_linked_data_access.png)
+
 ## Features
 
 ### Bootstrapping (OPTIONAL)
-> Only needs to be done if the schema is not known
+> Only needs to be done if the schema is not known or was updated
 
 > Requirements: All service of the type SPARQLEndpointService **MUST** allow *SPARQL 1.1* queries and the runtime limitation **SHOULD** be deactivated because the schema summarization can have a long execution time on large datasets.
 
@@ -17,7 +19,7 @@ The default [extraction query](./docs/schema_extraction_query.md) and [schema vo
 This [example](./examples/extended_mapping/README.md) shows how to configure the schema vocabulary and the effect those changes.
 If multiple service are defined in the configuration the schema is summarized on all services and then mapped to one unified schema
 
-<img src="./docs/figures/bootstrapping_example.svg">
+![Abstract example of the schema summarization and mapping](./docs/figures/bootstrapping_example.png  "Abstract overview of the bootstrapping phase")
 
 ### Queries
 For each object type of the provided or extracted schema a query field is generated.
@@ -27,7 +29,7 @@ To test the different features of UGQL the provided [examples](examples/README.m
 
 > Note: The service MUST not be defined in the query. Based on the UGQL schema (UGQLS) the different services will be queried accordingly.
 
-<img src="./docs/figures/ugql_query_schematic.svg">
+[![](./docs/figures/ugql_query_schematic.png)](./docs/figures/ugql_query_schematic.svg)
 
 ### Mutations
 Insert and delete mutations are [generated](./docs/translation_phase.md#mutation-translation) for each object type of the UGQLS which corresponds to the output type of the mutation allowing to directly query the modified data.
@@ -81,6 +83,8 @@ java -jar build/libs/<exe-jar> --config <path to config>
 
 For example UGQL service setups look into the [examples](examples/README.md) and their configurations.
 
+-----------------------------------------
+
 ## Differences to HyperGraphQL
 - Automatic bootstrapping phase (through schema summarization)
   - Configurable summarization querying
@@ -94,6 +98,7 @@ For example UGQL service setups look into the [examples](examples/README.md) and
 - Filter options now also avaliable for fields (prior only avaliable for the root query fields)
 - Simplified query naming schema
 - Additional web server framework to host the UltraGraphQL instance to allow multiple instances running on the same system
+- Simplified and more efficient result transformation (v1.1.0 or higher)
 
 ### License note:
  This software is a further development of HyperGraphQL which has been developed and is maintained by [Semantic Integration Ltd.](http://semanticintegration.co.uk). It is released under Apache License 2.0. See [LICENSE.TXT](https://github.com/semantic-integration/hypergraphql/blob/master/LICENSE.TXT) for more infromation.

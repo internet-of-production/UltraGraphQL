@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQLError;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.eclipse.jetty.util.Jetty;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.services.HGQLRequestService;
 import org.slf4j.Logger;
@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.before;
-
-//import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 
 /**
  * Created by szymon on 05/09/2017.
@@ -87,6 +85,15 @@ public class Controller {
         put("text/ntriples", false);
         put("text/n3", false);
     }};
+
+    public Controller(){
+
+    }
+
+    private Controller(Service hgqlService, HGQLConfig config) {
+        this.hgqlService = hgqlService;
+        this.config = config;
+    }
 
     /**
      * Starts the HGQL REST API.
@@ -157,7 +164,6 @@ public class Controller {
             res.type(contentType);
 
             Map<String, Object> result = service.results(query, mime);
-
             List<GraphQLError> errors = (List<GraphQLError>) result.get("errors");
             if (!errors.isEmpty()) {
                 res.status(400);
@@ -250,13 +256,22 @@ public class Controller {
      * Starts the HGQL REST api over the apache cxf framework.
      */
     private void startCXF() {
+//        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
+//        sf.setServiceBean(this);
+//        //sf.setResourceClasses(Controller.class);
+//        //sf.setResourceProvider(Controller.class,
+//        //        new SingletonResourceProvider(this));
+//        sf.setAddress(String.format("http://localhost:%s/",config.getGraphqlConfig().port()));
+//
+//        sf.create();
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setServiceBean(this);
-        //sf.setResourceClasses(Controller.class);
-        //sf.setResourceProvider(Controller.class,
-        //        new SingletonResourceProvider(this));
+        sf.setResourceClasses(Controller.class);
+        sf.setResourceProvider(Controller.class, new SingletonResourceProvider(new Controller(this.hgqlService, this.config)));
         sf.setAddress(String.format("http://localhost:%s/",config.getGraphqlConfig().port()));
-
+        BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
+        JAXRSBindingFactory factory = new JAXRSBindingFactory();
+        factory.setBus(sf.getBus());
+        manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
         sf.create();
     }
 
