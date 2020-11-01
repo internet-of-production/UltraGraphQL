@@ -502,6 +502,7 @@ public class RDFtoHGQL {
 
     /**
      * Inverts the given map by making the key to the new value and vice versa.
+     * If the given map is null, null is returned.
      * Example:
      *    1->"Bob"
      *    2->"Alice"
@@ -516,6 +517,9 @@ public class RDFtoHGQL {
      * @return Returns the inversion of the given map
      */
     public static <V, K> Map<V, K> invert(Map<K, V> map) {
+        if(map == null){
+            return null;
+        }
         return map.entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
