@@ -15,7 +15,7 @@ public abstract class Result <T>{
     String alias;
     Map<String, Object> args;  // arguments defined for the query field
     boolean isList = false;
-    String errors = "";   // Contains the errors that occur during the result transformation
+    String errors = "";   // Contains the errors that occur during the result transformation   //ToDo: Change to List<GraphQLError>
 
     /**
      * Initialize Result object with a id and name

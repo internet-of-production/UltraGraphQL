@@ -1,10 +1,7 @@
 package org.hypergraphql.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.GraphQLError;
+import graphql.*;
 import graphql.language.*;
 import graphql.schema.GraphQLSchema;
 import org.hypergraphql.config.system.HGQLConfig;
@@ -127,6 +124,14 @@ public class HGQLMutationService {
         } else {
             result.put("data", formattedResult.generateJSON());
         }
+        //ToDo: Improve the Error build-up
+        if(formattedResult.getErrors() != null && !formattedResult.getErrors().equals("")){
+            final GraphQLError graphQLError = GraphqlErrorBuilder.newError()
+                    .message(formattedResult.getErrors())
+                    .build();
+            errors.add(graphQLError);
+        }
+
         return result;
     }
 }

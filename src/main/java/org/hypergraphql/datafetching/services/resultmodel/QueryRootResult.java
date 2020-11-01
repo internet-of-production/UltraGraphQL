@@ -36,6 +36,7 @@ public class QueryRootResult extends Result<Map<String, Object>> {
             String name = entry.getValue().alias == null ? entry.getValue().name : entry.getValue().alias;
             if(entry.getValue() instanceof ObjectResult){
                 field.putAll(((ObjectResult)entry.getValue()).generateJSON());
+                this.errors += entry.getValue().errors;
             }else{
 
             }
