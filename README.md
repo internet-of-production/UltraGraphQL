@@ -6,6 +6,17 @@ The core of the response is a JSON-LD object, which extends the standard JSON wi
 
 ![](./docs/figures/ugql_linked_data_access.png)
 
+## Table of Contents
+* [Features](#features)
+   * [Bootstrapping](#bootstrapping-optional)
+   * [Queries](#queries)
+   * [Mutations](#mutations)
+* [Examples](#examples)
+* [Getting started](#getting-started)
+* [Documentation](#documentation)
+* [Differences to HyperGraphQL](#differences-to-hypergraphql)
+* [Licence note](#license-note)
+
 ## Features
 
 ### Bootstrapping (OPTIONAL)
@@ -82,6 +93,10 @@ java -jar build/libs/<exe-jar> --config <path to config>
 ```
 
 For example UGQL service setups look into the [examples](examples/README.md) and their configurations.
+
+
+## Documentation
+A detailed documentation about the endpoint configuration, query writing and internal query translation is provided [here](./docs/README.md).
 
 -----------------------------------------
 
