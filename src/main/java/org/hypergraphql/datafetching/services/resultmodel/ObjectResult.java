@@ -181,6 +181,10 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     @Override
     public void merge(Result result) {
+        if(result == null){
+            // Nothing need to be merged
+            return;
+        }
         if(this.name.equals(result.name) && result instanceof ObjectResult){
             for(String entry : ((ObjectResult) result).subfields.keySet()){
                 if(this.subfields.containsKey(entry)){

@@ -351,7 +351,7 @@ class ApplicationTest {
     }
 
     private JSONObject getConfig(String configfile) throws IOException {
-        String file = Files.readString(Paths.get(configfile));
+        String file = new String(Files.readAllBytes(Paths.get(configfile)));
         final JSONObject jsonObject = new JSONObject(file);
         return jsonObject;
     }
