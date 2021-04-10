@@ -119,7 +119,11 @@ public class ObjectResult extends Result<Map<String, Object>> {
                 }else{
                     final Map<String, Object> value = new HashMap<>();
                     this.subfields.entrySet().iterator().next().getValue().forEach((s, result) -> {
-                        value.put(s, result.generateJSON());
+                        if(result instanceof ObjectResult){
+                            value.put(s, ((ObjectResult)result).generateJSON().get(s));
+                        }else{
+                            value.put(s, result.generateJSON());
+                        }
                         this.errors += result.errors;
                     });
                     field.put(fieldName,value);
@@ -182,7 +186,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
     @Override
     public void merge(Result result) {
         if(result == null){
-            // Nothing need to be merged
+            // Nothing needs to be merged
             return;
         }
         if(this.name.equals(result.name) && result instanceof ObjectResult){
