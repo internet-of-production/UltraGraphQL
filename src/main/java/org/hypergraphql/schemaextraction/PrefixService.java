@@ -98,12 +98,12 @@ public class PrefixService {
      * @return Prefix of the given namespace, if none is found return empty string
      */
     private String fetchPrefix(String namespace) {
-        String query_uri = "https://prefix.cc/reverse";
+        String query_uri = "http://prefix.cc/reverse";
         URIBuilder builder = new URIBuilder();
         if(namespace.endsWith("#")){
             namespace = namespace.substring(0, namespace.length() - 1);
         }
-        builder.setScheme("https").setHost("prefix.cc").setPath("/reverse")
+        builder.setScheme("http").setHost("prefix.cc").setPath("/reverse")
                 .setParameter("uri", namespace)
                 .setParameter("format", "json");
         URI uri = null;
@@ -146,12 +146,5 @@ public class PrefixService {
         for( int i = 0; i < len; i++ )
             sb.append( ABC.charAt( random.nextInt(ABC.length() ) ));
         return sb.toString();
-    }
-
-    //Only for testing
-    public static void main(String[] args) {
-        PrefixService preSer = new PrefixService();
-        System.out.println(preSer.randomString(4));
-        System.out.println(preSer.fetchPrefix("http://dbpedia.org/ontology/Person"));
     }
 }
