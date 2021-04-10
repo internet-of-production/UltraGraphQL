@@ -1,6 +1,8 @@
 package org.hypergraphql.datafetching.services;
 
 import org.apache.jena.query.ARQ;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
@@ -36,12 +38,12 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalModelSPARQLService.class);
 
-    protected Model model;
+    protected Dataset dataset;
     protected String filepath;
     protected String fileType;
 
     /**
-     * Executes the given query on the data model of this object.
+     * Executes the given query on the dataset of this object.
      * If more IRIs are provided in input then defined in VALUES_SIZE_LIMIT as limit the values are distributed over multiple queries to sta below the limit.
      * If the amount of input is to large the resulting queries are executed in parallel.
      * @param query query or sub-query to be executed
@@ -74,7 +76,7 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
 
             ExecutorService executor = Executors.newFixedThreadPool(50);
             executors.add(executor);
-            LocalSPARQLExecution execution = new LocalSPARQLExecution(query,inputSubset,markers,this, schema , this.model, rootType);
+            LocalSPARQLExecution execution = new LocalSPARQLExecution(query,inputSubset,markers,this, schema , this.dataset, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
         } while (inputList.size()>0);
@@ -98,9 +100,22 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
      */
     public Boolean executeUpdate(String update){
         try{
-            UpdateAction.parseExecute(update, this.model);
+            UpdateAction.parseExecute(update, this.dataset);
             final File cwd = new File(".");
-            this.model.write( new FileOutputStream(new File(cwd, this.filepath)),this.fileType);
+            try (FileOutputStream fout = new FileOutputStream(new File(cwd, this.filepath))){
+                if(this.getLang() == Lang.TURTLE){
+                    // Turtle does not support named graphs -> All data is located in the default graph to save it as turtle file we must only save the default graph
+                    Model model = this.dataset.getDefaultModel();
+                    RDFDataMgr.write(fout, model, this.getLang());
+                }else{
+                    RDFDataMgr.write(fout, this.dataset, this.getLang());
+                }
+
+            } catch (FileNotFoundException e) {
+                throw new HGQLConfigurationException("Unable to locate local RDF file", e);
+            } catch (IOException e) {
+                throw new HGQLConfigurationException("Nonspecific IO exception", e);
+            }
             return true;
         }catch(Exception e){
             e.printStackTrace();
@@ -119,16 +134,11 @@ public class LocalModelSPARQLService extends SPARQLEndpointService{
         this.fileType = serviceConfig.getFiletype();
         LOGGER.info("Current path: " + new File(".").getAbsolutePath());
         LOGGER.info(serviceConfig.getFilepath());
-        final File cwd = new File(".");
-        try(final FileInputStream fis = new FileInputStream(new File(cwd, serviceConfig.getFilepath()));
-            final BufferedInputStream in = new BufferedInputStream(fis)) {
-            this.model = ModelFactory.createDefaultModel();
-            final Lang lang = LangUtils.forName(serviceConfig.getFiletype());
-            RDFDataMgr.read(model, in, lang);
-        } catch (FileNotFoundException e) {
-            throw new HGQLConfigurationException("Unable to locate local RDF file", e);
-        } catch (IOException e) {
-            throw new HGQLConfigurationException("Nonspecific IO exception", e);
-        }
+        Dataset dataset = RDFDataMgr.loadDataset(this.filepath, this.getLang());
+        this.dataset = dataset;
+    }
+
+    private Lang getLang(){
+        return LangUtils.forName(this.fileType);
     }
 }

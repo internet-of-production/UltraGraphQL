@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
-    private Model model;   //ToDo: This attribute is irrelevant since it can be accessed over the SPARQLEndpointService attribute
+    private Dataset model;   //ToDo: This attribute is irrelevant since it can be accessed over the SPARQLEndpointService attribute
     private String serviceId;
 
 
@@ -41,7 +41,7 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
      * @param localmodel Local data model the query will be executed on
      * @param rootType type of the query root
      */
-    public LocalSPARQLExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema , Model localmodel, String rootType) {
+    public LocalSPARQLExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema , Dataset localmodel, String rootType) {
         super(query, inputSubset, markers, sparqlEndpointService, schema, rootType);
         this.model = localmodel;   //ToDo:
         this.serviceId = sparqlEndpointService.getId();
