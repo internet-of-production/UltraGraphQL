@@ -1,5 +1,21 @@
 # Changelog
 
+#### Version 1.1.2
+- Added support for named graphs for LocalModelSPARQLService
+   - e.g. TriG, N-Quads
+- Fixed bug in query result build-up
+   - merging of complex types resulted in some cases in adding the field name twice
+- Fixed bug in the mutation SelectionSet result
+- Stabilized unittests
+   - previously the prefixes were queried from prefix.cc
+   - now they are provided by the config file to get consistent results
+- Fixed bug in config prefix mappings
+- Changed protocol of prefix fetching URL
+   - https leads to an error switched to http
+
+#### Version 1.1.1
+- Fixed bug in query result merging (only occured in multi service configuration)
+
 ### Version 1.1.0
 Changes:
  - New result transformation
