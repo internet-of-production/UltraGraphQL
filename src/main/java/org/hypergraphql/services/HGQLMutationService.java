@@ -11,6 +11,7 @@ import org.hypergraphql.datafetching.services.LocalModelSPARQLService;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
+import org.hypergraphql.datafetching.services.resultmodel.QueryRootResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.mutation.SPARQLMutationConverter;
@@ -107,9 +108,8 @@ public class HGQLMutationService {
 //
 //            qlResult = graphql.execute(executionInput);
 
-            if(formattedResult instanceof ObjectResult){
-                Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
-                System.out.println(json);
+            if(formattedResult instanceof ObjectResult || formattedResult instanceof QueryRootResult){
+                Map<String, Object> json = (Map<String, Object>) (formattedResult).generateJSON();
                 data.putAll(json);
             }else{
                 LOGGER.error("Result of query should not be a single JSON Array");
