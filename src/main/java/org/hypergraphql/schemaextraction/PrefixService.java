@@ -48,7 +48,7 @@ public class PrefixService {
             // filter out any occurrences of the internal IRI (namespace and prefix of it)
             namespaceMapping = namespaceMapping.entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(HGQL_SCHEMA_NAMESPACE) && !entry.getValue().equals(HGQL_SCHEMA_NAMESPACE_PREFIX))
-                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             this.namespaceMapping = namespaceMapping;
         }
         this.namespaceMapping.put(HGQL_SCHEMA_NAMESPACE, HGQL_SCHEMA_NAMESPACE_PREFIX);
