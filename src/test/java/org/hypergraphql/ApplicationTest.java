@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
@@ -257,10 +258,8 @@ class ApplicationTest {
                 }
             }
         }
-//        while (true){
-//
-//        }
     }
+
     //ToDo: Finish this test
     //@Test
     void foreignEndpointTest() throws Exception {
@@ -302,9 +301,28 @@ class ApplicationTest {
             }
         }
         assertTrue(hasLiteral && hasObject);
-//        while(true){
-//
-//        }
+    }
+
+    @Test
+    void testTrigDataHandling() throws Exception{
+        String config = "build/resources/test/evaluation/trig/config.json";
+        String query = "{City{_id label located_in{_id label consists_of{_id label}}}}";
+        JSONObject json_response = sendPost(config, query);
+        System.out.println(json_response.toString(3));
+        assertTrue(json_response != null);
+        assertTrue(json_response.has("data"));
+        assertTrue(json_response.getJSONObject("data").has("City"));
+        for (Object res_item : json_response.getJSONObject("data").getJSONArray("City")){
+            JSONObject res = (JSONObject) res_item;
+            assertTrue(res.has("_id"));
+            String[] match_id = {"http://www.example.org/#Berlin", "http://www.example.org/#Aachen"};
+            String match = res.getString("_id");
+            assertTrue(Arrays.stream(match_id).anyMatch(s -> s.equals(match)));
+            assertTrue(res.has("located_in"));
+            assertEquals("http://www.example.org/#Germany", res.getJSONObject("located_in").getString("_id"));
+            assertTrue( res.getJSONObject("located_in").has("consists_of"));
+            assertTrue( res.getJSONObject("located_in").getJSONArray("consists_of").length() == 2);
+        }
     }
 
 

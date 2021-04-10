@@ -1,0 +1,27 @@
+@prefix ex: <http://www.example.org/#> .
+
+
+<http://www.example.com/Citystore> {
+    ex:Aachen a ex:City ;
+        ex:label "Aachen" ;
+        ex:located_in ex:Germany .
+    ex:Berlin a ex:City ;
+            ex:label "Berlin" ;
+            ex:located_in ex:Germany .
+    ex:Germany a ex:Country .
+}
+
+<http://www.example.com/Countrystore> {
+    ex:Germany a ex:Country ;
+            ex:label "Germany"@en , "Deutschland"@de ;
+            ex:consists_of ex:Bavaria, ex:Berlin .
+    ex:Berlin a ex:State .
+    ex:Bavaria a ex:State .
+}
+
+<http://www.example.com/Statestore> {
+    ex:Berlin a ex:State ;
+            ex:label "Berlin" .
+    ex:Bavaria a ex:State ;
+            ex:label "Bavaria"@en , "Bayern"@de .
+}

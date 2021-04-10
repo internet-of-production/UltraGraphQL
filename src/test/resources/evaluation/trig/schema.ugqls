@@ -1,0 +1,23 @@
+type __Context {
+	label:      _@href(iri: "http://www.example.org/#label")
+    City:       _@href(iri: "http://www.example.org/#City")
+    Country:    _@href(iri: "http://www.example.org/#Country")
+    State:      _@href(iri: "http://www.example.org/#State")
+    located_in: _@href(iri: "http://www.example.org/#located_in")
+    consists_of:_@href(iri: "http://www.example.org/#consists_of")
+}
+
+type City @service(id:"Citystore") {
+	label: [String] @service(id:"Citystore")
+	located_in: Country @service(id:"Citystore")
+}
+
+type Country @service(id:["Countrystore"]) {
+	label: [String] @service(id:"Countrystore")
+	consists_of: [State] @service(id:"Countrystore")
+}
+
+type State @service(id:["Statestore"]) {
+	label: [String] @service(id:["Statestore"])
+}
+

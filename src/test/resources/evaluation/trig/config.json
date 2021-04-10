@@ -1,0 +1,33 @@
+{
+  "name": "pxpro",
+  "schema": "schema.ugqls",
+  "server": {
+    "port": 8081,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+
+    {
+      "id": "Citystore",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/trig/data.trig",
+      "graph": "http://www.example.com/Citystore",
+      "filetype": "TRIG"
+    },
+    {
+      "id": "Countrystore",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/trig/data.trig",
+      "graph": "http://www.example.com/Countrystore",
+      "filetype": "TRIG"
+    },
+    {
+      "id": "Statestore",
+      "type": "LocalModelSPARQLService",
+      "filepath": "build/resources/test/evaluation/trig/data.trig",
+      "graph": "http://www.example.com/Statestore",
+      "filetype": "TRIG"
+    }
+  ]
+}
