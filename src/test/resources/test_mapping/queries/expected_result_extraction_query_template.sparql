@@ -10,6 +10,9 @@ INSERT {
   ?predicate a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
     <http://www.w3.org/2000/01/rdf-schema#domain> ?pDomain;
     <http://www.w3.org/2000/01/rdf-schema#range> ?pRange.
+
+  ?pDomain a <http://www.w3.org/2000/01/rdf-schema#Class>.
+  ?pRange a <http://www.w3.org/2000/01/rdf-schema#Class>.
 }
 WHERE {
   {
@@ -19,8 +22,9 @@ WHERE {
           OPTIONAL { ?s a ?pDomain}
           OPTIONAL { ?o a ?pRange}
         }}
-        ?x (<http://www.w3.org/2000/01/rdf-schema#subPropertyOf>|<http://www.w3.org/2002/07/owl#equivalentProperty>|^(<http://www.w3.org/2002/07/owl#equivalentProperty>)|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>))* ?predicate FILTER(!isBlank(?predicate))
+        ?x (<http://www.w3.org/2000/01/rdf-schema#subPropertyOf>|<http://www.w3.org/2002/07/owl#equivalentProperty>|^(<http://www.w3.org/2002/07/owl#equivalentProperty>)|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>))* ?predicate
     }
+    FILTER(!isBlank(?predicate))
   }
 };
 
@@ -53,8 +57,9 @@ WHERE {
   {
     ?y a <http://www.w3.org/2000/01/rdf-schema#Class>
     SERVICE <TESTService_2>{
-        ?y (<http://www.w3.org/2000/01/rdf-schema#subClassOf>|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>)|<http://www.w3.org/2002/07/owl#equivalentClass>|^(<http://www.w3.org/2002/07/owl#equivalentClass>))+ ?concept FILTER(!isBlank(?concept))
+        ?y (<http://www.w3.org/2000/01/rdf-schema#subClassOf>|<http://www.w3.org/2002/07/owl#sameAs>|^(<http://www.w3.org/2002/07/owl#sameAs>)|<http://www.w3.org/2002/07/owl#equivalentClass>|^(<http://www.w3.org/2002/07/owl#equivalentClass>))+ ?concept
     }
+    FILTER(!isBlank(?concept))
   }
 };
 

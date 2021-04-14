@@ -7,12 +7,12 @@
 @prefix ex: <http://example.org/>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
-sa:Person a sa:Human.
-sa:Person owl:sameAs foaf:Person.
+sa:Person a sa:Human .
+sa:Person owl:sameAs foaf:Person .
 
-sa:Car a sa:vehicle.
+sa:Car a sa:vehicle .
 
-sa:vehicle owl:sameAs ex:vehicle.
-ex:vehicle a rdfs:Class.
+sa:vehicle owl:sameAs ex:vehicle .
+ex:vehicle a rdfs:Class .
 
-ex:car ex:has ex:door.
+ex:car ex:has ex:door .

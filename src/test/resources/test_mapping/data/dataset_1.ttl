@@ -5,11 +5,11 @@
 @prefix hgqls: <http://hypergraphql.org/mapping/>.
 @prefix ex: <http://example.org/>.
 
-ex:Polo a ex:car.
-ex:Fox a ex:car.
-ex:vehicle rdf:type rdfs:Class.
-ex:Fox rdfs:subClassOf ex:road_vehicle.
-ex:road_vehicle a ex:vehicle.
-ex:Polo ex:has ex:Wooddoor.
+ex:Polo a ex:car .
+ex:Fox a ex:car .
+ex:vehicle rdf:type rdfs:Class .
+ex:Fox rdfs:subClassOf ex:road_vehicle .
+ex:road_vehicle a ex:vehicle .
+ex:Polo ex:has ex:Wooddoor .
 
-ex:Wooddoor a ex:door.
+ex:Wooddoor a ex:door .

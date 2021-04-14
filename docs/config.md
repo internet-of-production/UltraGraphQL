@@ -94,6 +94,14 @@ Username to access the service
 #### password
 Password to access the service
 >Datatype: String
+
+#### exclude_from_extraction
+If set to true the service will be ignored during the [extraction phase](./bootstrapping.md), but can be used during the [translation phase](./translation_phase.md).
+
+>Datatype: Boolean
+> 
+> Default value: false
+
 ------------------------
 ##prefixes
 Allows defining prefixes for namespaces that will be used for the name generation of the bootstrapping phase.

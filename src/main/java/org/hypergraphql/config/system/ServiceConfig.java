@@ -13,6 +13,7 @@ public class ServiceConfig {
     private String password;
     private String filepath;
     private String filetype;
+    private boolean exclude_from_extraction;
 
     @JsonCreator
     public ServiceConfig(@JsonProperty("id") String id,
@@ -22,7 +23,8 @@ public class ServiceConfig {
                          @JsonProperty("user") String user,
                          @JsonProperty("password") String password,
                          @JsonProperty("filepath") String filepath,
-                         @JsonProperty("filetype") String filetype
+                         @JsonProperty("filetype") String filetype,
+                         @JsonProperty(value = "exclude_from_extraction",defaultValue = "false") boolean exclude_from_extraction
     ) {
         this.id = id;
         this.type = type;
@@ -32,6 +34,7 @@ public class ServiceConfig {
         this.password = password;
         this.filepath = filepath;
         this.filetype = filetype;
+        this.exclude_from_extraction = exclude_from_extraction;
     }
 
     public String getId() {
@@ -62,6 +65,9 @@ public class ServiceConfig {
     }
     public String getPassword() {
         return password;
+    }
+    public boolean isExcludeFromExtraction(){
+        return exclude_from_extraction;
     }
 
     protected void setUrl(final String url) {

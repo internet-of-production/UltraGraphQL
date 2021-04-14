@@ -58,7 +58,7 @@ class ExtractionControllerTest {
 
     @BeforeEach
     void setUp() throws FileNotFoundException {
-        server_1_setup();
+        //server_1_setup();
         server_2_setup();
         String inputFileName = "./src/test/resources/test_mapping/mapping.ttl";
         mapping = ModelFactory.createDefaultModel();
@@ -67,18 +67,15 @@ class ExtractionControllerTest {
 
     @AfterEach
     void tearDown() {
-        server_1_tearDown();
         server_2_tearDown();
     }
 
     @Test
     void getHGQLSchema() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
-        final ServiceConfig config_1 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_1.json"), ServiceConfig.class);
         final ServiceConfig config_2 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_2.json"), ServiceConfig.class);
         final ServiceConfig config_3 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_3.json"), ServiceConfig.class);
         List<ServiceConfig> services = new ArrayList<ServiceConfig>();
-        services.add(config_1);
         services.add(config_2);
         services.add(config_3);
         ExtractionController controller = new ExtractionController(services,mapping,readFile(template_query_file_path));
@@ -86,17 +83,23 @@ class ExtractionControllerTest {
         log.info(schema);
     }
 
-    private void server_1_setup() throws FileNotFoundException {
-        model_1 = ModelFactory.createDefaultModel();
-        String inputFileName = "./src/test/resources/test_mapping/data/dataset_1.ttl";
-        model_1.read(new FileInputStream(inputFileName),null,"TTL");
-        ds1 = DatasetFactory.create(model_1);
-        server1 = FusekiServer.create()
-                .add(NAME_DATASET, ds1)
-                .setPort(8001)
-                .build();
-        server1.start();
+    @Test
+    /*
+    Test if services that are configured as excluded from extraction are not called during the extraction process
+     */
+    void testServiceExclusion() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final ServiceConfig config_1 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_1.json"), ServiceConfig.class);
+        final ServiceConfig config_2 = mapper.readValue(new FileInputStream("./src/test/resources/test_mapping/service_2.json"), ServiceConfig.class);
+        List<ServiceConfig> services = new ArrayList<ServiceConfig>();
+        services.add(config_1);
+        services.add(config_2);
+        ExtractionController controller = new ExtractionController(services,mapping,readFile(template_query_file_path));
+        String schema = controller.getHGQLSchema();
+        log.debug(schema);
+        assertFalse(schema.contains("Local-dataset-extraction-excluded"));
     }
+
 
     private void server_2_setup() throws FileNotFoundException {
         model_2 = ModelFactory.createDefaultModel();

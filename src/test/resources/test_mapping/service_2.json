@@ -2,7 +2,6 @@
   "id": "Service_2_endpont",
   "type": "SPARQLEndpointService",
   "url": "http://localhost:8002/dataset",
-  "graph": "http://dbpedia.org",
   "user": "user1",
   "password": "pwd123"
 }

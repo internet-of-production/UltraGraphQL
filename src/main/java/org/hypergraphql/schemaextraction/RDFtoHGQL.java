@@ -31,7 +31,7 @@ public class RDFtoHGQL {
     private Model model = ModelFactory.createDefaultModel();
 
     public RDFtoHGQL(MappingConfig mappingConf){
-        this.mapConfig = mappingConf;
+        this(mappingConf, null);
     }
     public RDFtoHGQL(MappingConfig mappingConf, Map<String,String> namespace_prefixes){
         this.mapConfig = mappingConf;

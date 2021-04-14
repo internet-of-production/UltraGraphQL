@@ -31,5 +31,5 @@ rdfs:range a hgqls:fieldOutputType .
 
 # sameAs - defines equalities between schema entities
 owl:sameAs a hgqls:sameAs .
-owl:equivalentProperty a hgqls:sameAs .
-owl:equivalentClass a hgqls:sameAs .
+owl:equivalentProperty a hgqls:sharedOutputType .
+owl:equivalentClass a hgqls:implementsMutually .

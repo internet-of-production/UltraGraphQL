@@ -10,6 +10,9 @@ INSERT {
   ?predicate a rdf:Property;
     rdfs:domain ?pDomain;
     rdfs:range ?pRange.
+
+  ?pDomain a <http://www.w3.org/2000/01/rdf-schema#Class>.
+  ?pRange a <http://www.w3.org/2000/01/rdf-schema#Class>.
 }
 WHERE {
   {
@@ -20,8 +23,9 @@ WHERE {
           OPTIONAL { ?o a ?pRange}
         }}
         # x1
-        ?x (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty|owl:sameAs|^owl:sameAs)* ?predicate FILTER(!isBlank(?predicate))
+        ?x (rdfs:subPropertyOf|owl:equivalentProperty|^owl:equivalentProperty|owl:sameAs|^owl:sameAs)* ?predicate
     }
+    FILTER(!isBlank(?predicate))
   }
 };
 
@@ -54,8 +58,9 @@ WHERE {
   {
     ?y a rdfs:Class
     SERVICE ?service{
-        ?y (rdfs:subClassOf|owl:sameAs|^owl:sameAs|owl:equivalentClass|^owl:equivalentClass)+ ?concept FILTER(!isBlank(?concept))
+        ?y (rdfs:subClassOf|owl:sameAs|^owl:sameAs|owl:equivalentClass|^owl:equivalentClass)+ ?concept
     }
+    FILTER(!isBlank(?concept))
   }
 };
 

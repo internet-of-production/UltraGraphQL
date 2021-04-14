@@ -45,6 +45,9 @@ public class ExtractionController {
      */
     private void extractAndMap(){
         for (ServiceConfig conf: serviceConfigs) {
+            if(conf.isExcludeFromExtraction()){
+                continue;
+            }
             if(conf.getType().equals(SPARQL_ENDPOINT)){
                 LOGGER.debug(MessageFormat.format("Extract the schema from SPARQL endpoint {0} with auth username: {1}, password: {2}", conf.getId(), conf.getUser(), conf.getPassword()));
                 Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword(), conf.getGraph());
