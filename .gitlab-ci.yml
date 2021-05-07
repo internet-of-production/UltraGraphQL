@@ -25,5 +25,4 @@ build:
   artifacts:
     paths:
       - build/libs/*.jar
-      - *.jar
     expire_in: 1 week
