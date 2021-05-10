@@ -77,6 +77,9 @@ mutation{
 A set of examples is avaliable [here](examples/README.md), featuring different use cases and features of UGQL.
 
 ## Getting Started
+You may find prebuilt nightly binaries [here](https://git.rwth-aachen.de/i5/ultragraphql/-/jobs/artifacts/master/browse/build/libs/?job=build).
+
+### Building from Source
 To build an executable UGQL jar run
 ```bash
 gradle clean build shadowJar
